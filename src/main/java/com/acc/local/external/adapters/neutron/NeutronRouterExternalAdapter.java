@@ -135,6 +135,9 @@ public class NeutronRouterExternalAdapter implements NeutronRouterExternalPort {
                     "name", router.get("name").asText()
             );
         } catch (WebClientResponseException e) {
+            if (e.getStatusCode().value() == 404) {
+                throw new NetworkException(NetworkErrorCode.NOT_FOUND_ROUTER);
+            }
             throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_RETRIEVAL_FAILED);
         }
 
