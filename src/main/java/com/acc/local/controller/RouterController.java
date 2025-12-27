@@ -28,7 +28,7 @@ public class RouterController implements RouterDocs {
     public ResponseEntity<Object> createRouter(Authentication authentication, CreateRouterRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         routerServicePort.createRouter(request, jwtInfo.getUserId(), jwtInfo.getProjectId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override
