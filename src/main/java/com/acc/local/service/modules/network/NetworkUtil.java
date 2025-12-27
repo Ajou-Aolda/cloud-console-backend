@@ -32,7 +32,7 @@ public class NetworkUtil {
     }
 
     public boolean isNullOrEmpty(String str) {
-        return str == null || str.isEmpty();
+        return str == null || str.isEmpty() || str.isBlank();
     }
 
     public boolean isNullOrEmpty(java.util.List<?> list) {
