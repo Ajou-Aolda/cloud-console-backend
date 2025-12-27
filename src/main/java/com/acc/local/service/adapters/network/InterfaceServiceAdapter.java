@@ -114,7 +114,9 @@ public class InterfaceServiceAdapter implements InterfaceServicePort {
         }
 
         String providerNetworkId = neutronModule.getProviderNetworkId(token);
-        neutronModule.allocateExternalIpToInterface(token, providerNetworkId, interfaceId);
+        if (!neutronModule.allocateExternalIpToInterface(token, providerNetworkId, interfaceId)) {
+            throw new NetworkException(NetworkErrorCode.EXTERNAL_IP_ALLOCATION_FAILED);
+        }
     }
 
     @Override
