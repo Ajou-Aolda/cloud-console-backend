@@ -27,7 +27,7 @@ public class RouterServiceAdapter implements RouterServicePort {
     public void createRouter(CreateRouterRequest request, String userId, String projectId) {
         String token = authModule.issueProjectScopeToken(projectId, userId);
 
-        if (!networkUtil.validateResourceName(request.getRouterName())) {
+        if (!networkUtil.validateResourceName(request.getRouterName()) || request.getRouterName().equals("default-router")) {
             throw new NetworkException(NetworkErrorCode.INVALID_ROUTER_NAME);
         }
         if (!networkUtil.validateGateway(request.getIsExternal())) {
