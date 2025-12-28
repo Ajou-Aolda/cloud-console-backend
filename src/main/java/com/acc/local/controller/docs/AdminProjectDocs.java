@@ -64,11 +64,11 @@ public interface AdminProjectDocs {
 		@ApiResponse(responseCode = "403", description = "권한 없음 - API 접근 권한이 없음", content = @Content()),
 		@ApiResponse(responseCode = "500", description = "서버 오류 - 내부 서버 오류", content = @Content())
 	})
-	@PostMapping
-	ResponseEntity<CreateProjectResponse> createProject(
-		@Parameter(hidden = true) Authentication authentication,
-		@RequestBody CreateProjectRequest request
-	);
+    @PostMapping
+    ResponseEntity<CreateProjectResponse> createProject(
+        @Parameter(hidden = true) Authentication authentication,
+        @RequestBody(required = true) CreateProjectRequest request
+    );
 
 	// 3. [관리자] 프로젝트 권한목록 조회
 	@Operation(
@@ -120,9 +120,9 @@ public interface AdminProjectDocs {
 		@ApiResponse(responseCode = "403", description = "권한 없음 - API 접근 권한이 없음", content = @Content()),
 		@ApiResponse(responseCode = "500", description = "서버 오류 - 내부 서버 오류", content = @Content())
 	})
-	@PostMapping("/request")
-	ResponseEntity<Void> decideProjectRequest(
-		@Parameter(hidden = true) Authentication authentication,
-		@RequestBody DecideProjectRequestRequest request
-	);
+    @PostMapping("/request")
+    ResponseEntity<Void> decideProjectRequest(
+        @Parameter(hidden = true) Authentication authentication,
+        @RequestBody(required = true) DecideProjectRequestRequest request
+    );
 }

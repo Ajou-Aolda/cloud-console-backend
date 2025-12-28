@@ -1,7 +1,6 @@
 package com.acc.local.controller.docs;
 
 import com.acc.global.common.PageRequest;
-import com.acc.global.common.PageResponse;
 import com.acc.local.dto.auth.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,7 +52,7 @@ public interface AdminUserDocs {
     })
     @PostMapping("")
     ResponseEntity<AdminCreateUserResponse> createUser(
-            @RequestBody
+            @RequestBody(required = true)
             @Parameter(description = "사용자 생성 요청 정보", required = true)
             AdminCreateUserRequest request,
             @Parameter(hidden = true)
@@ -98,7 +97,7 @@ public interface AdminUserDocs {
     })
     @PutMapping("")
     ResponseEntity<AdminUpdateUserResponse> updateUser(
-            @RequestBody
+            @RequestBody(required = true)
             @Parameter(description = "사용자 수정 요청 정보", required = true)
             AdminUpdateUserRequest request,
             @Parameter(hidden = true)

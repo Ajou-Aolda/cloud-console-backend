@@ -55,7 +55,7 @@ public interface NoticeDocs {
     })
     @PostMapping("")
     ResponseEntity<CreateNoticeResponse> createNotice(
-            @RequestBody
+            @RequestBody(required = true)
             @Parameter(description = "공지 생성 요청 정보", required = true)
             CreateNoticeRequest request,
             @Parameter(hidden = true) Authentication authentication);

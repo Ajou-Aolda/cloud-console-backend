@@ -552,10 +552,10 @@ public interface ProjectDocs {
 		@ApiResponse(responseCode = "500", description = "서버 오류 - 내부 서버 오류", content = @Content())
 	})
 	@PostMapping("/request")
-	ResponseEntity<CreateProjectRequestResponse> createProjectRequest(
-		@Parameter(hidden = true) Authentication authentication,
-		@RequestBody CreateProjectRequestRequest createProjectRequestRequest
-	);
+    ResponseEntity<CreateProjectRequestResponse> createProjectRequest(
+            @Parameter(hidden = true) Authentication authentication,
+            @RequestBody CreateProjectRequestRequest createProjectRequestRequest
+    );
 
 	@Operation(
 		summary = "프로젝트 참여자 초대",
