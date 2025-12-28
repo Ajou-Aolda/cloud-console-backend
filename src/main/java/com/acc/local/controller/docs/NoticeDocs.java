@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public interface NoticeDocs {
 
     @Operation(
-            summary = "공지 생성",
-            description = "관리자가 공지를 생성합니다."
+            summary = "공지 생성(업서트)",
+            description = "관리자가 공지를 생성합니다. 본 시스템의 공지는 단일 개념으로 관리되며, 동일 개념의 공지가 이미 존재할 경우 기존 공지를 갱신(업서트)하는 용도로 사용됩니다. 날짜 필드(startsAt/endsAt)는 ISO-8601 형식(예: 2025-01-01T09:00:00)을 사용하세요."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -94,45 +94,6 @@ public interface NoticeDocs {
             PageRequest page,
             @Parameter(hidden = true) Authentication authentication);
 
-    @Operation(
-            summary = "공지 수정",
-            description = "관리자가 기존 공지의 내용을 수정합니다."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "공지 수정 성공",
-                    content = @Content()
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청",
-                    content = @Content()
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증 실패 - 유효하지 않은 토큰입니다.",
-                    content = @Content()
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "권한 없음 - 관리자 권한이 필요한 기능입니다.",
-                    content = @Content()
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "공지 없음 - 수정할 공지를 찾을 수 없습니다.",
-                    content = @Content()
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "서버 오류",
-                    content = @Content()
-            )
-    })
-    @PutMapping(params = "noticeId")
-    ResponseEntity<UpdateNoticeResponse> updateNotice(
-            @RequestParam @Parameter(description = "수정할 공지 ID", required = true) String noticeId,
-            @RequestBody @Parameter(description = "공지 수정 요청 정보", required = true) UpdateNoticeRequest request,
-            @Parameter(hidden = true) Authentication authentication);
+    // 공지 생성 API는 단일 공지 개념으로 동작하며,
+    // 동일 개념의 공지를 재요청 시 기존 공지를 갱신(업서트)하는 것으로 사용합니다.
 }

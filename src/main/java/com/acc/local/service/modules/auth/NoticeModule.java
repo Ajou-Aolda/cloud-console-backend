@@ -9,8 +9,6 @@ import com.acc.local.domain.model.auth.Notice;
 import com.acc.local.dto.auth.CreateNoticeRequest;
 import com.acc.local.dto.auth.CreateNoticeResponse;
 import com.acc.local.dto.auth.ListNoticesResponse;
-import com.acc.local.dto.auth.UpdateNoticeRequest;
-import com.acc.local.dto.auth.UpdateNoticeResponse;
 import com.acc.local.entity.NoticeEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.repository.ports.NoticeRepositoryPort;
@@ -78,38 +76,7 @@ public class NoticeModule {
     }
 
 
-    /**
-     * 관리자 공지사항 수정
-     */
-    @Transactional
-    public UpdateNoticeResponse adminUpdateNotice(UpdateNoticeRequest request) {
-        NoticeEntity current = noticeRepositoryPort.findById(request.noticeId())
-                .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "공지 항목을 찾을 수 없습니다."));
-
-        NoticeEntity updated = NoticeEntity.builder()
-                .noticeId(current.getNoticeId())
-                .noticeUserId(current.getNoticeUserId())
-                .noticeTitle(request.title() != null ? request.title() : current.getNoticeTitle())
-                .noticeDescription(request.content() != null ? request.content() : current.getNoticeDescription())
-                .createdAt(current.getCreatedAt())
-                .startsAt(request.startsAt() != null ? LocalDateTime.parse(request.startsAt()) : current.getStartsAt())
-                .endsAt(request.endsAt() != null ? LocalDateTime.parse(request.endsAt()) : current.getEndsAt())
-                .build();
-
-        NoticeEntity saved = noticeRepositoryPort.save(updated);
-
-        String createdBy = getUserNameById(saved.getNoticeUserId());
-
-        return UpdateNoticeResponse.from(
-                saved.getNoticeId(),
-                saved.getNoticeTitle(),
-                saved.getNoticeDescription(),
-                createdBy,
-                saved.getCreatedAt(),
-                saved.getStartsAt(),
-                saved.getEndsAt()
-        );
-    }
+    // 업데이트 로직은 단일 공지 개념에서 생성 API로 대체 (업서트)
 
 
     /**

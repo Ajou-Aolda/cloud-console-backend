@@ -5,14 +5,10 @@ import com.acc.global.common.PageResponse;
 import com.acc.local.dto.auth.CreateNoticeRequest;
 import com.acc.local.dto.auth.CreateNoticeResponse;
 import com.acc.local.dto.auth.ListNoticesResponse;
-import com.acc.local.dto.auth.UpdateNoticeRequest;
-import com.acc.local.dto.auth.UpdateNoticeResponse;
 
 public interface NoticeServicePort {
 
     CreateNoticeResponse adminCreateNotice(CreateNoticeRequest request, String requesterId);
 
     PageResponse<ListNoticesResponse> adminListNotices(PageRequest page, String requesterId);
-
-    UpdateNoticeResponse adminUpdateNotice(UpdateNoticeRequest request, String requesterId);
 }
