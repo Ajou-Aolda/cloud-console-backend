@@ -11,6 +11,8 @@ import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.service.modules.auth.NoticeModule;
 import com.acc.local.service.modules.auth.UserModule;
 import com.acc.local.service.ports.NoticeServicePort;
+import com.acc.local.dto.auth.UpdateNoticeRequest;
+import com.acc.local.dto.auth.UpdateNoticeResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,5 +40,12 @@ public class NoticeServiceAdapter implements NoticeServicePort {
         // 권한 체크
         userModule.isAdminUser(requesterId);
         return noticeModule.adminListNotices(page);
+    }
+
+    @Override
+    public UpdateNoticeResponse adminUpdateNotice(UpdateNoticeRequest request, String requesterId) {
+        // 권한 체크
+        userModule.isAdminUser(requesterId);
+        return noticeModule.adminUpdateNotice(request);
     }
 }

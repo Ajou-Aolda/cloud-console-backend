@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/admin/notices")
 @Tag(name = "Admin Notices", description = "관리자 공지 관리 API")
@@ -95,5 +92,47 @@ public interface NoticeDocs {
     ResponseEntity<PageResponse<ListNoticesResponse>> listNotice(
             @Parameter(description = "페이지 정보", required = false)
             PageRequest page,
+            @Parameter(hidden = true) Authentication authentication);
+
+    @Operation(
+            summary = "공지 수정",
+            description = "관리자가 기존 공지의 내용을 수정합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "공지 수정 성공",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 - 유효하지 않은 토큰입니다.",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 관리자 권한이 필요한 기능입니다.",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "공지 없음 - 수정할 공지를 찾을 수 없습니다.",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류",
+                    content = @Content()
+            )
+    })
+    @PutMapping(params = "noticeId")
+    ResponseEntity<UpdateNoticeResponse> updateNotice(
+            @RequestParam @Parameter(description = "수정할 공지 ID", required = true) String noticeId,
+            @RequestBody @Parameter(description = "공지 수정 요청 정보", required = true) UpdateNoticeRequest request,
             @Parameter(hidden = true) Authentication authentication);
 }

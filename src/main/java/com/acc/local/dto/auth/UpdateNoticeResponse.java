@@ -3,7 +3,7 @@ package com.acc.local.dto.auth;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
-public record CreateNoticeResponse(
+public record UpdateNoticeResponse(
         String noticeId,
         String title,
         String content,
@@ -15,9 +15,9 @@ public record CreateNoticeResponse(
         @Schema(description = "공지 종료 시각 (ISO-8601)", example = "2025-01-31T18:00:00")
         LocalDateTime endsAt
 ) {
-    public static CreateNoticeResponse from(String noticeId, String title, String content,
-                                           String createdBy, LocalDateTime createdAt,
-                                           LocalDateTime startsAt, LocalDateTime endsAt) {
-        return new CreateNoticeResponse(noticeId, title, content, createdBy, createdAt, startsAt, endsAt);
+    public static UpdateNoticeResponse from(String noticeId, String title, String content,
+                                            String createdBy, LocalDateTime createdAt,
+                                            LocalDateTime startsAt, LocalDateTime endsAt) {
+        return new UpdateNoticeResponse(noticeId, title, content, createdBy, createdAt, startsAt, endsAt);
     }
 }
