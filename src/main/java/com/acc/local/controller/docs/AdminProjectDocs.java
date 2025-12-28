@@ -50,10 +50,13 @@ public interface AdminProjectDocs {
 		@Parameter(description = "페이징 정보", required = false) @RequestParam(required = false) PageRequest page
 	);
 
-	@Operation(
-		summary = "[관리자] 프로젝트 생성",
-		description = "(아울다 관리자 전용) 프로젝트를 생성합니다."
-	)
+    @Operation(
+            summary = "[관리자] 프로젝트 생성",
+            description = "(관리자 전용) 실제 프로젝트를 생성합니다.\n\n"
+                    + "- 이 엔드포인트는 승인과 별개로, Keystone 프로젝트 생성/쿼터 적용/오너 역할 부여/기본 네트워크 생성까지 수행합니다.\n"
+                    + "- projectOwnerId는 Keystone 사용자 ID이며, 생성된 프로젝트에 PROJECT_ADMIN 역할이 부여됩니다.\n"
+                    + "- 기본 네트워크는 오너의 프로젝트 스코프 토큰으로 자동 생성됩니다."
+    )
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "프로젝트 생성 성공", content = @Content()),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청 - 입력값 오류", content = @Content()),
@@ -104,10 +107,12 @@ public interface AdminProjectDocs {
 	);
 
 	// 5. [관리자] 신규 프로젝트 생성요청 승인/거절
-	@Operation(
-		summary = "[관리자] 신규 프로젝트 생성요청 승인/거절",
-		description = "프로젝트에 대한 생성요청을 승인하거나 거절합니다."
-	)
+    @Operation(
+            summary = "[관리자] 신규 프로젝트 생성요청 승인/거절",
+            description = "프로젝트 생성요청의 상태만 승인(APPROVED)/거절(REJECTED)로 변경합니다.\n\n"
+                    + "- 이 API는 리소스를 실제로 만들지 않습니다(프로젝트 생성/쿼터/역할/네트워크 미수행).\n"
+                    + "- 실제 프로젝트 프로비저닝은 별도의 'POST /api/v1/admin/projects'에서 수행합니다."
+    )
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "요청 처리 성공", content = @Content()),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청 - 처리 상태값 오류 등", content = @Content()),
