@@ -21,7 +21,10 @@ public interface NoticeDocs {
 
     @Operation(
             summary = "공지 생성(업서트)",
-            description = "관리자가 공지를 생성합니다. 본 시스템의 공지는 단일 개념으로 관리되며, 동일 개념의 공지가 이미 존재할 경우 기존 공지를 갱신(업서트)하는 용도로 사용됩니다. 날짜 필드(startsAt/endsAt)는 ISO-8601 형식(예: 2025-01-01T09:00:00)을 사용하세요."
+            description = "관리자가 공지를 생성합니다.\n\n"
+                    + "- 본 시스템의 공지는 단일 개념으로 관리됩니다.\n"
+                    + "- 동일 개념의 공지가 존재하면 기존 공지를 갱신(업서트)합니다.\n"
+                    + "- 날짜 필드(startsAt/endsAt)는 ISO-8601 형식(예: 2025-01-01T09:00:00)을 사용하세요."
     )
     @ApiResponses(value = {
             @ApiResponse(
