@@ -192,7 +192,12 @@ public interface NetworkDocs {
 
     @Operation(
             summary = "네트워크 삭제",
-            description = "지정한 네트워크를 삭제합니다."
+            description = """
+                    지정한 네트워크를 삭제합니다.
+                    
+                    - default-network는 삭제할 수 없습니다.
+                    - SSH 포트포워딩은 자동으로 해제되지 않습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -207,18 +212,70 @@ public interface NetworkDocs {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음 또는 기본 네트워크 삭제 불가",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "기본 네트워크 삭제 불가",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-CAN-NOT-DELETE-NETWORK",
+                                                      "message": "해당 네트워크는 삭제할 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "네트워크 없음 - 지정한 네트워크를 찾을 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "네트워크를 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-NETWORK",
+                                                      "message": "해당 네트워크가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-DELETION-FAILED",
+                                                      "message": "Neutron 네트워크 삭제에 실패했습니다"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @DeleteMapping
