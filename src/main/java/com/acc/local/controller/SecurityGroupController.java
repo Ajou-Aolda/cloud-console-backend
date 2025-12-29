@@ -22,13 +22,16 @@ public class SecurityGroupController implements SecurityGroupDocs {
     private final SecurityGroupServicePort securityGroupServicePort;
 
     @Override
-    public ResponseEntity<Object> viewSecurityGroups(Authentication authentication, String sgId, PageRequest page) {
+    public ResponseEntity<Object> viewSecurityGroups(Authentication authentication, PageRequest page) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        if (sgId != null && !sgId.isEmpty()) {
-            return ResponseEntity.ok(securityGroupServicePort.getSecurityGroupDetail(page, sgId, jwtInfo.getProjectId(), jwtInfo.getUserId()));
-        } else {
-            return ResponseEntity.ok(securityGroupServicePort.listSecurityGroups(page, jwtInfo.getProjectId(), jwtInfo.getUserId()));
-        }
+        return ResponseEntity.ok(securityGroupServicePort.listSecurityGroups(page, jwtInfo.getProjectId(), jwtInfo.getUserId()));
+
+    }
+
+    @Override
+    public ResponseEntity<Object> viewSecurityGroup(Authentication authentication, String sgId, PageRequest page) {
+        JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
+        return ResponseEntity.ok(securityGroupServicePort.getSecurityGroupDetail(page, sgId, jwtInfo.getProjectId(), jwtInfo.getUserId()));
     }
 
     @Override

@@ -22,11 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "access-token")
 public interface SecurityGroupDocs {
 
-    @Schema(name = "보안 그룹 페이지", description = "보안 그룹 페이지 응답")
-    class SecurityGroupPageResponse extends PageResponse<ViewSecurityGroupsResponse> {}
-
     @Operation(
-            summary = "보안그룹 조회",
+            summary = "보안 그룹 목록 조회",
             description = "보안 그룹 목록이나 보안 그룹의 상세 정보(보안 규칙)를 조회합니다. <br>" +
             "sgId를 제공하면 특정 보안 그룹에 속한 규칙을 조회하며, 제공하지 않을 시 보안 그룹 목록을 조회합니다. <br>" +
             "page는 sgId 제공 여부 상관없이 사용 가능합니다."
@@ -35,45 +32,47 @@ public interface SecurityGroupDocs {
             @ApiResponse(
                     responseCode = "200",
                     description = "보안 그룹 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                @ExampleObject(
-                                        name = "보안 그룹 페이지",
-                                        value = "{\"contents\": [" +
-                                                "{\"securityGroupId\": \"123e4567-e89b-12d3-a456-426614174000\", " +
-                                                "\"securityGroupName\": \"my-security-group\", " +
-                                                "\"description\": \"This is my security group\", " +
-                                                "\"createdAt\": \"2021-01-01T00:00:00Z\"}" +
-                                                "], " +
-                                                "\"nextMarker\": \"123e4567-e89b-12d3-a456-426614174001\", " +
-                                                "\"prevMarker\": \"123e4567-e89b-12d3-a456-426614174000\", " +
-                                                "\"last\": false, " +
-                                                "\"first\": false, " +
-                                                "\"size\": 10}"),
-                                @ExampleObject(
-                                        name = "보안 그룹 상세 정보",
-                                        value = "{\"securityGroupId\": \"123e4567-e89b-12d3-a456-426614174000\", " +
-                                                "\"securityGroupName\": \"my-security-group\", " +
-                                                "\"description\": \"This is my security group\", " +
-                                                "\"createdAt\": \"2021-01-01T00:00:00Z\", " +
-                                                "\"rules\": {" +
-                                                "\"contents\": [" +
-                                                "{\"ruleId\": \"123e4567-e89b-12d3-a456-426614174001\", " +
-                                                "\"direction\": \"ingress\", " +
-                                                "\"protocol\": \"tcp\", " +
-                                                "\"portRange\": \"80:80\", " +
-                                                "\"groupId\": \"123e4567-e89b-12d3-a456-426614174000\", " +
-                                                "\"prefix\": \"192.168.0.0/24\"}" +
-                                                "], " +
-                                                "\"first\": true, " +
-                                                "\"last\": true, " +
-                                                "\"size\": 1, " +
-                                                "\"nextMarker\": null, " +
-                                                "\"prevMarker\": null}}")
-                            },
-                        schema = @Schema(oneOf = {ViewSecurityGroupsResponse.class, SecurityGroupPageResponse.class})
-                    )
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 - 유효하지 않은 토큰",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류 - 오픈스택 호출 오류",
+                    content = @Content()
+            )
+    })
+    @GetMapping("/{sgId}")
+    ResponseEntity<Object> viewSecurityGroup(
+            @Parameter(hidden = true) Authentication authentication,
+            @PathVariable String sgId,
+            @Parameter(description = "페이지 정보", required = false)
+            PageRequest page);
+
+    @Operation(
+            summary = "보안그룹 조회",
+            description = "보안 그룹 목록이나 보안 그룹의 상세 정보(보안 규칙)를 조회합니다. <br>" +
+                    "sgId를 제공하면 특정 보안 그룹에 속한 규칙을 조회하며, 제공하지 않을 시 보안 그룹 목록을 조회합니다. <br>" +
+                    "page는 sgId 제공 여부 상관없이 사용 가능합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "보안 그룹 조회 성공",
+                    content = @Content()
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -99,8 +98,6 @@ public interface SecurityGroupDocs {
     @GetMapping
     ResponseEntity<Object> viewSecurityGroups(
             @Parameter(hidden = true) Authentication authentication,
-            @RequestParam(required = false)
-            String sgId,
             @Parameter(description = "페이지 정보", required = false)
             PageRequest page);
 
