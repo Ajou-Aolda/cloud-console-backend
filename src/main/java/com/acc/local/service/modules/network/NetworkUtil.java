@@ -90,7 +90,7 @@ public class NetworkUtil {
     }
 
     public boolean hasValidRemoteSecurityGroupIdOrCidr(String remoteSecurityGroupId, String cidr) {
-        return (remoteSecurityGroupId != null && !remoteSecurityGroupId.isEmpty()) ||
+        return (remoteSecurityGroupId != null && !remoteSecurityGroupId.isEmpty() && !remoteSecurityGroupId.isBlank()) ||
                 ((cidr != null && !cidr.isEmpty()) && validateCidr(cidr));
     }
 
