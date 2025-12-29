@@ -32,7 +32,7 @@ public class SecurityGroupServiceAdapter implements SecurityGroupServicePort {
             throw new NetworkException(NetworkErrorCode.INVALID_SECURITY_GROUP_NAME);
         }
 
-        neutronModule.createSecurityGroup(token, projectId, request.getSecurityGroupName(), request.getDescription());
+        return neutronModule.createSecurityGroup(token, projectId, request.getSecurityGroupName(), request.getDescription());
     }
 
     @Override

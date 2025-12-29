@@ -44,7 +44,8 @@ public class NeutronSecurityRuleExternalAdapter implements NeutronSecurityRuleEx
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_CREATION_FAILED);
             }
 
-            return response.getBody().get("security_group_rule").get("id").asText();
+            JsonNode securityRuleNode = response.getBody().get("security_group_rule");
+            return securityRuleNode.get("id").asText();
         } catch (WebClientResponseException e) {
             log.error(e.getMessage(), e.getResponseBodyAsString(), e);
             switch (e.getStatusCode().value()) {
@@ -61,10 +62,17 @@ public class NeutronSecurityRuleExternalAdapter implements NeutronSecurityRuleEx
         try {
             ResponseEntity<JsonNode> response = securityGroupRulesAPIModule.deleteSecurityGroupRule(keystoneToken, srId);
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
+            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED);
             }
-
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_FORBIDDEN, e);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_NOT_FOUND, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED, e);
+            }
         } catch (WebClientException e) {
             throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED);
         }

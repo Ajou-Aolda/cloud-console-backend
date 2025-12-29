@@ -38,7 +38,6 @@ public interface InterfaceDocs {
                     - limit: 한 번에 조회할 인터페이스 수 (0: 제한없음)
                     - marker: 이전 페이지의 마지막 인터페이스 ID
                     - direction: 페이지네이션 방향 (next, prev)
-                    
                     - networkId로 특정 네트워크 하위의 인터페이스를 조회할 수 있습니다.
                     - instanceId로 특정 인스턴스에 연결된 인터페이스를 조회할 수 있습니다.
                     """
