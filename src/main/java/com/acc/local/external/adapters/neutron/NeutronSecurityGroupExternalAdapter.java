@@ -59,19 +59,27 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
 
     @Override
     public PageResponse<ViewSecurityGroupsResponse> callListSecurityGroups(String keystoneToken, String projectId, String marker, String direction, int limit) {
+
         try {
             ResponseEntity<JsonNode> response = securityGroupsAPIModule.listSecurityGroups(keystoneToken,
-                    getListSecurityGroupsParams(projectId, marker, direction, limit > 0 ? limit + 1 : 0));
+            getListSecurityGroupsParams(projectId, marker, direction, limit > 0 ? limit + 1 : 0));
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_RETRIEVAL_FAILED);
             }
-
+        
             List<ViewSecurityGroupsResponse> securityGroups = parseSecurityGroups(response);
             return getSecurityGroupsPageResponse(marker, limit, securityGroups);
-        } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_RETRIEVAL_FAILED);
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_FORBIDDEN, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_RETRIEVAL_FAILED, e);
+            }
         }
+
+            
     }
 
     @Override
@@ -89,8 +97,14 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                     .description(sgNode.get("description").asText())
                     .rules(getSecurityGroupDetails(keystoneToken, securityGroupId, marker, direction, limit))
                     .build();
-        } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_RETRIEVAL_FAILED);
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_FORBIDDEN, e);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_NOT_FOUND, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_RETRIEVAL_FAILED, e);
+            }
         }
     }
 
@@ -122,7 +136,7 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
         try {
             ResponseEntity<JsonNode> response = securityGroupsAPIModule.deleteSecurityGroup(keystoneToken, securityGroupId);
 
-            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+            if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED);
             }
         } catch (WebClientResponseException e) {
@@ -133,9 +147,6 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                 case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_NOT_FOUND, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED, e);
             }
-        } catch (WebClientException e) {
-            log.error(e.getMessage(), e);
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED, e);
         }
     }
 
@@ -149,6 +160,13 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
 
             List<ViewSecurityGroupsResponse.Rule> securityRules = parseSecurityRules(response.getBody().get("security_group_rules"));
             return getSecurityRulesPageResponse(marker, limit, securityRules);
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_FORBIDDEN, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_RETRIEVAL_FAILED, e);
+            }
         } catch (WebClientException e) {
             throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_RETRIEVAL_FAILED);
         }

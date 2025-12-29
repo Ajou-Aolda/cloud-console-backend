@@ -62,7 +62,7 @@ public class NeutronSecurityRuleExternalAdapter implements NeutronSecurityRuleEx
         try {
             ResponseEntity<JsonNode> response = securityGroupRulesAPIModule.deleteSecurityGroupRule(keystoneToken, srId);
 
-            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+            if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED);
             }
         } catch (WebClientResponseException e) {

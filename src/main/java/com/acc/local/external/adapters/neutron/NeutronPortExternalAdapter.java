@@ -88,7 +88,7 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
         try {
             ResponseEntity<JsonNode> response = portsAPIModule.deletePort(keystoneToken, portId);
 
-            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+            if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_DELETION_FAILED);
             }
         } catch (WebClientResponseException e) {
