@@ -94,9 +94,18 @@ public class NeutronFloatingIpExternalAdapter implements NeutronFloatingIpExtern
     public void releaseFloatingIpFromPort(String keystoneToken, String floatingIpId) {
         try {
             ResponseEntity<JsonNode> response = floatingIpsAPIModule.deleteFloatingIp(keystoneToken, floatingIpId);
-        } catch (WebClientException e) {
+        } catch (WebClientResponseException e) {
             log.error(e.getMessage(), e);
-            throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_RELEASE_FAILED, e);
+            switch (e.getStatusCode().value()) {
+                case 400 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST, e);
+                case 403 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_FORBIDDEN, e);
+                case 404 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_NOT_FOUND, e);
+                default ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_RELEASE_FAILED, e);
+            }
         }
     }
 }
