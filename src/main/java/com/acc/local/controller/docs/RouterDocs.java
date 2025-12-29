@@ -46,6 +46,25 @@ public interface RouterDocs {
                     description = "라우터 조회 성공"
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-BAD-REQUEST",
+                                                      "message": "Neutron 라우터 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
                     content = @Content()
@@ -53,7 +72,21 @@ public interface RouterDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-FORBIDDEN",
+                                                      "message": "Neutron 라우터 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -67,7 +100,7 @@ public interface RouterDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-ROUTER-RETRIEVAL-FAILED",
-                                                      "message": "Neutron 라우터 조회에 실패했습니다"
+                                                      "message": "Neutron 라우터 조회에 실패했습니다."
                                                     }
                                                     """
                                     )
@@ -106,6 +139,7 @@ public interface RouterDocs {
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
                     content = @Content(
+                            mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
                                             name = "라우터 이름이 'default-router'인 경우",
@@ -139,6 +173,26 @@ public interface RouterDocs {
                                                       "message": "라우터 게이트웨이 설정이 유효하지 않습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-BAD-REQUEST",
+                                                      "message": "Neutron 네트워크 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-BAD-REQUEST",
+                                                      "message": "Neutron 라우터 요청이 잘못되었습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
@@ -151,7 +205,31 @@ public interface RouterDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-FORBIDDEN",
+                                                      "message": "Neutron 네트워크 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-FORBIDDEN",
+                                                      "message": "Neutron 라우터 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -165,7 +243,7 @@ public interface RouterDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
-                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다."
                                                     }
                                                     """
                                     ),
@@ -175,7 +253,7 @@ public interface RouterDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-ROUTER-CREATION-FAILED",
-                                                      "message": "Neutron 라우터 생성에 실패했습니다"
+                                                      "message": "Neutron 라우터 생성에 실패했습니다."
                                                     }
                                                     """
                                     )
@@ -210,6 +288,25 @@ public interface RouterDocs {
                     content = @Content()
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-BAD-REQUEST",
+                                                      "message": "Neutron 라우터 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음 또는 기본 라우터 삭제 불가",
                     content = @Content(
@@ -223,6 +320,16 @@ public interface RouterDocs {
                                                       "status": 403,
                                                       "code": "ACC-NETWORK-CAN-NOT-DELETE-ROUTER",
                                                       "message": "해당 라우터는 삭제할 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-FORBIDDEN",
+                                                      "message": "Neutron 라우터 접근이 금지되었습니다."
                                                     }
                                                     """
                                     )
@@ -261,7 +368,7 @@ public interface RouterDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-ROUTER-DELETION-FAILED",
-                                                      "message": "Neutron 라우터 삭제에 실패했습니다"
+                                                      "message": "Neutron 라우터 삭제에 실패했습니다."
                                                     }
                                                     """
                                     ),
@@ -271,7 +378,7 @@ public interface RouterDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-ROUTER-RETRIEVAL-FAILED",
-                                                      "message": "Neutron 라우터 조회에 실패했습니다"
+                                                      "message": "Neutron 라우터 조회에 실패했습니다."
                                                     }
                                                     """
                                     )

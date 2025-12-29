@@ -185,6 +185,7 @@ public interface InterfaceDocs {
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
                     content = @Content(
+                            mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
                                             name = "인터페이스 이름이 유효하지 않은 경우",
@@ -220,6 +221,17 @@ public interface InterfaceDocs {
                                             """
                                     ),
                                     @ExampleObject(
+                                            name = "외부 네트워크 연결 여부가 없는 경우",
+                                            description = "인터페이스는 외부 네트워크 연결 여부를 지정해야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NOT-NULL-INTERFACE-EXTERNAL",
+                                                      "message": "인터페이스의 외부 네트워크 연결 여부는 null이 될 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
                                             name = "네트워크, 서브넷, 보안 그룹이 유효하지 않은 경우",
                                             description = "지정한 네트워크, 서브넷, 보안 그룹이 존재하지 않거나 접근 권한이 없는 경우",
                                             value = """
@@ -227,6 +239,26 @@ public interface InterfaceDocs {
                                                       "status": 400,
                                                       "code": "ACC-NETWORK-NEUTRON-PORT-BAD-REQUEST",
                                                       "message": "Neutron 포트 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-BAD-REQUEST",
+                                                      "message": "Neutron 네트워크 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-BAD-REQUEST",
+                                                      "message": "Neutron 플로팅 IP 요청이 잘못되었습니다."
                                                     }
                                                     """
                                     )
@@ -275,6 +307,26 @@ public interface InterfaceDocs {
                                                       "message": "Neutron 포트 접근이 금지되었습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-FORBIDDEN",
+                                                      "message": "Neutron 네트워크 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-FORBIDDEN",
+                                                      "message": "Neutron 플로팅 IP 접근이 금지되었습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
@@ -302,7 +354,7 @@ public interface InterfaceDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
-                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다."
                                                     }
                                                     """
                                     ),
@@ -323,6 +375,16 @@ public interface InterfaceDocs {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-PORT-DELETION-FAILED",
                                                       "message": "Neutron 포트 삭제에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-CREATION-FAILED",
+                                                      "message": "Neutron 플로팅 IP 생성에 실패했습니다."
                                                     }
                                                     """
                                     )
@@ -595,7 +657,7 @@ public interface InterfaceDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "인터페이스 없음 - 지정한 인터페이스를 찾을 수 없음",
+                    description = "인터페이스 또는 Floating IP 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
@@ -607,6 +669,16 @@ public interface InterfaceDocs {
                                                       "status": 404,
                                                       "code": "ACC-NETWORK-NOT-FOUND-INTERFACE",
                                                       "message": "해당 인터페이스가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP를 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-NOT-FOUND",
+                                                      "message": "Neutron 플로팅 IP를 찾을 수 없습니다."
                                                     }
                                                     """
                                     )
@@ -636,7 +708,7 @@ public interface InterfaceDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
-                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다."
                                                     }
                                                     """
                                     ),
@@ -646,7 +718,7 @@ public interface InterfaceDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-CREATION-FAILED",
-                                                      "message": "Neutron Floating IP 생성에 실패했습니다."
+                                                      "message": "Neutron 플로팅 IP 생성에 실패했습니다."
                                                     }
                                                     """
                                     )
@@ -734,7 +806,7 @@ public interface InterfaceDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "인터페이스 없음 - 지정한 인터페이스를 찾을 수 없음",
+                    description = "인터페이스 또는 Floating IP 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
@@ -748,13 +820,23 @@ public interface InterfaceDocs {
                                                       "message": "해당 인터페이스가 존재하지 않습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP를 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-NOT-FOUND",
+                                                      "message": "Neutron 플로팅 IP를 찾을 수 없습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "서버 오류 - 오픈스택 호출 오류",
+                    description = "서버 오류 - 오픈스택 혹은 APM 호출 오류",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
@@ -765,6 +847,26 @@ public interface InterfaceDocs {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-RETRIEVAL-FAILED",
                                                       "message": "Neutron 플로팅 IP 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "APM 포트포워딩 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-APM-FORWARDING-RETRIEVAL-FAILED",
+                                                      "message": "APM 포트포워딩 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "APM 포트포워딩 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-APM-FORWARDING-DELETION-FAILED",
+                                                      "message": "APM 포트포워딩 삭제에 실패했습니다."
                                                     }
                                                     """
                                     ),
@@ -1041,6 +1143,16 @@ public interface InterfaceDocs {
                                                       "status": 404,
                                                       "code": "ACC-NETWORK-NOT-FOUND-SSH-FORWARDING",
                                                       "message": "해당 포트포워딩이 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP를 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-NOT-FOUND",
+                                                      "message": "Neutron 플로팅 IP를 찾을 수 없습니다."
                                                     }
                                                     """
                                     )

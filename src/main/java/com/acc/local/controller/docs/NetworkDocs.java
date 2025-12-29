@@ -46,6 +46,35 @@ public interface NetworkDocs {
                     description = "네트워크 조회 성공"
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-BAD-REQUEST",
+                                                      "message": "Neutron 네트워크 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-BAD-REQUEST",
+                                                      "message": "Neutron 서브넷 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
                     content = @Content()
@@ -53,7 +82,31 @@ public interface NetworkDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-FORBIDDEN",
+                                                      "message": "Neutron 네트워크 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-FORBIDDEN",
+                                                      "message": "Neutron 서브넷 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -65,9 +118,19 @@ public interface NetworkDocs {
                                             name = "오픈스택 네트워크 조회 실패",
                                             value = """
                                                     {
-                                                        "status": 500,
-                                                        "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
-                                                        "message": "오픈스택 네트워크 조회에 실패했습니다."
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 서브넷 조회에 실패했습니다."
                                                     }
                                                     """
                                     )
@@ -158,6 +221,26 @@ public interface NetworkDocs {
                                                     "message": "서브넷 CIDR 값이 서로 겹칩니다."
                                                 }
                                                 """
+                                ),
+                                @ExampleObject(
+                                        name = "오픈스택 네트워크 요청 오류",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-NEUTRON-NETWORK-BAD-REQUEST",
+                                                    "message": "Neutron 네트워크 요청이 잘못되었습니다."
+                                                }
+                                                """
+                                ),
+                                @ExampleObject(
+                                        name = "오픈스택 서브넷 요청 오류",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-NEUTRON-SUBNET-BAD-REQUEST",
+                                                    "message": "Neutron 서브넷 요청이 잘못되었습니다."
+                                                }
+                                                """
                                 )
                         }
                     )
@@ -170,7 +253,50 @@ public interface NetworkDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-FORBIDDEN",
+                                                      "message": "Neutron 네트워크 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-FORBIDDEN",
+                                                      "message": "Neutron 서브넷 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "네트워크 없음 - 서브넷 생성 시 네트워크를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -194,7 +320,7 @@ public interface NetworkDocs {
                                                     {
                                                         "status": 500,
                                                         "code": "ACC-NETWORK-NEUTRON-SUBNET-CREATION-FAILED",
-                                                        "message": "오픈스택 서브넷 생성에 실패했습니다."
+                                                        "message": "Neutron 서브넷 생성에 실패했습니다."
                                                     }
                                                     """
                                     )
@@ -231,6 +357,25 @@ public interface NetworkDocs {
                     content = @Content()
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-BAD-REQUEST",
+                                                      "message": "Neutron 네트워크 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음 또는 기본 네트워크 삭제 불가",
                     content = @Content(
@@ -243,6 +388,16 @@ public interface NetworkDocs {
                                                       "status": 403,
                                                       "code": "ACC-NETWORK-CAN-NOT-DELETE-NETWORK",
                                                       "message": "해당 네트워크는 삭제할 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-FORBIDDEN",
+                                                      "message": "Neutron 네트워크 접근이 금지되었습니다."
                                                     }
                                                     """
                                     )
@@ -262,6 +417,16 @@ public interface NetworkDocs {
                                                       "status": 404,
                                                       "code": "ACC-NETWORK-NOT-FOUND-NETWORK",
                                                       "message": "해당 네트워크가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크를 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-NOT-FOUND",
+                                                      "message": "Neutron 네트워크를 찾을 수 없습니다."
                                                     }
                                                     """
                                     )
@@ -290,7 +455,7 @@ public interface NetworkDocs {
                                                     {
                                                       "status": 500,
                                                       "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
-                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다."
                                                     }
                                                     """
                                     )
