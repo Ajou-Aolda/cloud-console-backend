@@ -26,9 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -90,11 +87,17 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
         try {
             ResponseEntity<JsonNode> response = portsAPIModule.deletePort(keystoneToken, portId);
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
+            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_DELETION_FAILED);
             }
-        } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_DELETION_FAILED);
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_FORBIDDEN, e);
+                case 404 -> throw new NetworkException(NetworkErrorCode.NOT_FOUND_INTERFACE, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_DELETION_FAILED, e);
+            }
         }
     }
 
