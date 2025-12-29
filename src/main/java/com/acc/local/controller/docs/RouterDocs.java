@@ -172,7 +172,11 @@ public interface RouterDocs {
 
     @Operation(
             summary = "라우터 삭제",
-            description = "지정한 라우터를 삭제합니다."
+            description = """
+                    지정한 라우터를 삭제합니다.
+                    
+                    - default-router는 삭제할 수 없습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -187,18 +191,72 @@ public interface RouterDocs {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음 또는 기본 라우터 삭제 불가",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "기본 라우터 삭제 시도",
+                                            description = "default-router는 삭제할 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-CAN-NOT-DELETE-ROUTER",
+                                                      "message": "해당 라우터는 삭제할 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "라우터 없음 - 지정한 라우터를 찾을 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "존재하지 않는 라우터 삭제 시도",
+                                            description = "지정한 ID의 라우터를 찾을 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-ROUTER",
+                                                      "message": "해당 라우터가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-DELETION-FAILED",
+                                                      "message": "Neutron 라우터 삭제에 실패했습니다"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 라우터 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @DeleteMapping
