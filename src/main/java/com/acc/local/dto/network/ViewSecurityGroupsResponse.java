@@ -41,7 +41,7 @@ public class ViewSecurityGroupsResponse {
         private String portRange;
         @Schema(description = "보안 그룹 ID", example = "123e4567-e89b-12d3-a456-426614174000")
         @JsonInclude(JsonInclude.Include.ALWAYS)
-        private String groupId;
+        private String remoteGroupId;
         @Schema(description = "CIDR", example = "192.168.0.0/24")
         private String prefix;
     }

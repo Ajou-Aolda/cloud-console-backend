@@ -155,6 +155,7 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                     .protocol(ruleNode.get("protocol").isNull() ? "any" : ruleNode.get("protocol").asText())
                     .portRange(getPortRange(ruleNode))
                     .prefix(ruleNode.get("remote_ip_prefix").isNull() ? null : ruleNode.get("remote_ip_prefix").asText())
+                    .remoteGroupId(ruleNode.get("remote_group_id").isNull() ? null : ruleNode.get("remote_group_id").asText())
                     .build();
             rules.add(rule);
         }
