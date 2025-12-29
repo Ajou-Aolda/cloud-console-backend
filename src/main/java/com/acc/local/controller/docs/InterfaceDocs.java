@@ -6,7 +6,10 @@ import com.acc.local.dto.network.CreateInterfaceRequest;
 import com.acc.local.dto.network.ViewInterfacesResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -66,18 +69,76 @@ public interface InterfaceDocs {
 
     @Operation(
             summary = "인터페이스 생성",
-            description = "새로운 인터페이스를 생성합니다."
+            description = """
+                    새로운 인터페이스를 생성합니다.
+                    
+                    - 생성된 인터페이스는 지정한 네트워크 및 서브넷에 연결됩니다.
+                    - 서브넷을 지정 하지 않을 시 네트워크의 기본 서브넷에 연결됩니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
                     description = "인터페이스 생성 성공",
+                    headers = @Header(
+                            name = "Location",
+                            description = "생성된 인터페이스의 리소스 URL",
+                            schema = @Schema(type = "string", example = "/api/interfaces/{interfaceId}")
+                    ),
                     content = @Content()
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인터페이스 이름이 유효하지 않은 경우",
+                                            description = "인터페이스 이름에는 영문자, 숫자, '-', '_'만 사용할 수 있습니다.",
+                                            value = """
+                                            {
+                                              "status": 400,
+                                              "code": "ACC-NETWORK-INVALID-INTERFACE-NAME",
+                                              "message": "인터페이스 이름이 유효하지 않습니다."
+                                            }
+                                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "네트워크 ID가 없는 경우",
+                                            description = "인터페이스는 반드시 소속 네트워크 ID를 가져야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NOT-NULL-INTERFACE-NETWORK-ID",
+                                                      "message": "인터페이스의 네트워크 ID는 null이 될 수 없습니다."
+                                                    }
+                                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "보안 그룹 ID가 없는 경우",
+                                            description = "인터페이스는 최소 하나 이상의 보안 그룹에 속해야 합니다.",
+                                            value = """
+                                                    {
+                                                       "status": 400,
+                                                       "code": "ACC-NETWORK-NOT-NULL-INTERFACE-SECURITY-GROUP-IDS",
+                                                       "message": "인터페이스의 보안 그룹 ID는 null이 될 수 없습니다."
+                                                    }
+                                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "네트워크, 서브넷, 보안 그룹이 유효하지 않은 경우",
+                                            description = "지정한 네트워크, 서브넷, 보안 그룹이 존재하지 않거나 접근 권한이 없는 경우",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-BAD-REQUEST",
+                                                      "message": "Neutron 포트 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -87,12 +148,72 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "프로젝트 접근 권한이 없는 경우",
+                                            description = "해당 프로젝트에 대한 접근 권한이 없는 경우",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-FORBIDDEN",
+                                                      "message": "Neutron 포트 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "External IP 할당 실패",
+                                            description = "외부 네트워크 연결을 위한 External IP 할당에 실패한 경우",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-EXTERNAL-IP-ALLOCATION-FAILED",
+                                                      "message": "외부 네트워크 연결을 위한 외부 IP 할당에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-CREATION-FAILED",
+                                                      "message": "Neutron 포트 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-DELETION-FAILED",
+                                                      "message": "Neutron 포트 삭제에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping

@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 public class InterfaceController implements InterfaceDocs {
@@ -30,8 +32,8 @@ public class InterfaceController implements InterfaceDocs {
     @Override
     public ResponseEntity<Object> createInterface(Authentication authentication, CreateInterfaceRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        interfaceServicePort.createInterface(jwtInfo.getUserId(), jwtInfo.getProjectId(), request);
-        return ResponseEntity.created(null).build();
+        String id = interfaceServicePort.createInterface(jwtInfo.getUserId(), jwtInfo.getProjectId(), request);
+        return ResponseEntity.created(URI.create("/api/v1/interfaces" + id)).build();
     }
 
     @Override

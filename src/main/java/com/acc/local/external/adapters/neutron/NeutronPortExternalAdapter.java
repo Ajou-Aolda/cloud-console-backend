@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -72,8 +75,13 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
                     "id", portNode.get("id").asText()
             );
 
-        } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_CREATION_FAILED);
+        } catch (WebClientResponseException e) {
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_BAD_REQUEST);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_FORBIDDEN);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_NETWORK_RESOURCE_NOT_FOUND);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_PORT_CREATION_FAILED);
+            }
         }
     }
 

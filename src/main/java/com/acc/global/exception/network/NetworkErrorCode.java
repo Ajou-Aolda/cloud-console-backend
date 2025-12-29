@@ -10,9 +10,9 @@ public enum NetworkErrorCode implements ErrorCode {
     
     NOT_FOUND_SSH_FORWARDING(404, "ACC-NETWORK-NOT-FOUND-SSH-FORWARDING", "해당 포트포워딩이 존재하지 않습니다."),
 
-    EXTERNAL_IP_ALLOCATION_FAILED(400, "ACC-NETWORK-EXTERNAL-IP-ALLOCATION-FAILED", "외부 네트워크 연결을 위한 외부 IP 할당에 실패했습니다."),
-    HAS_NOT_EXTERNAL_IP(400, "ACC-NETWORK-HAS-NOT-EXTERNAL-IP", "해당 인터페이스에 외부 IP가 할당되어 있지 않습니다."),
-    ALREADY_HAS_EXTERNAL_IP(400, "ACC-NETWORK-ALREADY-HAS-EXTERNAL-IP", "해당 인터페이스에 이미 외부 IP가 할당되어 있습니다."),
+    EXTERNAL_IP_ALLOCATION_FAILED(500, "ACC-NETWORK-EXTERNAL-IP-ALLOCATION-FAILED", "외부 네트워크 연결을 위한 External IP 할당에 실패했습니다."),
+    HAS_NOT_EXTERNAL_IP(400, "ACC-NETWORK-HAS-NOT-EXTERNAL-IP", "해당 인터페이스에 External IP가 할당되어 있지 않습니다."),
+    ALREADY_HAS_EXTERNAL_IP(400, "ACC-NETWORK-ALREADY-HAS-EXTERNAL-IP", "해당 인터페이스에 이미 External IP가 할당되어 있습니다."),
 
     NOT_FOUND_INTERFACE(404, "ACC-NETWORK-NOT-FOUND-INTERFACE", "해당 인터페이스가 존재하지 않습니다."),
     INVALID_INTERFACE_NAME(400, "ACC-NETWORK-INVALID-INTERFACE-NAME", "인터페이스 이름이 유효하지 않습니다."),

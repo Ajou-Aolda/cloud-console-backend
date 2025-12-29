@@ -28,7 +28,7 @@ public class InterfaceServiceAdapter implements InterfaceServicePort {
     private final AuthModule authModule;
 
     @Override
-    public void createInterface(String userId, String projectId, CreateInterfaceRequest request) {
+    public String createInterface(String userId, String projectId, CreateInterfaceRequest request) {
         String token = authModule.issueProjectScopeToken(projectId, userId);
         /* --- Quota 검증 --- */
 
@@ -61,6 +61,8 @@ public class InterfaceServiceAdapter implements InterfaceServicePort {
                 throw new NetworkException(NetworkErrorCode.EXTERNAL_IP_ALLOCATION_FAILED);
             }
         }
+
+        return interfaceId;
     }
 
     @Override
