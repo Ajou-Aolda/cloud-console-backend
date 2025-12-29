@@ -392,7 +392,6 @@ public interface InterfaceDocs {
                     - 인터페이스에 External IP가 할당되어 있지 않으면 해제할 수 없습니다.
                     - SSH 포트포워딩이 설정되어 있으면 자동으로 해제됩니다.
                     - 인터페이스가 존재하지 않으면 해제할 수 없습니다.
-                    - 존재하지 않는 인터페이스에 대해서 감지하지 못합니다.
                     """
     )
     @ApiResponses(value = {
@@ -442,7 +441,26 @@ public interface InterfaceDocs {
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
                     content = @Content()
             ),
-            @ApiResponse(),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "인터페이스 없음 - 지정한 인터페이스를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인터페이스를 찾을 수 없음",
+                                            description = "지정한 ID의 인터페이스를 찾을 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-INTERFACE",
+                                                      "message": "해당 인터페이스가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
@@ -468,26 +486,6 @@ public interface InterfaceDocs {
                                                       "message": "Neutron 플로팅 IP 해제에 실패했습니다."
                                                     }
                                                     """
-                                    ),
-                                    @ExampleObject(
-                                            name = "SSH 포트포워딩 조회 실패",
-                                            value = """
-                                                    {
-                                                      "status": 500,
-                                                      "code": "ACC-NETWORK-APM-FORWARDING-RETRIEVAL-FAILED",
-                                                      "message": "APM 포트포워딩 조회에 실패했습니다."
-                                                    }
-                                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "SSH 포트포워딩 해제 실패",
-                                            value = """
-                                                    {
-                                                      "status": 500,
-                                                      "code": "ACC-NETWORK-APM-FORWARDING-DELETION-FAILED",
-                                                      "message": "APM 포트포워딩 해제에 실패했습니다."
-                                                    }
-                                                    """
                                     )
                             }
                     )
@@ -502,7 +500,12 @@ public interface InterfaceDocs {
 
     @Operation(
             summary = "SSH 포트포워딩 설정",
-            description = "지정한 인터페이스에 포트포워딩을 설정합니다."
+            description = """
+                    지정한 인터페이스에 SSH 포트포워딩을 설정합니다.
+                    
+                    - 인터페이스에 External IP가 할당되어 있어야 포트포워딩을 설정할 수 있습니다.
+                    - 이미 포트포워딩이 설정되어 있는 경우 중복 설정할 수 없습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -513,7 +516,54 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인터페이스 ID가 없는 경우",
+                                            description = "인터페이스 ID는 필수 파라미터입니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NOT-NULL-INTERFACE-ID",
+                                                      "message": "인터페이스 ID는 null이 될 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "External IP가 할당되지 않은 경우",
+                                            description = "인터페이스에 External IP가 할당되어 있지 않습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-HAS-NOT-EXTERNAL-IP",
+                                                      "message": "해당 인터페이스에 External IP가 할당되어 있지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "이미 SSH 포트포워딩이 설정된 경우",
+                                            description = "인터페이스에 이미 SSH 포트포워딩이 설정되어 있습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-ALREADY-HAS-SSH-FORWARDING",
+                                                      "message": "해당 인터페이스에 이미 SSH 포트포워딩이 설정되어 있습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-BAD-REQUEST",
+                                                      "message": "Neutron 플로팅 IP 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -523,17 +573,80 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-FORBIDDEN",
+                                                      "message": "Neutron 플로팅 IP 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "인터페이스 없음 - 지정한 인터페이스를 찾을 수 없음",
-                    content = @Content()
+                    description = "Floating IP 없음 - 지정한 인터페이스에 연결된 Floating IP를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP를 찾을 수 없음",
+                                            description = "지정한 인터페이스에 연결된 Floating IP를 찾을 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-NOT-FOUND",
+                                                      "message": "Neutron 플로팅 IP를 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 혹은 APM 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 플로팅 IP 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "APM 포트포워딩 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-APM-FORWARDING-RETRIEVAL-FAILED",
+                                                      "message": "APM 포트포워딩 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "APM 포트포워딩 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-APM-FORWARDING-CREATION-FAILED",
+                                                      "message": "APM 포트포워딩 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping("/forwarding" )

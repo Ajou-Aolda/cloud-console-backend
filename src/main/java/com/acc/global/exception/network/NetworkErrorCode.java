@@ -9,6 +9,7 @@ public enum NetworkErrorCode implements ErrorCode {
     INVALID_SECURITY_GROUP_NAME(400, "ACC-NETWORK-INVALID-SECURITY-GROUP-NAME", "보안 그룹 이름이 유효하지 않습니다."),
     
     NOT_FOUND_SSH_FORWARDING(404, "ACC-NETWORK-NOT-FOUND-SSH-FORWARDING", "해당 포트포워딩이 존재하지 않습니다."),
+    ALREADY_HAS_SSH_FORWARDING(400, "ACC-NETWORK-ALREADY-HAS-SSH-FORWARDING", "해당 인터페이스에 이미 SSH 포트포워딩이 설정되어 있습니다."),
 
     EXTERNAL_IP_ALLOCATION_FAILED(500, "ACC-NETWORK-EXTERNAL-IP-ALLOCATION-FAILED", "외부 네트워크 연결을 위한 External IP 할당에 실패했습니다."),
     HAS_NOT_EXTERNAL_IP(400, "ACC-NETWORK-HAS-NOT-EXTERNAL-IP", "해당 인터페이스에 External IP가 할당되어 있지 않습니다."),

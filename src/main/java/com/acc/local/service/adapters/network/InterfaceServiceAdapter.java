@@ -158,6 +158,14 @@ public class InterfaceServiceAdapter implements InterfaceServicePort {
             throw new NetworkException(NetworkErrorCode.HAS_NOT_EXTERNAL_IP);
         }
 
+        /* --- SSH 포트포워딩 중복 체크 --- */
+        String forwardingId = apmModule.getForwardingId(token,
+                projectId,
+                externalIpInfo.get("floating_ip_address"));
+        if (forwardingId != null) {
+            throw new NetworkException(NetworkErrorCode.ALREADY_HAS_SSH_FORWARDING);
+        }
+
         apmModule.createSSHForwarding(token, projectId, externalIpInfo.get("floating_ip_address"), interfaceId);
     }
 
