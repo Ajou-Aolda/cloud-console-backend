@@ -45,7 +45,8 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED);
             }
 
-            return response.getBody().get("security_group").get("id").asText();
+            JsonNode securityGroupNode = response.getBody().get("security_group");
+            return securityGroupNode.get("id").asText();
         } catch (WebClientResponseException e) {
             log.error(e.getMessage(), e.getResponseBodyAsString(), e);
             switch (e.getStatusCode().value()) {
@@ -53,9 +54,6 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                 case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_FORBIDDEN, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED, e);
             }
-        } catch (WebClientException e) {
-            log.error(e.getMessage(), e);
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED, e);
         }
     }
 
@@ -122,9 +120,22 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
     @Override
     public void callDeleteSecurityGroup(String keystoneToken, String securityGroupId) {
         try {
-            securityGroupsAPIModule.deleteSecurityGroup(keystoneToken, securityGroupId);
+            ResponseEntity<JsonNode> response = securityGroupsAPIModule.deleteSecurityGroup(keystoneToken, securityGroupId);
+
+            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
+                throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED);
+            }
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_FORBIDDEN, e);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_NOT_FOUND, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED, e);
+            }
         } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED);
+            log.error(e.getMessage(), e);
+            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED, e);
         }
     }
 

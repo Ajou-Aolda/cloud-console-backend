@@ -203,13 +203,48 @@ public interface SecurityGroupDocs {
 
     @Operation(
             summary = "보안 그룹 삭제",
-            description = "지정한 보안 그룹을 삭제합니다."
+            description = """
+                    지정한 보안 그룹을 삭제합니다.
+                    
+                    - default 보안 그룹은 삭제할 수 없습니다.
+                    - 보안 그룹이 존재하지 않으면 삭제할 수 없습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
                     description = "보안 그룹 삭제 성공",
                     content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "기본 보안 그룹 삭제 시도",
+                                            description = "default 보안 그룹은 삭제할 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-GROUP-NAME",
+                                                      "message": "보안 그룹 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-BAD-REQUEST",
+                                                      "message": "Neutron 보안 그룹 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -219,17 +254,70 @@ public interface SecurityGroupDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-FORBIDDEN",
+                                                      "message": "Neutron 보안 그룹 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "보안 그룹 없음 - 지정한 보안 그룹을 찾을 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "보안 그룹을 찾을 수 없음",
+                                            description = "지정한 ID의 보안 그룹을 찾을 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-NOT-FOUND",
+                                                      "message": "Neutron 보안 그룹을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 보안 그룹 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-DELETION-FAILED",
+                                                      "message": "Neutron 보안 그룹 삭제에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @DeleteMapping
