@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Component
@@ -62,7 +61,7 @@ public class NeutronSecurityRuleExternalAdapter implements NeutronSecurityRuleEx
         try {
             ResponseEntity<JsonNode> response = securityGroupRulesAPIModule.deleteSecurityGroupRule(keystoneToken, srId);
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED);
             }
         } catch (WebClientResponseException e) {
@@ -73,8 +72,6 @@ public class NeutronSecurityRuleExternalAdapter implements NeutronSecurityRuleEx
                 case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_NOT_FOUND, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED, e);
             }
-        } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_DELETION_FAILED);
         }
     }
 }

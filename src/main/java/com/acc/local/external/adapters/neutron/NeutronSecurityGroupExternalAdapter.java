@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.ArrayList;
@@ -105,7 +104,7 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                 case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_NOT_FOUND, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_RETRIEVAL_FAILED, e);
             }
-        }
+        } 
     }
 
     @Override
@@ -136,7 +135,7 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
         try {
             ResponseEntity<JsonNode> response = securityGroupsAPIModule.deleteSecurityGroup(keystoneToken, securityGroupId);
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
+            if (response != null && !response.getStatusCode().is2xxSuccessful()) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_DELETION_FAILED);
             }
         } catch (WebClientResponseException e) {
@@ -167,8 +166,6 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                 case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_FORBIDDEN, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_RETRIEVAL_FAILED, e);
             }
-        } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_RULE_RETRIEVAL_FAILED);
         }
     }
 

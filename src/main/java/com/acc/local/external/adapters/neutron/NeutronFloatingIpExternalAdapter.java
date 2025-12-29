@@ -39,7 +39,7 @@ public class NeutronFloatingIpExternalAdapter implements NeutronFloatingIpExtern
                 throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_CREATION_FAILED);
             }
         } catch (WebClientResponseException e) {
-            log.error(e.getMessage(), e);
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
             switch (e.getStatusCode().value()) {
                 case 400 ->
                         throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST, e);
@@ -75,7 +75,7 @@ public class NeutronFloatingIpExternalAdapter implements NeutronFloatingIpExtern
                     "floating_ip_address", floatingIpNode.get("floating_ip_address").asText()
             );
         } catch (WebClientResponseException e) {
-            log.error(e.getMessage(), e);
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
             switch (e.getStatusCode().value()) {
                 case 400 ->
                         throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST, e);
@@ -95,7 +95,7 @@ public class NeutronFloatingIpExternalAdapter implements NeutronFloatingIpExtern
         try {
             ResponseEntity<JsonNode> response = floatingIpsAPIModule.deleteFloatingIp(keystoneToken, floatingIpId);
         } catch (WebClientResponseException e) {
-            log.error(e.getMessage(), e);
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
             switch (e.getStatusCode().value()) {
                 case 400 ->
                         throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST, e);
