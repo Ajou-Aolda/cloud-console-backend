@@ -6,7 +6,10 @@ import com.acc.local.dto.network.CreateRouterRequest;
 import com.acc.local.dto.network.ViewRoutersResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -60,18 +63,65 @@ public interface RouterDocs {
 
     @Operation(
             summary = "라우터 생성",
-            description = "새로운 라우터를 생성합니다."
+            description = """
+                    새로운 라우터를 생성합니다.
+                    
+                    - 요청 시 라우터 이름과 외부 네트워크 연결 여부를 지정할 수 있습니다.
+                    - default-router라는 이름으로 라우터를 생성할 수 없습니다.
+                    - 라우터 이름은 중복 가능합니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
                     description = "라우터 생성 성공",
+                    headers = @Header(
+                            name = "Location",
+                            description = "생성된 라우터의 리소스 URL",
+                            schema = @Schema(type = "string", example = "/api/routers/{routerId}")
+                    ),
                     content = @Content()
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            examples = {
+                                    @ExampleObject(
+                                            name = "라우터 이름이 'default-router'인 경우",
+                                            description = "라우터 이름은 'default-router'일 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-ROUTER-NAME",
+                                                      "message": "라우터 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "라우터 이름에 허용되지 않는 문자가 포함된 경우",
+                                            description = "라우터 이름에는 영문자, 숫자, '-', '_'만 사용할 수 있습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-ROUTER-NAME",
+                                                      "message": "라우터 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "외부 네트워크 연결 여부가 유효하지 않은 경우",
+                                            description = "isExternal 필드는 true 또는 false여야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-ROUTER-GATEWAY",
+                                                      "message": "라우터 게이트웨이 설정이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -86,7 +136,31 @@ public interface RouterDocs {
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-CREATION-FAILED",
+                                                      "message": "Neutron 라우터 생성에 실패했습니다"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping

@@ -24,7 +24,7 @@ public class RouterServiceAdapter implements RouterServicePort {
     private final AuthModule authModule;
 
     @Override
-    public void createRouter(CreateRouterRequest request, String userId, String projectId) {
+    public String createRouter(CreateRouterRequest request, String userId, String projectId) {
         String token = authModule.issueProjectScopeToken(projectId, userId);
 
         if (!networkUtil.validateResourceName(request.getRouterName()) || request.getRouterName().equals("default-router")) {
@@ -34,7 +34,7 @@ public class RouterServiceAdapter implements RouterServicePort {
             throw new NetworkException(NetworkErrorCode.INVALID_ROUTER_GATEWAY);
         }
 
-        neutronModule.createRouter(token, request.getRouterName(), request.getIsExternal());
+        return neutronModule.createRouter(token, request.getRouterName(), request.getIsExternal());
     }
 
     @Override

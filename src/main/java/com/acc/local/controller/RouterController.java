@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 public class RouterController implements RouterDocs {
@@ -27,8 +29,8 @@ public class RouterController implements RouterDocs {
     @Override
     public ResponseEntity<Object> createRouter(Authentication authentication, CreateRouterRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        routerServicePort.createRouter(request, jwtInfo.getUserId(), jwtInfo.getProjectId());
-        return ResponseEntity.created(null).build();
+        String id = routerServicePort.createRouter(request, jwtInfo.getUserId(), jwtInfo.getProjectId());
+        return ResponseEntity.created(URI.create("/api/v1/routers/" + id)).build();
     }
 
     @Override
