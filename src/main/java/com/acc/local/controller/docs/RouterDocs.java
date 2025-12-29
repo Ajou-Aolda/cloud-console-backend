@@ -25,19 +25,25 @@ public interface RouterDocs {
 
     @Operation(
             summary = "라우터 조회",
-            description = "프로젝트에 속한 라우터를 조회합니다.<br>"+
-            "routerId를 통해 특정 라우터를 조회하거나, page를 통해 페이지 정보를 전달하여 라우터 목록을 조회할 수 있습니다.<br>" +
-            "routerId를 통한 상세 조회는 추후 구현할 예정입니다."
+            description = """
+                    라우터 목록을 조회합니다.
+                    
+                    - Marker 기반 페이지네이션을 적용합니다.
+                    - marker가 제공되지 않으면 첫 페이지를 조회합니다.
+                    - marker는 이전 페이지의 마지막 라우터 ID여야 합니다.
+                    - direction이 next이면 marker 이후의 데이터를 조회합니다.
+                    - direction이 prev이면 marker 이전의 데이터를 조회합니다.
+                    - limit이 0이면 제한없이 모든 데이터를 조회합니다.
+                    - 라우터 없으면 빈 배열을 반환합니다.
+                    - limit: 한 번에 조회할 라우터 수 (0: 제한없음)
+                    - marker: 이전 페이지의 마지막 라우터 ID
+                    - direction: 페이지네이션 방향 (next, prev)
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "라우터 조회 성공"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -52,7 +58,21 @@ public interface RouterDocs {
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 라우터 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-ROUTER-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 라우터 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @GetMapping
