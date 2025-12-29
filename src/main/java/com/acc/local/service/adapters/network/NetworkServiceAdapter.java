@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Primary
@@ -49,6 +51,13 @@ public class NetworkServiceAdapter implements NetworkServicePort {
                 if (!networkUtil.validateCidr(subnet.getCidr())) {
                     throw new NetworkException(NetworkErrorCode.INVALID_SUBNET_CIDR);
                 }
+            }
+
+            List<String> subnetCidrs = request.getSubnets().stream().map(
+                    CreateNetworkRequest.Subnet::getCidr
+            ).toList();
+            if (networkUtil.hasOverlappingCidrs(subnetCidrs)) {
+                throw new NetworkException(NetworkErrorCode.OVERLAPPING_SUBNET_CIDR);
             }
 
             neutronModule.createSubnet(token, request.getSubnets(), networkId);

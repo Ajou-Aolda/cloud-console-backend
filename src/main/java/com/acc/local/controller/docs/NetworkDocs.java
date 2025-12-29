@@ -128,6 +128,16 @@ public interface NetworkDocs {
                                                     "message": "서브넷 CIDR 값이 유효하지 않습니다."
                                                 }
                                                 """
+                                ),
+                                @ExampleObject(
+                                        name = "겹치는 서브넷 CIDR",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-OVERLAPPING-SUBNET-CIDR",
+                                                    "message": "서브넷 CIDR 값이 서로 겹칩니다."
+                                                }
+                                                """
                                 )
                         }
                     )

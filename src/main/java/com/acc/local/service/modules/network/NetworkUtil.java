@@ -2,6 +2,9 @@ package com.acc.local.service.modules.network;
 
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Component
 public class NetworkUtil {
 
@@ -25,6 +28,18 @@ public class NetworkUtil {
 
     public boolean validateSubnetName(String subnetName) {
         return subnetName != null && !subnetName.isEmpty();
+    }
+
+    public boolean hasOverlappingCidrs(java.util.List<String> cidrs) {
+        Set<String> cidrSet = new HashSet<>();
+        for (String cidr : cidrs) {
+            cidr = cidr.split("/")[0];
+            if (cidrSet.contains(cidr)) {
+                return true;
+            }
+            cidrSet.add(cidr);
+        }
+        return false;
     }
 
     public boolean validateGateway(Boolean gateway) {
