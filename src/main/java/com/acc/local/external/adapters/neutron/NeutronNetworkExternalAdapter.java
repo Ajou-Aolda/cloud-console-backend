@@ -12,6 +12,7 @@ import com.acc.local.external.modules.neutron.NeutronSubnetsAPIModule;
 import com.acc.local.external.ports.NeutronNetworkExternalPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientException;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class NeutronNetworkExternalAdapter implements NeutronNetworkExternalPort {
 
     private final NeutronNetworksAPIModule networksAPIModule;

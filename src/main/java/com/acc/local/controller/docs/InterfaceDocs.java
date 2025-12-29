@@ -25,10 +25,20 @@ public interface InterfaceDocs {
 
     @Operation(
             summary = "인터페이스 조회",
-            description = "프로젝트에 속한 인터페이스를 조회합니다.<br>"+
-            "interfaceId를 통해 특정 인터페이스를 조회하거나, page를 통해 페이지 정보를 전달하여 인터페이스 목록을 조회할 수 있습니다.<br>" +
-            "instanceId와 networkId를 제공하면 특정 인스턴스 혹은 네트워크에 속한 인터페이스를 조회합니다.<br>" +
-            "interfaceId를 통한 상세 조회는 추후 구현할 예정입니다."
+            description = """
+                    프로젝트에 속한 인터페이스 목록을 조회합니다.
+                    
+                    - Marker 기반 페이지네이션을 적용합니다.
+                    - marker가 제공되지 않으면 첫 페이지를 조회합니다.
+                    - marker는 이전 페이지의 마지막 인터페이스 ID여야 합니다.
+                    - direction이 next이면 marker 이후의 데이터를 조회합니다.
+                    - direction이 prev이면 marker 이전의 데이터를 조회합니다.
+                    - limit이 0이면 제한없이 모든 데이터를 조회합니다.
+                    - 인터페이스가 없으면 빈 배열을 반환합니다.
+                    - limit: 한 번에 조회할 인터페이스 수 (0: 제한없음)
+                    - marker: 이전 페이지의 마지막 인터페이스 ID
+                    - direction: 페이지네이션 방향 (next, prev)
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -38,7 +48,21 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-BAD-REQUEST",
+                                                      "message": "Neutron 포트 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -48,12 +72,80 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-FORBIDDEN",
+                                                      "message": "Neutron 포트 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "네트워크 없음 - 인터페이스에 연결된 네트워크를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "네트워크를 찾을 수 없음",
+                                            description = "인터페이스에 연결된 네트워크를 찾을 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-NETWORK",
+                                                      "message": "해당 네트워크가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 포트 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 플로팅 IP 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @GetMapping
@@ -133,6 +225,26 @@ public interface InterfaceDocs {
                                                       "status": 400,
                                                       "code": "ACC-NETWORK-NEUTRON-PORT-BAD-REQUEST",
                                                       "message": "Neutron 포트 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "네트워크 리소스 없음 - 지정한 네트워크, 서브넷, 보안 그룹을 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "네트워크 리소스를 찾을 수 없음",
+                                            description = "지정한 네트워크, 서브넷, 보안 그룹이 존재하지 않습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-NETWORK-RESOURCE-NOT-FOUND",
+                                                      "message": "Neutron 포트의 네트워크 관련 리소스를 찾을 수 없습니다."
                                                     }
                                                     """
                                     )
@@ -441,6 +553,16 @@ public interface InterfaceDocs {
                                                       "message": "해당 인터페이스에 이미 External IP가 할당되어 있습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-BAD-REQUEST",
+                                                      "message": "Neutron 플로팅 IP 요청이 잘못되었습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
@@ -453,7 +575,21 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-FORBIDDEN",
+                                                      "message": "Neutron 플로팅 IP 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -578,7 +714,21 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-FORBIDDEN",
+                                                      "message": "Neutron 플로팅 IP 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
