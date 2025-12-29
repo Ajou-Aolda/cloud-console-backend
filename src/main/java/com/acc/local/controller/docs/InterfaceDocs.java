@@ -262,7 +262,12 @@ public interface InterfaceDocs {
 
     @Operation(
             summary = "External IP 할당",
-            description = "지정한 인터페이스에 External IP를 할당합니다."
+            description = """
+                    지정한 인터페이스에 External IP를 할당합니다.
+                    
+                    - 인터페이스에 이미 External IP가 할당되어 있으면 할당할 수 없습니다.
+                    - 인터페이스가 존재하지 않으면 할당할 수 없습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -273,7 +278,33 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인터페이스 ID가 없는 경우",
+                                            description = "인터페이스 ID는 필수 파라미터입니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NOT-NULL-INTERFACE-ID",
+                                                      "message": "인터페이스 ID는 null이 될 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "이미 External IP가 할당된 경우",
+                                            description = "인터페이스에 이미 External IP가 할당되어 있습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-ALREADY-HAS-EXTERNAL-IP",
+                                                      "message": "해당 인터페이스에 이미 External IP가 할당되어 있습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -286,9 +317,64 @@ public interface InterfaceDocs {
                     content = @Content()
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "인터페이스 없음 - 지정한 인터페이스를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인터페이스를 찾을 수 없음",
+                                            description = "지정한 ID의 인터페이스를 찾을 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-INTERFACE",
+                                                      "message": "해당 인터페이스가 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "External IP 할당 실패",
+                                            description = "외부 네트워크 연결을 위한 External IP 할당에 실패한 경우",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-EXTERNAL-IP-ALLOCATION-FAILED",
+                                                      "message": "외부 네트워크 연결을 위한 외부 IP 할당에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-NETWORK-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 네트워크 조회에 실패했습니다"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 Floating IP 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-FLOATING-IP-CREATION-FAILED",
+                                                      "message": "Neutron Floating IP 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping("/external-ip")

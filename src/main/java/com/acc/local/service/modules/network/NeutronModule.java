@@ -1,6 +1,10 @@
 package com.acc.local.service.modules.network;
 
 import com.acc.global.common.PageResponse;
+import com.acc.global.exception.network.NetworkErrorCode;
+import com.acc.global.exception.network.NetworkException;
+import com.acc.global.exception.network.NeutronErrorCode;
+import com.acc.global.exception.network.NeutronException;
 import com.acc.local.dto.network.*;
 import com.acc.local.external.ports.*;
 import com.acc.local.service.modules.auth.AuthModule;
@@ -117,7 +121,10 @@ public class NeutronModule {
         try {
             neutronFloatingIpExternalPort.allocateFloatingIpToPort(keystoneToken, floatingNetworkId, portId);
             return true;
-        } catch (Exception e) {
+        } catch (NeutronException e) {
+            if (e.getErrorCode() == NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST) {
+                throw new NetworkException(NetworkErrorCode.NOT_FOUND_INTERFACE);
+            }
             return false;
         }
     }

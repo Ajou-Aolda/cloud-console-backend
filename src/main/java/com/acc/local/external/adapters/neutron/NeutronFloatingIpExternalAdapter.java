@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.Map;
 
@@ -37,9 +38,18 @@ public class NeutronFloatingIpExternalAdapter implements NeutronFloatingIpExtern
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_CREATION_FAILED);
             }
-        } catch (WebClientException e) {
+        } catch (WebClientResponseException e) {
             log.error(e.getMessage(), e);
-            throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_CREATION_FAILED, e);
+            switch (e.getStatusCode().value()) {
+                case 400 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST, e);
+                case 403 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_FORBIDDEN, e);
+                case 404 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_NOT_FOUND, e);
+                default ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_CREATION_FAILED, e);
+            }
         }
     }
 
@@ -64,9 +74,19 @@ public class NeutronFloatingIpExternalAdapter implements NeutronFloatingIpExtern
                     "id", floatingIpNode.get("id").asText(),
                     "floating_ip_address", floatingIpNode.get("floating_ip_address").asText()
             );
-        } catch (WebClientException e) {
+        } catch (WebClientResponseException e) {
             log.error(e.getMessage(), e);
-            throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_RETRIEVAL_FAILED, e);
+            switch (e.getStatusCode().value()) {
+                case 400 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_BAD_REQUEST, e);
+                case 403 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_FORBIDDEN, e);
+                case 404 ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_NOT_FOUND, e);
+                default ->
+                        throw new NeutronException(NeutronErrorCode.NEUTRON_FLOATING_IP_RETRIEVAL_FAILED, e);
+            }
+
         }
     }
 
