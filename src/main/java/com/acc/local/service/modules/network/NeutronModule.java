@@ -155,8 +155,8 @@ public class NeutronModule {
     }
 
     /* --- Security Groups --- */
-    public void createSecurityGroup(String keystoneToken, String projectId, String securityGroupName, String description) {
-        neutronSecurityGroupExternalPort.callCreateSecurityGroup(keystoneToken, projectId, securityGroupName, description);
+    public String createSecurityGroup(String keystoneToken, String projectId, String securityGroupName, String description) {
+        return neutronSecurityGroupExternalPort.callCreateSecurityGroup(keystoneToken, projectId, securityGroupName, description);
     }
 
     public PageResponse<ViewSecurityGroupsResponse> listSecurityGroups(String keystoneToken, String projectId, String marker, String direction, int limit) {

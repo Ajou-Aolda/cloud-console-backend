@@ -30,9 +30,9 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
     private final NeutronSecurityGroupRulesAPIModule securityRuleExternalPort;
 
     @Override
-    public void callCreateSecurityGroup(String keystoneToken, String projectId, String securityGroupName, String description) {
+    public String callCreateSecurityGroup(String keystoneToken, String projectId, String securityGroupName, String description) {
         try {
-            securityGroupsAPIModule.createSecurityGroup(keystoneToken,
+            ResponseEntity<JsonNode> response = securityGroupsAPIModule.createSecurityGroup(keystoneToken,
                     CreateSecurityGroupRequest.builder().securityGroup(
                             CreateSecurityGroupRequest.SecurityGroup.builder()
                                     .name(securityGroupName)
@@ -40,8 +40,22 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
                                     .projectId(projectId)
                                     .build()
                     ).build());
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED);
+            }
+
+            return response.getBody().get("security_group").get("id").asText();
+        } catch (WebClientResponseException e) {
+            log.error(e.getMessage(), e.getResponseBodyAsString(), e);
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_FORBIDDEN, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED, e);
+            }
         } catch (WebClientException e) {
-            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED);
+            log.error(e.getMessage(), e);
+            throw new NeutronException(NeutronErrorCode.NEUTRON_SECURITY_GROUP_CREATION_FAILED, e);
         }
     }
 

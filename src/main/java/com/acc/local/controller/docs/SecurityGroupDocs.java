@@ -107,7 +107,11 @@ public interface SecurityGroupDocs {
 
     @Operation(
             summary = "보안 그룹 생성",
-            description = "새로운 보안 그룹을 생성합니다."
+            description = """
+                    새로운 보안 그룹을 생성합니다.
+                    
+                    - default라는 이름으로 보안 그룹을 생성할 수 없습니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -118,7 +122,32 @@ public interface SecurityGroupDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "보안 그룹 이름이 유효하지 않은 경우",
+                                            description = "보안 그룹 이름이 유효하지 않거나 기본 보안 그룹 이름인 경우",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-GROUP-NAME",
+                                                      "message": "보안 그룹 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-BAD-REQUEST",
+                                                      "message": "Neutron 보안 그룹 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -128,12 +157,40 @@ public interface SecurityGroupDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-FORBIDDEN",
+                                                      "message": "Neutron 보안 그룹 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 그룹 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-GROUP-CREATION-FAILED",
+                                                      "message": "Neutron 보안 그룹 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping

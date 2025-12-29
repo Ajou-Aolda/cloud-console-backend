@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 public class SecurityGroupController implements SecurityGroupDocs {
@@ -32,8 +34,8 @@ public class SecurityGroupController implements SecurityGroupDocs {
     @Override
     public ResponseEntity<Object> createSecurityGroup(Authentication authentication, CreateSecurityGroupRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        securityGroupServicePort.createSecurityGroup(request, jwtInfo.getProjectId(), jwtInfo.getUserId());
-        return ResponseEntity.created(null).build();
+        String id = securityGroupServicePort.createSecurityGroup(request, jwtInfo.getProjectId(), jwtInfo.getUserId());
+        return ResponseEntity.created(URI.create("/api/v1/security-groups/" + id)).build();
     }
 
     @Override
