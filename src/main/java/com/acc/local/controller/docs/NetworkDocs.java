@@ -6,7 +6,10 @@ import com.acc.local.dto.network.CreateNetworkRequest;
 import com.acc.local.dto.network.ViewNetworksResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -61,18 +64,73 @@ public interface NetworkDocs {
 
     @Operation(
             summary = "네트워크 생성",
-            description = "새로운 네트워크와 서브넷을 생성합니다."
+            description = "새로운 네트워크와 서브넷을 생성합니다. \n\n" +
+                    "- 서브넷은 필수 요청이 아닙니다.\n" +
+                    "- 서브넷 정보가 제공되지 않으면 네트워크만 생성됩니다.\n" +
+                    "- default-network의 이름으로 네트워크를 생성할 수 없습니다.\n" +
+                    "- 네트워크, 서브넷의 이름은 중복이 가능합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "네트워크 및 서브넷 생성 성공",
+                    description = "네트워크 및 서브넷 생성 성공. Location 헤더에 생성된 네트워크의 URI가 반환됩니다.",
+                    headers = {
+                        @Header(
+                            name = "Location",
+                            description = "생성된 네트워크의 URI",
+                            schema = @Schema(type = "string", example = "/api/networks/{networkId}")
+                        )
+                    },
                     content = @Content()
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                        mediaType = "application/json",
+                        examples = {
+                                @ExampleObject(
+                                        name = "잘못된 네트워크 이름",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-INVALID-NETWORK-NAME",
+                                                    "message": "네트워크 이름이 유효하지 않습니다."
+                                                }
+                                                """
+                                ),
+                                @ExampleObject(
+                                        name = "잘못된 MTU 값",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-INVALID-NETWORK-MTU",
+                                                    "message": "네트워크 MTU 값이 유효하지 않습니다."
+                                                }
+                                                """
+                                ),
+                                @ExampleObject(
+                                        name = "잘못된 서브넷 이름",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-INVALID-SUBNET-NAME",
+                                                    "message": "서브넷 이름이 유효하지 않습니다."
+                                                }
+                                                """
+                                ),
+                                @ExampleObject(
+                                        name = "잘못된 서브넷 CIDR",
+                                        value = """
+                                                {
+                                                    "status": 400,
+                                                    "code": "ACC-NETWORK-INVALID-SUBNET-CIDR",
+                                                    "message": "서브넷 CIDR 값이 유효하지 않습니다."
+                                                }
+                                                """
+                                )
+                        }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -87,7 +145,31 @@ public interface NetworkDocs {
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 네트워크 생성 실패",
+                                            value = """
+                                                    {
+                                                        "status": 500,
+                                                        "code": "ACC-NETWORK-NEUTRON-NETWORK-CREATION-FAILED",
+                                                        "message": "오픈스택 네트워크 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 생성 실패",
+                                            value = """
+                                                    {
+                                                        "status": 500,
+                                                        "code": "ACC-NETWORK-NEUTRON-SUBNET-CREATION-FAILED",
+                                                        "message": "오픈스택 서브넷 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping
