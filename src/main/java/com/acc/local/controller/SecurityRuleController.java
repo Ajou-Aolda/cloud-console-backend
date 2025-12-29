@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 public class SecurityRuleController implements SecurityRuleDocs {
@@ -16,10 +18,10 @@ public class SecurityRuleController implements SecurityRuleDocs {
     private final SecurityRuleServicePort securityRuleServicePort;
 
     @Override
-    public ResponseEntity<Object> createSecurityRule(Authentication authentication, String sgId, CreateSecurityRuleRequest request) {
+    public ResponseEntity<Object> createSecurityRule(Authentication authentication, CreateSecurityRuleRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        securityRuleServicePort.createSecurityRule(sgId, jwtInfo.getProjectId(), jwtInfo.getUserId(), request);
-        return ResponseEntity.created(null).build();
+        String id = securityRuleServicePort.createSecurityRule(jwtInfo.getProjectId(), jwtInfo.getUserId(), request);
+        return ResponseEntity.created(URI.create("/api/v1/security-rules" + id)).build();
     }
 
     @Override

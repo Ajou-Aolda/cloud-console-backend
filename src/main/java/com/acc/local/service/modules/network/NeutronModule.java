@@ -172,8 +172,8 @@ public class NeutronModule {
     }
 
     /* --- Security Rules --- */
-    public void createSecurityGroupRule(String keystoneToken, String sgId, String direction, String protocol, Integer port, String remoteGroupId, String remoteIpPrefix) {
-        neutronSecurityRuleExternalPort.callCreateSecurityRule(
+    public String createSecurityGroupRule(String keystoneToken, String sgId, String direction, String protocol, Integer port, String remoteGroupId, String remoteIpPrefix) {
+        return neutronSecurityRuleExternalPort.callCreateSecurityRule(
                 keystoneToken,
                 sgId,
                 direction,

@@ -1,11 +1,10 @@
 package com.acc.local.controller.docs;
 
-import com.acc.global.common.PageRequest;
-import com.acc.global.common.PageResponse;
 import com.acc.local.dto.network.CreateSecurityRuleRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -21,8 +20,14 @@ public interface SecurityRuleDocs {
 
     @Operation(
             summary = "보안 규칙 생성",
-            description = "새로운 보안 규칙을 생성합니다. <br>" +
-                    "remoteSecurityGroupId와 cidr 둘 중 하나만 제공할 수 있으며, 둘 다 제공하지 않을 수는 없습니다."
+            description = """
+                    새로운 보안 규칙을 생성합니다.
+                    
+                    - remoteSecurityGroupId와 cidr 둘 중 하나만 제공할 수 있으며, 둘 다 제공하지 않을 수는 없습니다.
+                    - protocol은 tcp, udp, icmp, any 중 하나여야 합니다.
+                    - direction은 ingress 또는 egress여야 합니다.
+                    - port는 1-65535 범위의 숫자여야 합니다.
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -33,7 +38,76 @@ public interface SecurityRuleDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 요청 파라미터 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "보안 그룹 ID가 유효하지 않은 경우",
+                                            description = "보안 그룹 ID는 필수 파라미터입니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-GROUP-ID",
+                                                      "message": "보안 그룹 ID가 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "프로토콜이 유효하지 않은 경우",
+                                            description = "프로토콜은 tcp, udp, icmp, any 중 하나여야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-RULE-PROTOCOL",
+                                                      "message": "보안 규칙의 프로토콜이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "방향이 유효하지 않은 경우",
+                                            description = "방향은 ingress 또는 egress여야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-RULE-DIRECTION",
+                                                      "message": "보안 규칙의 방향이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "포트 범위가 유효하지 않은 경우",
+                                            description = "포트는 1-65535 범위의 숫자여야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-RULE-PORT-RANGE",
+                                                      "message": "보안 규칙의 포트 범위가 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "보안 그룹 ID 또는 CIDR이 유효하지 않은 경우",
+                                            description = "remoteSecurityGroupId와 cidr 둘 중 하나만 제공해야 합니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SECURITY-RULE-SECURITY-GROUP-ID-OR-CIDR",
+                                                      "message": "보안 규칙의 보안 그룹 ID 또는 CIDR이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 규칙 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-RULE-BAD-REQUEST",
+                                                      "message": "Neutron 보안 규칙 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -43,20 +117,45 @@ public interface SecurityRuleDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 규칙 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-RULE-FORBIDDEN",
+                                                      "message": "Neutron 보안 규칙 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - 오픈스택 호출 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 보안 규칙 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SECURITY-RULE-CREATION-FAILED",
+                                                      "message": "Neutron 보안 규칙 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping
     ResponseEntity<Object> createSecurityRule(
             @Parameter(hidden = true) Authentication authentication,
-            @RequestParam
-            @Parameter(description = "보안 그룹 ID", required = true)
-            String sgId,
             @RequestBody
             @Parameter(description = "보안 그룹 생성 요청 정보", required = true)
             CreateSecurityRuleRequest request);
