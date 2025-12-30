@@ -36,8 +36,8 @@ public class InstanceTypeServiceAdapter implements InstanceTypeServicePort {
     }
 
     @Override
-    public PageResponse<InstanceTypeResponse> listAdminInstanceTypes(String userId, String projectId, String architect, PageRequest page) {
-        String keystoneToken = authModule.issueSystemAdminToken(userId);
+    public PageResponse<InstanceTypeResponse> listAdminInstanceTypes(String userId, String architect, PageRequest page) {
+        String keystoneToken = authModule.issueSystemAdminTokenWithAdminProjectScope(userId);
 
         PageResponse<InstanceTypeResponse> response = instanceTypeModule.listInstanceTypesByArchitect(
                 keystoneToken,
@@ -51,8 +51,8 @@ public class InstanceTypeServiceAdapter implements InstanceTypeServicePort {
     }
 
     @Override
-    public void createInstanceType(String userId, String projectId, InstanceTypeCreateRequest request) {
-        String keystoneToken = authModule.issueSystemAdminToken(userId);
+    public void createInstanceType(String userId, InstanceTypeCreateRequest request) {
+        String keystoneToken = authModule.issueSystemAdminTokenWithAdminProjectScope(userId);
 
         if (!instanceTypeUtil.validateInstanceTypeName(request.getTypeName())) {
             throw new InstanceTypeException(InstanceTypeErrorCode.INVALID_INSTANCE_TYPE_NAME);
