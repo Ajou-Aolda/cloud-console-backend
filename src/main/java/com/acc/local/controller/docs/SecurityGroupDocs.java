@@ -248,7 +248,10 @@ public interface SecurityGroupDocs {
     ResponseEntity<Object> viewSecurityGroups(
             @Parameter(hidden = true) Authentication authentication,
             @Parameter(description = "페이지 정보", required = false)
-            PageRequest page);
+            PageRequest page,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 
     @Operation(
@@ -349,7 +352,10 @@ public interface SecurityGroupDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestBody
             @Parameter(description = "보안 그룹 생성 요청 정보", required = true)
-            CreateSecurityGroupRequest request);
+            CreateSecurityGroupRequest request,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 
     @Operation(
@@ -475,6 +481,9 @@ public interface SecurityGroupDocs {
     ResponseEntity<Object> deleteSecurityGroup(
             @Parameter(hidden = true) Authentication authentication,
             @Parameter(description = "보안 그룹 ID", required = true)
-            @RequestParam String sgId);
+            @RequestParam String sgId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 }

@@ -182,7 +182,10 @@ public interface SecurityRuleDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestBody
             @Parameter(description = "보안 그룹 생성 요청 정보", required = true)
-            CreateSecurityRuleRequest request);
+            CreateSecurityRuleRequest request,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 
     @Operation(
@@ -286,6 +289,9 @@ public interface SecurityRuleDocs {
     ResponseEntity<Object> deleteSecurityRule(
             @Parameter(hidden = true) Authentication authentication,
             @Parameter(description = "보안 규칙 ID", required = true)
-            @RequestParam String srId);
+            @RequestParam String srId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 }

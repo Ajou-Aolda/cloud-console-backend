@@ -158,7 +158,10 @@ public interface InterfaceDocs {
             @Parameter(description = "인스턴스 ID 필터", required = false, example = "instance-1234")
             @RequestParam(required = false) String instanceId,
             @Parameter(description = "네트워크 ID 필터", required = false, example = "network-1234")
-            @RequestParam(required = false) String networkId);
+            @RequestParam(required = false) String networkId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 
     @Operation(
@@ -397,7 +400,10 @@ public interface InterfaceDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestBody
             @Parameter(description = "인터페이스 생성 요청 정보", required = true)
-            CreateInterfaceRequest request);
+            CreateInterfaceRequest request,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
 
     @Operation(
@@ -573,7 +579,10 @@ public interface InterfaceDocs {
     @DeleteMapping
     ResponseEntity<Object> deleteInterface(
             @Parameter(hidden = true) Authentication authentication,
-            @RequestParam String interfaceId);
+            @RequestParam String interfaceId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
     @Operation(
             summary = "External IP 할당",
@@ -731,7 +740,10 @@ public interface InterfaceDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestParam
             @Parameter(description = "인터페이스 ID", required = true, example = "interface-1234")
-            String interfaceId);
+            String interfaceId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
     @Operation(
             summary = "External IP 해제",
@@ -889,7 +901,10 @@ public interface InterfaceDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestParam
             @Parameter(description = "인터페이스 ID", required = true, example = "interface-1234")
-            String interfaceId);
+            String interfaceId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
     @Operation(
             summary = "SSH 포트포워딩 설정",
@@ -1047,7 +1062,10 @@ public interface InterfaceDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestParam
             @Parameter(description = "인터페이스 ID", required = true, example = "interface-1234")
-            String interfaceId);
+            String interfaceId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
     @Operation(
             summary = "SSH 포트포워딩 해제",
@@ -1204,5 +1222,8 @@ public interface InterfaceDocs {
             @Parameter(hidden = true) Authentication authentication,
             @RequestParam
             @Parameter(description = "인터페이스 ID", required = true, example = "interface-1234")
-            String interfaceId);
+            String interfaceId,
+            @RequestParam
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 }
