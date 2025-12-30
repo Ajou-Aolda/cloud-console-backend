@@ -144,12 +144,12 @@ public interface InstanceDocs {
                                                     """
                                     ),
                                     @ExampleObject(
-                                            name = "유효하지 않은 이미지",
+                                            name = "필수 파라미터 누락",
                                             value = """
                                                     {
                                                       "status": 400,
-                                                      "code": "ACC-INSTANCE-INVALID-IMAGE",
-                                                      "message": "이미지 ID가 유효하지 않거나 'active' 상태가 아닙니다."
+                                                      "code": "ACC-INSTANCE-INVALID-PARAMETER",
+                                                      "message": "필수 파라미터가 누락되었거나 형식이 잘못되었습니다."
                                                     }
                                                     """
                                     )
@@ -176,16 +176,6 @@ public interface InstanceDocs {
                                                       "message": "컴퓨트 쿼터(vCPU, RAM, 개수)가 초과되었습니다."
                                                     }
                                                     """
-                                    ),
-                                    @ExampleObject(
-                                            name = "볼륨 쿼터 초과",
-                                            value = """
-                                                    {
-                                                      "status": 403,
-                                                      "code": "ACC-INSTANCE-VOLUME-QUOTA-EXCEEDED",
-                                                      "message": "볼륨 쿼터(크기, 개수)가 초과되었습니다."
-                                                    }
-                                                    """
                                     )
                             }
                     )
@@ -193,21 +183,7 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - 키페어, 이미지, 네트워크, 보안그룹 등을 찾을 수 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "키페어 없음",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "code": "ACC-INSTANCE-KEYPAIR-NOT-FOUND",
-                                                      "message": "존재하지 않는 키페어입니다."
-                                                    }
-                                                    """
-                                    )
-                            }
-                    )
+                    content = @Content()
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -356,40 +332,12 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - 지정한 인스턴스를 찾을 수 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "인스턴스 없음",
-                                            value = """
-                                                    {
-                                                      "status": 404,
-                                                      "code": "ACC-INSTANCE-NOT-FOUND",
-                                                      "message": "인스턴스를 찾을 수 없습니다."
-                                                    }
-                                                    """
-                                    )
-                            }
-                    )
+                    content = @Content()
             ),
             @ApiResponse(
                     responseCode = "409",
                     description = "상태 오류 - 현재 인스턴스 상태에서는 해당 동작을 수행할 수 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "작업 수행 불가",
-                                            value = """
-                                                    {
-                                                      "status": 409,
-                                                      "code": "ACC-INSTANCE-ACTION-NOT-ALLOWED",
-                                                      "message": "현재 인스턴스 상태에서는 해당 동작을 수행할 수 없습니다."
-                                                    }
-                                                    """
-                                    )
-                            }
-                    )
+                    content = @Content()
             ),
             @ApiResponse(
                     responseCode = "500",

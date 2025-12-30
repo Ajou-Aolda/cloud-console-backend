@@ -8,6 +8,7 @@ import com.acc.local.dto.keypair.KeypairListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -54,6 +55,25 @@ public interface KeypairDocs {
                     content = @Content()
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "리소스 없음 - 프로젝트를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "프로젝트 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-KEYPAIR-DB-PROJECT-NOT-FOUND",
+                                                      "message": "프로젝트를 찾을 수 없습니다. (DB)"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - DB 조회 오류",
                     content = @Content()
@@ -91,8 +111,22 @@ public interface KeypairDocs {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청\n\n- 유효하지 않은 키페어 이름 형식\n- 필수 파라미터 누락",
-                    content = @Content()
+                    description = "잘못된 요청 - 유효하지 않은 키페어 이름 형식",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "키페어 이름 형식 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-KEYPAIR-INVALID-NAME",
+                                                      "message": "키페어 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -106,18 +140,41 @@ public interface KeypairDocs {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "프로젝트 없음 - DB에서 프로젝트를 찾을 수 없음",
-                    content = @Content()
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "이름 중복 - 이미 존재하는 키페어 이름",
-                    content = @Content()
+                    description = "리소스 없음 - 프로젝트를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "프로젝트 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-KEYPAIR-DB-PROJECT-NOT-FOUND",
+                                                      "message": "프로젝트를 찾을 수 없습니다. (DB)"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - OpenStack 키페어 생성 실패 또는 DB 저장 실패",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "DB 저장 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-KEYPAIR-DB-SAVE-FAILED",
+                                                      "message": "키페어 정보를 DB에 저장하는 데 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @PostMapping
@@ -158,12 +215,40 @@ public interface KeypairDocs {
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - 지정한 키페어를 찾을 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "키페어 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-KEYPAIR-DB-NOT-FOUND",
+                                                      "message": "키페어를 찾을 수 없습니다. (DB)"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "키페어 없음 - DB에서 지정한 키페어를 찾을 수 없음",
-                    content = @Content()
+                    description = "서버 오류 - OpenStack 삭제 실패 또는 DB 삭제 실패",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "DB 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-KEYPAIR-DB-DELETION-FAILED",
+                                                      "message": "키페어 정보를 DB에서 삭제하는 데 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             )
     })
     @DeleteMapping

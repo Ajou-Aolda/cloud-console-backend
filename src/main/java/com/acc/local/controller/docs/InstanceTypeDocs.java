@@ -7,6 +7,7 @@ import com.acc.local.dto.type.InstanceTypeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -46,8 +47,22 @@ public interface InstanceTypeDocs {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청\n\n- 필수 파라미터 누락\n- 타입 이름 형식 오류",
-                    content = @Content()
+                    description = "잘못된 요청 - 타입 이름 형식 오류 또는 필수 파라미터 누락",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "타입 이름 형식 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-TYPE-INVALID-NAME",
+                                                      "message": "인스턴스 타입 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -61,7 +76,7 @@ public interface InstanceTypeDocs {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "서버 오류 - OpenStack 호출 실패",
+                    description = "서버 오류 - OpenStack Flavor 생성 실패",
                     content = @Content()
             )
     })
@@ -151,6 +166,30 @@ public interface InstanceTypeDocs {
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
                     content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "리소스 없음 - 프로젝트를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "프로젝트 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-PROJECT-NOT-FOUND",
+                                                      "message": "프로젝트를 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
