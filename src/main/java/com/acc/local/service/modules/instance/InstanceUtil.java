@@ -9,9 +9,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class InstanceUtil {
 
+    /**
+     * 인스턴스 이름 검증 (RFC 1123 호스트명 규칙)
+     * - 알파벳이나 숫자로 시작
+     * - 중간에는 알파벳, 숫자, 하이픈(-) 허용
+     * - 하이픈으로 끝날 수 없음
+     * - 최대 63자
+     */
     public boolean validateInstanceName(String instanceName) {
         return instanceName != null && !instanceName.isEmpty() &&
-                instanceName.matches("^[a-zA-Z][0-9a-zA-Z\\-_()\\[\\]\\.:^]{0,127}$");
+                instanceName.matches("^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
     }
 
     public boolean validateAuthMethod(String keypairId, String password) {

@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class InstanceCreateRequest {
 
-    @Schema(description = "인스턴스 이름. 첫 글자는 영문자, 이후 영문자/숫자/특수문자(-_()[].:^) 사용 가능, 최대 128자", requiredMode = Schema.RequiredMode.REQUIRED, example = "my-vm-server")
+    @Schema(description = "인스턴스 이름 (Ubuntu 호스트명 규칙). 알파벳/숫자로 시작, 알파벳/숫자/하이픈(-) 사용 가능, 하이픈으로 끝날 수 없음, 최대 63자", requiredMode = Schema.RequiredMode.REQUIRED, example = "my-vm-server")
     String instanceName;
 
     @Schema(description = "인스턴스 타입(Flavor) ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "flavor-uuid-1234")
