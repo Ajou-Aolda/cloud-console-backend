@@ -9,6 +9,7 @@ import com.acc.local.dto.instance.InstanceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -109,7 +110,51 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 필수 파라미터 누락 또는 형식 오류",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인스턴스 이름 형식 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-INVALID-NAME",
+                                                      "message": "인스턴스 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "인증 방식 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-AUTH-METHOD-REQUIRED",
+                                                      "message": "인증 방식은 Keypair 또는 Password 중 하나만 선택해야 합니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "네트워크 연결 누락",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-NETWORK-REQUIRED",
+                                                      "message": "네트워크 ID 또는 인터페이스 ID 중 최소 1개가 필요합니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "유효하지 않은 이미지",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-INVALID-IMAGE",
+                                                      "message": "이미지 ID가 유효하지 않거나 'active' 상태가 아닙니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -119,12 +164,50 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없거나 쿼터 한도 초과",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "컴퓨트 쿼터 초과",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-INSTANCE-COMPUTE-QUOTA-EXCEEDED",
+                                                      "message": "컴퓨트 쿼터(vCPU, RAM, 개수)가 초과되었습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "볼륨 쿼터 초과",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-INSTANCE-VOLUME-QUOTA-EXCEEDED",
+                                                      "message": "볼륨 쿼터(크기, 개수)가 초과되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - 키페어, 이미지, 네트워크, 보안그룹 등을 찾을 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "키페어 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-INSTANCE-KEYPAIR-NOT-FOUND",
+                                                      "message": "존재하지 않는 키페어입니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -234,7 +317,31 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 지원되지 않는 Action이거나 필수 파라미터 누락",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "유효하지 않은 Action",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-INVALID-ACTION",
+                                                      "message": "요청한 동작(action)을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "필수 파라미터 누락",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-INSTANCE-INVALID-PARAMETER",
+                                                      "message": "필수 파라미터가 누락되었거나 형식이 잘못되었습니다."
+                                                    }
+                                                    """
+                                            )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "401",
@@ -249,12 +356,40 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - 지정한 인스턴스를 찾을 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "인스턴스 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-INSTANCE-NOT-FOUND",
+                                                      "message": "인스턴스를 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "409",
                     description = "상태 오류 - 현재 인스턴스 상태에서는 해당 동작을 수행할 수 없음",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "작업 수행 불가",
+                                            value = """
+                                                    {
+                                                      "status": 409,
+                                                      "code": "ACC-INSTANCE-ACTION-NOT-ALLOWED",
+                                                      "message": "현재 인스턴스 상태에서는 해당 동작을 수행할 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
