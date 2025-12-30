@@ -159,7 +159,9 @@ public interface SecurityGroupDocs {
             @Parameter(hidden = true) Authentication authentication,
             @PathVariable String sgId,
             @Parameter(description = "페이지 정보", required = false)
-            PageRequest page);
+            PageRequest page,
+            @Parameter(description = "프로젝트 ID", required = true)
+            String projectId);
 
     @Operation(
             summary = "보안그룹 조회",
