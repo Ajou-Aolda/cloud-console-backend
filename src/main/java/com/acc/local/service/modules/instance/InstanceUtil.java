@@ -6,6 +6,7 @@ import com.acc.global.exception.instance.NovaErrorCode;
 import com.acc.global.exception.instance.NovaException;
 import com.acc.local.domain.enums.InstanceStatus;
 import com.acc.local.dto.instance.InstanceActionRequest;
+import com.acc.local.dto.project.quota.ProjectComputeQuotaDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,6 +29,15 @@ public class InstanceUtil {
         boolean hasInterface = (interfaceIds != null && !interfaceIds.isEmpty());
 
         return hasNetwork || hasInterface; // 네트워크 또는 인터페이스 중 최소 1개 필요 (OR)
+    }
+
+    // vCPU, RAM 쿼터는 Flavor 정보를 조회해야 정확히 검증 가능합니다.
+    // 현재는 인스턴스 개수만 검증하며, 나머지는 OpenStack Nova API에서 검증합니다.
+    public void validateQuotaForInstanceCreation(ProjectComputeQuotaDto quota) {
+        // 인스턴스 개수 쿼터 검증
+        if (quota.instance().available() < 1) {
+            throw new InstanceException(InstanceErrorCode.COMPUTE_QUOTA_EXCEEDED);
+        }
     }
 
     public void validateInstanceActionRequest(InstanceActionRequest request) {
