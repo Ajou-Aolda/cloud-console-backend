@@ -40,6 +40,7 @@ public class NovaServerExternalAdapter implements NovaServerExternalPort {
         }
 
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            log.error("Nova API non-success status: {}, body: {}", response.getStatusCode(), response.getBody());
             throw new NovaException(NovaErrorCode.NOVA_SERVER_RETRIEVAL_FAILED);
         }
         List<InstanceResponse> servers = parseServers(response);
@@ -58,8 +59,7 @@ public class NovaServerExternalAdapter implements NovaServerExternalPort {
         }
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            log.error("Nova API returned non-success status: {}, body: {}",
-                response.getStatusCode(), response.getBody());
+            log.error("Nova API non-success status: {}, body: {}", response.getStatusCode(), response.getBody());
             throw new NovaException(NovaErrorCode.NOVA_SERVER_CREATION_FAILED);
         }
     }
