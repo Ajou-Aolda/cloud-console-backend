@@ -2,6 +2,7 @@ package com.acc.local.controller.docs;
 
 import com.acc.global.common.PageRequest;
 import com.acc.global.common.PageResponse;
+import com.acc.global.exception.ErrorResponse;
 import com.acc.local.dto.instance.InstanceActionRequest;
 import com.acc.local.dto.instance.InstanceCreateRequest;
 import com.acc.local.dto.instance.InstanceQuotaResponse;
@@ -13,9 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springdoc.core.annotations.ParameterObject;
 
 @RequestMapping("/api/v1/instances")
 @Tag(name = "Instance", description = "인스턴스 Server API")
@@ -24,7 +27,13 @@ public interface InstanceDocs {
 
     @Operation(
             summary = "인스턴스 목록 조회",
-            description = "프로젝트에 속한 인스턴스(VM) 목록을 조회합니다."
+            description = "프로젝트에 속한 인스턴스(VM) 목록을 조회합니다.\n\n"
+                    + "- 페이지네이션(마커 기반)\n"
+                    + "  - marker: 경계 ID(첫 조회 null 또는 빈 문자열)\n"
+                    + "  - direction: next(기본) | prev\n"
+                    + "  - limit: 기본 10, 전체는 limit=0\n"
+                    + "  - next: id > marker 오름차순 / prev: id < marker 내려받아 뒤집어 반환(클라이언트는 오름차순 유지)\n"
+                    + "- 예시: GET /api/v1/instances?marker=abc123&direction=next&limit=10"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -34,17 +43,17 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - Nova 서버 정보를 가져오는데 실패했습니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     @GetMapping
@@ -55,7 +64,7 @@ public interface InstanceDocs {
             @Parameter(description = "프로젝트 ID", required = true)
             String projectId,
             @Parameter(description = "페이지 정보", required = false)
-            PageRequest page
+            @ParameterObject PageRequest page
     );
 
     @Operation(
@@ -71,32 +80,32 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - (이름, 인증, 이미지, 네트워크, 타입, 디스크 크기 등 파라미터 오류)",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - (키페어, 이미지, 네트워크, 보안그룹 등을 찾을 수 없음)",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "409",
                     description = "쿼터 초과 - (컴퓨트 또는 볼륨 쿼터 초과)",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - Nova 서버 생성에 실패했습니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     @PostMapping
@@ -123,17 +132,17 @@ public interface InstanceDocs {
             @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 프로젝트 접근 권한이 없음",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - Nova 서버 생성에 실패했습니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     @GetMapping("/quota")
