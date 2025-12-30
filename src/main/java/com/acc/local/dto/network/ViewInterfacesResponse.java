@@ -1,5 +1,6 @@
 package com.acc.local.dto.network;
 
+import com.acc.local.domain.enums.network.InterfaceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class ViewInterfacesResponse {
             """,
             example = "ACTIVE",
         requiredMode = Schema.RequiredMode.REQUIRED)
-    private String status;
+    private InterfaceStatus status;
 
     @Schema(description = "Internal IP",
             example = "192.168.0.1",

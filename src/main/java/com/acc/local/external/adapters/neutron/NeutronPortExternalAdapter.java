@@ -7,6 +7,7 @@ import com.acc.global.exception.network.NetworkErrorCode;
 import com.acc.global.exception.network.NetworkException;
 import com.acc.global.exception.network.NeutronErrorCode;
 import com.acc.global.exception.network.NeutronException;
+import com.acc.local.domain.enums.network.InterfaceStatus;
 import com.acc.local.dto.network.ViewInterfacesResponse;
 import com.acc.local.external.dto.neutron.ports.CreatePortRequest;
 import com.acc.local.external.modules.neutron.NeutronFloatingIpsAPIModule;
@@ -199,7 +200,7 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
             ports.add(ViewInterfacesResponse.builder()
                     .interfaceId(portsNode.get("id").asText())
                     .interfaceName(portsNode.get("name").asText())
-                    .status(portsNode.get("status").asText())
+                    .status(InterfaceStatus.findByStatusName(portsNode.get("status").asText()))
                     .mac(portsNode.get("mac_address").asText())
                     .instance(hasDevice ? ViewInterfacesResponse.Instance.builder()
                                     .instanceId(portsNode.get("device_id").asText())

@@ -1,5 +1,6 @@
 package com.acc.local.service.modules.network;
 
+import com.acc.local.domain.enums.network.SecurityRuleDirection;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -89,11 +90,11 @@ public class NetworkUtil {
         };
     }
 
-    public String validateDirection(String direction) {
-        if (direction == null || direction.isEmpty()) {
+    public String validateDirection(SecurityRuleDirection direction) {
+        if (direction == null) {
             return null;
         }
-        return switch (direction.toLowerCase()) {
+        return switch (direction.name().toLowerCase()) {
             case "ingress" -> "ingress";
             case "egress" -> "egress";
             default -> null;

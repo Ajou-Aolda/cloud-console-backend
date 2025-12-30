@@ -3,6 +3,7 @@ package com.acc.local.external.adapters.neutron;
 import com.acc.global.common.PageResponse;
 import com.acc.global.exception.network.NeutronErrorCode;
 import com.acc.global.exception.network.NeutronException;
+import com.acc.local.domain.enums.network.ProtocolType;
 import com.acc.local.dto.network.ViewSecurityGroupsResponse;
 import com.acc.local.external.dto.neutron.securitygroups.CreateSecurityGroupRequest;
 import com.acc.local.external.modules.neutron.NeutronSecurityGroupRulesAPIModule;
@@ -192,7 +193,7 @@ public class NeutronSecurityGroupExternalAdapter implements NeutronSecurityGroup
             ViewSecurityGroupsResponse.Rule rule = ViewSecurityGroupsResponse.Rule.builder()
                     .ruleId(ruleNode.get("id").asText())
                     .direction(ruleNode.get("direction").asText())
-                    .protocol(ruleNode.get("protocol").isNull() ? "any" : ruleNode.get("protocol").asText())
+                    .protocol(ruleNode.get("protocol").isNull() ? ProtocolType.ANY : ProtocolType.findByProtocolName(ruleNode.get("protocol").asText()))
                     .portRange(getPortRange(ruleNode))
                     .prefix(ruleNode.get("remote_ip_prefix").isNull() ? null : ruleNode.get("remote_ip_prefix").asText())
                     .remoteGroupId(ruleNode.get("remote_group_id").isNull() ? null : ruleNode.get("remote_group_id").asText())

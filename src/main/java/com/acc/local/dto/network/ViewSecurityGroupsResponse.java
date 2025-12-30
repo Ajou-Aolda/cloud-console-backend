@@ -1,6 +1,7 @@
 package com.acc.local.dto.network;
 
 import com.acc.global.common.PageResponse;
+import com.acc.local.domain.enums.network.ProtocolType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -107,6 +108,6 @@ public class ViewSecurityGroupsResponse {
                 """,
                 example = "tcp",
                 requiredMode = Schema.RequiredMode.REQUIRED)
-        private String protocol;
+        private ProtocolType protocol;
     }
 }

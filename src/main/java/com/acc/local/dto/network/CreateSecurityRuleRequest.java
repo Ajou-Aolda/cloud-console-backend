@@ -1,5 +1,7 @@
 package com.acc.local.dto.network;
 
+import com.acc.local.domain.enums.network.ProtocolType;
+import com.acc.local.domain.enums.network.SecurityRuleDirection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,7 +43,7 @@ public class CreateSecurityRuleRequest {
             requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     @Pattern(regexp = "^(tcp|udp|icmp|ah|dccp|egp|esp|gre|icmpv6|igmp|ipip|ipv6-encap|ipv6-frag|ipv6-icmp|ipv6-nonxt|ipv6-opts|ipv6-route|ospf|pgm|rsvp|sctp|any)$")
-    private String protocol;
+    private ProtocolType protocol;
 
     @Schema(description = """
             방향
@@ -49,11 +51,11 @@ public class CreateSecurityRuleRequest {
             - ingress
             - egress
             """,
-            example = "ingress or egress",
+            example = "ingress",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     @Pattern(regexp = "^(ingress|egress)$")
-    private String direction;
+    private SecurityRuleDirection direction;
 
     @Schema(description = "포트", example = "80", requiredMode = Schema.RequiredMode.REQUIRED)
     @Min(value = 1)

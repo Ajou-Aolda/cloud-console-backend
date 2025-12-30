@@ -29,7 +29,7 @@ public class SecurityRuleServiceAdapter implements SecurityRuleServicePort {
             throw new NetworkException(NetworkErrorCode.INVALID_SECURITY_GROUP_ID);
         }
 
-        String protocol = networkUtil.validateProtocol(request.getProtocol());
+        String protocol = networkUtil.validateProtocol(request.getProtocol().name());
         if (protocol == null) {
             throw new NetworkException(NetworkErrorCode.INVALID_SECURITY_RULE_PROTOCOL);
         }
