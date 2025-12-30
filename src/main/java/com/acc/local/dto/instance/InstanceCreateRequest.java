@@ -35,10 +35,10 @@ public class InstanceCreateRequest {
     @Schema(description = "부트 볼륨 크기 (GB). 0 또는 null이면 이미지 기본 크기 사용", example = "50")
     Integer diskSize;
 
-    @Schema(description = "관리자 비밀번호 (keypairId와 택1)", example = "Password!@#123")
+    @Schema(description = "관리자 비밀번호 (keypairName과 택1. 둘 중 하나는 필수)", example = "Password!@#123")
     String password;
 
-    @Schema(description = "키페어 이름 (password와 택1)", example = "my-keypair-name")
-    String keypairId;
+    @Schema(description = "키페어 이름 (password와 택1. 둘 중 하나는 필수). OpenStack에 등록된 키페어 이름을 사용해야 합니다.", example = "my-keypair")
+    String keypairName;
 }
 

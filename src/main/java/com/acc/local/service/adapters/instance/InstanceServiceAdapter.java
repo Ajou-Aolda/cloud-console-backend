@@ -51,7 +51,7 @@ public class InstanceServiceAdapter implements InstanceServicePort {
             throw new InstanceException(InstanceErrorCode.INVALID_INSTANCE_NAME);
         }
 
-        if (!instanceUtil.validateAuthMethod(request.getKeypairId(), request.getPassword())) {
+        if (!instanceUtil.validateAuthMethod(request.getKeypairName(), request.getPassword())) {
             throw new InstanceException(InstanceErrorCode.KEYPAIR_OR_PASSWORD_REQUIRED);
         }
 
