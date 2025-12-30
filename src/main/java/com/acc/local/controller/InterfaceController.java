@@ -47,7 +47,7 @@ public class InterfaceController implements InterfaceDocs {
     public ResponseEntity<Object> allocateExternalIp(Authentication authentication, String interfaceId) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         interfaceServicePort.allocateExternalIp(jwtInfo.getUserId(), jwtInfo.getProjectId(), interfaceId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class InterfaceController implements InterfaceDocs {
     public ResponseEntity<Object> createPortForwarding(Authentication authentication, String interfaceId) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         interfaceServicePort.createSSHForwarding(jwtInfo.getUserId(), jwtInfo.getProjectId(), interfaceId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override

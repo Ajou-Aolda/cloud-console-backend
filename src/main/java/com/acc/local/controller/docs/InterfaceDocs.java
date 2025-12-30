@@ -586,7 +586,7 @@ public interface InterfaceDocs {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "IP 할당 성공",
                     content = @Content()
             ),
@@ -902,7 +902,7 @@ public interface InterfaceDocs {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "포트포워딩 설정 성공",
                     content = @Content()
             ),

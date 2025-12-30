@@ -21,7 +21,7 @@ public class SecurityRuleController implements SecurityRuleDocs {
     public ResponseEntity<Object> createSecurityRule(Authentication authentication, CreateSecurityRuleRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String id = securityRuleServicePort.createSecurityRule(jwtInfo.getProjectId(), jwtInfo.getUserId(), request);
-        return ResponseEntity.created(URI.create("/api/v1/security-rules" + id)).build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override
