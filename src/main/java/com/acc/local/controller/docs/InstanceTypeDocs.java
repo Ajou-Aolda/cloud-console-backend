@@ -36,7 +36,8 @@ public interface InstanceTypeDocs {
                     + "- USB 장치 허용 여부 (usb)\n\n"
                     + "**참고**\n"
                     + "- OpenStack Flavor로 생성됩니다\n"
-                    + "- 확장 속성(extra_specs)으로 아키텍처, 목적, USB 지원 여부가 저장됩니다"
+                    + "- 확장 속성(extra_specs)으로 아키텍처, 목적, USB 지원 여부가 저장됩니다",
+            deprecated = true
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -80,7 +81,7 @@ public interface InstanceTypeDocs {
             summary = "[관리자] 인스턴스 타입 목록 조회",
             description = "관리자가 인스턴스 타입 목록을 조회합니다.\n\n"
                     + "**쿼리 파라미터**\n"
-                    + "- architect: 아키텍처 필터 (X86, ARM 등)\n"
+                    + "- architect: 아키텍처 필터 (X86, HETEROGENEOUS)\n"
                     + "- marker: 페이지네이션 경계 ID (첫 조회 시 null)\n"
                     + "- direction: next(기본, 다음 페이지) 또는 prev(이전 페이지)\n"
                     + "- limit: 페이지 크기 (기본 10, 전체 조회는 0)\n\n"
@@ -91,7 +92,8 @@ public interface InstanceTypeDocs {
                     + "**예시 쿼리**\n"
                     + "- 첫 페이지: GET /api/v1/admin/types?projectId=xxx&limit=10\n"
                     + "- 다음 페이지: GET /api/v1/admin/types?projectId=xxx&marker=flavor-id-10&direction=next&limit=10\n"
-                    + "- 이전 페이지: GET /api/v1/admin/types?projectId=xxx&marker=flavor-id-10&direction=prev&limit=10"
+                    + "- 이전 페이지: GET /api/v1/admin/types?projectId=xxx&marker=flavor-id-10&direction=prev&limit=10",
+            deprecated = true
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -119,10 +121,11 @@ public interface InstanceTypeDocs {
             @Parameter(hidden = true) Authentication authentication,
             @Parameter(description = "페이지 정보 (Marker 기반)", required = false)
             PageRequest page,
-            @Parameter(description = "아키텍처 필터 (예: X86, ARM)", required = false, example = "X86")
-            @RequestParam(required = false) String architect,
-            @RequestParam
+            @Parameter(description = "아키텍처 필터 (X86 또는 HETEROGENEOUS)", required = false, example = "X86")
+            @RequestParam(required = false)
+            String architect,
             @Parameter(description = "프로젝트 ID", required = true, example = "project-uuid-1234")
+            @RequestParam
             String projectId);
 
 
@@ -133,7 +136,7 @@ public interface InstanceTypeDocs {
                     + "- Public 타입: 모든 사용자가 조회 가능\n"
                     + "- Private 타입: 권한이 있는 사용자만 조회 가능\n\n"
                     + "**쿼리 파라미터**\n"
-                    + "- architect: 아키텍처 필터 (X86, ARM 등)\n"
+                    + "- architect: 아키텍처 필터 (X86, HETEROGENEOUS)\n"
                     + "- marker: 페이지네이션 경계 ID (첫 조회 시 null)\n"
                     + "- direction: next(기본, 다음 페이지) 또는 prev(이전 페이지)\n"
                     + "- limit: 페이지 크기 (기본 10, 전체 조회는 0)\n\n"
@@ -155,6 +158,7 @@ public interface InstanceTypeDocs {
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
                     content = @Content()
+            ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - OpenStack 호출 실패",
@@ -166,9 +170,10 @@ public interface InstanceTypeDocs {
             @Parameter(hidden = true) Authentication authentication,
             @Parameter(description = "페이지 정보 (Marker 기반)", required = false)
             PageRequest page,
-            @Parameter(description = "아키텍처 필터 (예: X86, ARM)", required = false, example = "X86 또는 HETEROGENEOUS")
-            @RequestParam(required = false) String architect,
-            @RequestParam
+            @Parameter(description = "아키텍처 필터 (X86, HETEROGENEOUS)", required = false, example = "X86 또는 HETEROGENEOUS")
+            @RequestParam(required = false)
+            String architect,
             @Parameter(description = "프로젝트 ID", required = true, example = "project-uuid-1234")
+            @RequestParam
             String projectId);
 }
