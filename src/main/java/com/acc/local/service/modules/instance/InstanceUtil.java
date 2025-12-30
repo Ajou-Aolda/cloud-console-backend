@@ -23,6 +23,13 @@ public class InstanceUtil {
         return hasKey ^ hasPass; // 인증 방식은 '키페어' 또는 '패스워드' 중 하나 (XOR)
     }
 
+    public boolean validateNetworkConnection(java.util.List<String> networkIds, java.util.List<String> interfaceIds) {
+        boolean hasNetwork = (networkIds != null && !networkIds.isEmpty());
+        boolean hasInterface = (interfaceIds != null && !interfaceIds.isEmpty());
+
+        return hasNetwork || hasInterface; // 네트워크 또는 인터페이스 중 최소 1개 필요 (OR)
+    }
+
     public void validateInstanceActionRequest(InstanceActionRequest request) {
         switch (request.getAction()) {
             case REMOVE_SECURITY_GROUP:

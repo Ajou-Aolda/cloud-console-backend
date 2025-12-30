@@ -55,6 +55,10 @@ public class InstanceServiceAdapter implements InstanceServicePort {
             throw new InstanceException(InstanceErrorCode.KEYPAIR_OR_PASSWORD_REQUIRED);
         }
 
+        if (!instanceUtil.validateNetworkConnection(request.getNetworkIds(), request.getInterfaceIds())) {
+            throw new InstanceException(InstanceErrorCode.NETWORK_OR_INTERFACE_REQUIRED);
+        }
+
         instanceModule.createInstance(keystoneToken, projectId, request);
     }
 
