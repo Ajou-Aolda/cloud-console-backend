@@ -11,20 +11,50 @@ import lombok.Setter;
 @Schema(description = "인터페이스 정보")
 public class ViewInterfacesResponse {
 
-    @Schema(description = "인터페이스 ID", example = "123e4567-e89b-12d3-a456-426614174000")
+    @Schema(description = "인터페이스 ID",
+            example = "123e4567-e89b-12d3-a456-426614174000",
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private String interfaceId;
-    @Schema(description = "인터페이스 이름", example = "my-interface")
+
+    @Schema(description = "인터페이스 이름",
+            example = "my-interface",
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private String interfaceName;
-    @Schema(description = "인터페이스 상태", example = "ACTIVE")
+
+    @Schema(description = """
+            인터페이스 상태
+            
+            - ACTIVE
+            - DOWN
+            - BUILD
+            - ERROR
+            - UNKNOWN
+            """,
+            example = "ACTIVE",
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private String status;
-    @Schema(description = "내부 IP", example = "192.168.0.1")
+
+    @Schema(description = "Internal IP",
+            example = "192.168.0.1",
+        requiredMode = Schema.RequiredMode.REQUIRED)
     private String internalIp;
-    @Schema(description = "외부 IP", example = "192.168.0.1")
+
+    @Schema(description = "External IP",
+            example = "192.168.0.1",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String externalIp;
-    @Schema(description = "인스턴스 정보")
+
+    @Schema(description = "인스턴스 정보",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Instance instance;
+
+    @Schema(description = "네트워크 정보",
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private Network network;
-    @Schema(description = "MAC 주소", example = "00:00:00:00:00:00")
+
+    @Schema(description = "MAC 주소",
+            example = "00:00:00:00:00:00",
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private String mac;
 
     @Builder
@@ -32,9 +62,13 @@ public class ViewInterfacesResponse {
     @Getter
     @Schema(description = "인스턴스 정보")
     public static class Instance {
-        @Schema(description = "인스턴스 ID", example = "123e4567-e89b-12d3-a456-426614174000")
+        @Schema(description = "인스턴스 ID",
+                example = "123e4567-e89b-12d3-a456-426614174000",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         private String instanceId;
-        @Schema(description = "인스턴스 이름", example = "my-instance")
+        @Schema(description = "인스턴스 이름",
+                example = "my-instance",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         private String instanceName;
     }
 
@@ -43,9 +77,14 @@ public class ViewInterfacesResponse {
     @Getter
     @Schema(description = "네트워크 정보")
     public static class Network {
-        @Schema(description = "네트워크 ID", example = "123e4567-e89b-12d3-a456-426614174000")
+        @Schema(description = "네트워크 ID",
+                example = "123e4567-e89b-12d3-a456-426614174000",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         private String networkId;
-        @Schema(description = "네트워크 이름", example = "my-network")
+
+        @Schema(description = "네트워크 이름",
+                example = "my-network",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         private String networkName;
     }
 
