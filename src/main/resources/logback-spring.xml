@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProperty scope="context" name="LOKI_URL" source="logging.loki.url" defaultValue="http://localhost:3100/loki/api/v1/push"/>
+
+    <!-- Appender for Loki -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+
+        <http>
+            <url>${LOKI_URL}</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=cloud-console-backend,host=${HOSTNAME},level=%level</pattern>
+            </label>
+            <message>
+                <pattern>
+                    {
+                    "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}",
+                    "level": "%level",
+                    "logger": "%logger{36}",
+                    "thread": "%thread",
+                    "message": "%message",
+                    "traceId": "%X{traceId:-}",
+                    "spanId": "%X{spanId:-}",
+                    "userId": "%X{userId:-}",
+                    "type": "%X{type:-}",
+                    "method": "%X{method:-}",
+                    "uri": "%X{uri:-}",
+                    "clientIp": "%X{clientIp:-}",
+                    "status": "%X{status:-}",
+                    "durationMs": "%X{durationMs:-}",
+                    "targetSystem": "%X{targetSystem:-}",
+                    "module": "%X{module:-}",
+                    "errorCode": "%X{errorCode:-}",
+                    "exceptionClass": "%X{exceptionClass:-}",
+                    "requestBody": "%X{requestBody:-}",
+                    "args": "%X{args:-}",
+                    "stackTrace": "%X{stackTrace:-}"
+                    }
+                </pattern>
+            </message>
+            <sortByTime>true</sortByTime>
+        </format>
+    </appender>
+
+    <springProfile name="!prod">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
+</configuration>
+
