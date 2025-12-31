@@ -10,7 +10,7 @@ import com.acc.local.dto.keypair.CreateKeypairRequest;
 import com.acc.local.dto.keypair.CreateKeypairResponse;
 import com.acc.local.dto.keypair.KeypairListResponse;
 import com.acc.local.entity.KeypairEntity;
-import com.acc.local.entity.KeypairProjectId;
+import com.acc.local.entity.id.KeypairProjectId;
 import com.acc.local.entity.ProjectEntity;
 import com.acc.local.external.ports.KeypairExternalPort;
 import com.acc.local.repository.ports.KeypairRepositoryPort;

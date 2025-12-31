@@ -1,5 +1,6 @@
 package com.acc.local.entity;
 
+import com.acc.local.entity.id.KeypairProjectId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,7 +19,7 @@ public class KeypairEntity {
     private String keypairId;
 
     @Column(name = "keypair_name", nullable = false)
-    private String keypairName;
+    private String keypairName; // fingerprint
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
