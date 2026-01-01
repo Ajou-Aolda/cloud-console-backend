@@ -6,7 +6,6 @@ import com.acc.local.dto.network.CreateNetworkRequest;
 import com.acc.local.dto.network.ViewNetworksResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -160,13 +159,6 @@ public interface NetworkDocs {
             @ApiResponse(
                     responseCode = "201",
                     description = "네트워크 및 서브넷 생성 성공. Location 헤더에 생성된 네트워크의 URI가 반환됩니다.",
-                    headers = {
-                        @Header(
-                            name = "Location",
-                            description = "생성된 네트워크의 URI",
-                            schema = @Schema(type = "string", example = "/api/networks/{networkId}")
-                        )
-                    },
                     content = @Content()
             ),
             @ApiResponse(

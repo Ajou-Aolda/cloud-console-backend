@@ -30,7 +30,7 @@ public class RouterController implements RouterDocs {
     public ResponseEntity<Object> createRouter(Authentication authentication, CreateRouterRequest request, String projectId) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String id = routerServicePort.createRouter(request, jwtInfo.getUserId(), projectId);
-        return ResponseEntity.created(URI.create("/api/v1/routers/" + id)).build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override

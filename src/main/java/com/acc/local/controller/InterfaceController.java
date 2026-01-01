@@ -33,7 +33,7 @@ public class InterfaceController implements InterfaceDocs {
     public ResponseEntity<Object> createInterface(Authentication authentication, CreateInterfaceRequest request, String projectId) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String id = interfaceServicePort.createInterface(jwtInfo.getUserId(), projectId, request);
-        return ResponseEntity.created(URI.create("/api/v1/interfaces" + id)).build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override
