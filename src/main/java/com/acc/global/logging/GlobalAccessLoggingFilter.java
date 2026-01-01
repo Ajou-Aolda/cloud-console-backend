@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
+import static net.logstash.logback.argument.StructuredArguments.raw;
+
 import java.io.IOException;
 
 @Slf4j
@@ -56,13 +58,25 @@ public class GlobalAccessLoggingFilter extends OncePerRequestFilter {
 
             if (status >= 400) {
                 String body = getRequestBody(request);
+                String sanitizedBody = null;
                 if (body != null && !body.isEmpty()) {
-                    MDC.put("requestBody", sanitizeBody(body));
+                    sanitizedBody = sanitizeBody(body);
                 }
+
+                Object bodyArg = (sanitizedBody != null) ? raw("requestBody", sanitizedBody) : null;
+
                 if (status >= 500) {
-                    log.error("[Access] Server Error - {} {}", method, uri);
+                    if (bodyArg != null) {
+                        log.error("[Access] Server Error - {} {}", method, uri, bodyArg);
+                    } else {
+                        log.error("[Access] Server Error - {} {}", method, uri);
+                    }
                 } else {
-                    log.warn("[Access] Client Error - {} {}", method, uri);
+                    if (bodyArg != null) {
+                        log.warn("[Access] Client Error - {} {}", method, uri, bodyArg);
+                    } else {
+                        log.warn("[Access] Client Error - {} {}", method, uri);
+                    }
                 }
             } else {
                 log.info("[Access] Success - {} {}", method, uri);

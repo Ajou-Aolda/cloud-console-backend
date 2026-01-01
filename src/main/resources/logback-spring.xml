@@ -36,7 +36,8 @@
                     <message>
                         <fieldName>message</fieldName>
                     </message>
-                    <mdc/> <!-- Includes all MDC fields dynamically -->
+                    <mdc/>
+                    <arguments/>
                     <stackTrace>
                         <fieldName>stackTrace</fieldName>
                     </stackTrace>

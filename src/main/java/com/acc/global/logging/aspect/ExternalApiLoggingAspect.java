@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import static net.logstash.logback.argument.StructuredArguments.raw;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +42,9 @@ public class ExternalApiLoggingAspect {
         MDC.put("targetSystem", targetSystem);
         MDC.put("module", className);
         MDC.put("method", methodName);
-        MDC.put("args", sanitizeArgs(joinPoint.getArgs(), signature.getParameterNames()));
+        
+        String argsJson = sanitizeArgs(joinPoint.getArgs(), signature.getParameterNames());
+        Object argsArg = raw("args", argsJson);
 
         try {
             Object result = joinPoint.proceed();
@@ -50,15 +54,15 @@ public class ExternalApiLoggingAspect {
                 MDC.put("statusCode", String.valueOf(response.getStatusCode().value()));
                 if (response.getStatusCode().is4xxClientError()) {
                     isSuccess = false;
-                    log.warn("[External] {} Client Error - {} {}", targetSystem, className, methodName);
+                    log.warn("[External] {} Client Error - {} {} {}", targetSystem, className, methodName, argsArg);
                 } else if (response.getStatusCode().is5xxServerError()) {
                     isSuccess = false;
-                    log.error("[External] {} Server Error - {} {}", targetSystem, className, methodName);
+                    log.error("[External] {} Server Error - {} {} {}", targetSystem, className, methodName, argsArg);
                 }
             }
             
             if (isSuccess) {
-                log.info("[External] {} Call Success - {} {}", targetSystem, className, methodName);
+                log.info("[External] {} Call Success - {} {} {}", targetSystem, className, methodName, argsArg);
             }
             MDC.put("success", String.valueOf(isSuccess));
             return result;
@@ -71,17 +75,17 @@ public class ExternalApiLoggingAspect {
             if (ex instanceof WebClientResponseException webEx) {
                 MDC.put("statusCode", String.valueOf(webEx.getStatusCode().value()));
                 if (webEx.getStatusCode().is4xxClientError()) {
-                    log.warn("[External] {} Client Exception - {} {}", targetSystem, className, methodName);
+                    log.warn("[External] {} Client Exception - {} {} {}", targetSystem, className, methodName, argsArg);
                 } else {
-                    log.error("[External] {} System Exception - {} {}", targetSystem, className, methodName);
+                    log.error("[External] {} System Exception - {} {} {}", targetSystem, className, methodName, argsArg);
                 }
             } else {
-                log.error("[External] {} Unknown Exception - {} {}", targetSystem, className, methodName);
+                log.error("[External] {} Unknown Exception - {} {} {}", targetSystem, className, methodName, argsArg);
             }
             throw ex;
         } finally {
             MDC.put("durationMs", String.valueOf(System.currentTimeMillis() - startTime));
-            cleanupMdcKeys("type", "targetSystem", "module", "method", "args", "statusCode", "success", "exception", "errorMessage", "durationMs");
+            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs");
         }
     }
 

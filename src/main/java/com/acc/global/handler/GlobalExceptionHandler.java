@@ -1,10 +1,16 @@
 package com.acc.global.handler;
 
+import static net.logstash.logback.argument.StructuredArguments.raw;
+import static net.logstash.logback.argument.StructuredArguments.value;
+
 import com.acc.global.exception.AccBaseException;
 import com.acc.global.exception.ErrorCode;
 import com.acc.global.exception.ErrorResponse;
 import com.acc.global.exception.common.CommonErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -16,27 +22,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final ObjectMapper objectMapper;
 
     @ExceptionHandler(AccBaseException.class)
     public ResponseEntity<ErrorResponse> handleAccBaseException(AccBaseException ex, HttpServletRequest request) {
         setupExceptionContext(ex, request);
         ErrorCode errorCode = ex.getErrorCode();
         HttpStatus status = HttpStatus.valueOf(errorCode.getStatus());
+        Object stackTraceArg = value("stackTrace", getStackTraceString(ex, 10));
 
         if (ex.getCause() instanceof WebClientResponseException webEx) {
             handleWrappedExternalException(ex, webEx);
         } else {
             if (status.is5xxServerError()) {
-                log.error("[Exception] Server Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), ex);
+                log.error("[Exception] Server Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), stackTraceArg);
             } else {
-                log.warn("[Exception] Client Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage());
+                log.warn("[Exception] Client Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), stackTraceArg);
             }
         }
         
@@ -48,8 +54,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         setupExceptionContext(ex, request);
         
-        log.error("[Exception] Unhandled System Error - {}", ex.getMessage(), ex);
-        //ex.printStackTrace();
+        Object stackTraceArg = value("stackTrace", getStackTraceString(ex, 10));
+        log.error("[Exception] Unhandled System Error - {}", ex.getMessage(), stackTraceArg);
+        
         cleanupExceptionContext();
 
         return ResponseEntity
@@ -61,16 +68,52 @@ public class GlobalExceptionHandler {
         HttpStatus externalStatus = HttpStatus.valueOf(cause.getStatusCode().value());
         String errorCode = parentEx.getErrorCode().getCode();
         MDC.put("externalStatus", String.valueOf(externalStatus.value()));
-        MDC.put("externalBody", cause.getResponseBodyAsString());
+        
+        String body = cause.getResponseBodyAsString();
+        Object bodyArg = null;
+        if (body != null && !body.isEmpty()) {
+            try {
+                if (body.trim().startsWith("{")) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> jsonMap = objectMapper.readValue(body, Map.class);
+                    bodyArg = raw("externalBody", objectMapper.writeValueAsString(jsonMap));
+                } else if (body.trim().startsWith("[")) {
+                    @SuppressWarnings("unchecked")
+                    List<Object> jsonList = objectMapper.readValue(body, List.class);
+                    bodyArg = raw("externalBody", objectMapper.writeValueAsString(jsonList));
+                } else {
+                    bodyArg = value("externalBody", body);
+                }
+            } catch (Exception e) {
+                bodyArg = value("externalBody", body);
+            }
+        }
 
+        Object stackTraceArg = value("stackTrace", getStackTraceString(parentEx, 10));
         if (externalStatus.is5xxServerError()) {
-            log.error("[Exception] External System Failure (Wrapped) - Code: {}, External: {}", errorCode, externalStatus, parentEx);
+            logError("[Exception] External System Failure (Wrapped)", errorCode, externalStatus, bodyArg, stackTraceArg);
         } else if (externalStatus == HttpStatus.BAD_REQUEST) {
-            log.error("[Exception] External Bad Request (Wrapped) - Possible Logic Bug - Code: {}, External: 400", errorCode, parentEx);
+            logError("[Exception] External Bad Request (Wrapped) - Possible Logic Bug", errorCode, externalStatus, bodyArg, stackTraceArg);
         } else if (externalStatus == HttpStatus.NOT_FOUND || externalStatus == HttpStatus.CONFLICT) {
-            log.warn("[Exception] External Resource Issue (Wrapped) - Code: {}, External: {}", errorCode, externalStatus);
+            logWarn("[Exception] External Resource Issue (Wrapped)", errorCode, externalStatus, bodyArg, stackTraceArg);
         } else {
-            log.warn("[Exception] External Client Error (Wrapped) - Code: {}, External: {}", errorCode, externalStatus);
+            logWarn("[Exception] External Client Error (Wrapped)", errorCode, externalStatus, bodyArg, stackTraceArg);
+        }
+    }
+    
+    private void logError(String msg, String errorCode, HttpStatus externalStatus, Object bodyArg, Object stackTraceArg) {
+        if (bodyArg != null) {
+            log.error("{} - Code: {}, External: {}", msg, errorCode, externalStatus, bodyArg, stackTraceArg);
+        } else {
+            log.error("{} - Code: {}, External: {}", msg, errorCode, externalStatus, stackTraceArg);
+        }
+    }
+
+    private void logWarn(String msg, String errorCode, HttpStatus externalStatus, Object bodyArg, Object stackTraceArg) {
+        if (bodyArg != null) {
+            log.warn("{} - Code: {}, External: {}", msg, errorCode, externalStatus, bodyArg, stackTraceArg);
+        } else {
+            log.warn("{} - Code: {}, External: {}", msg, errorCode, externalStatus, stackTraceArg);
         }
     }
 
@@ -88,24 +131,49 @@ public class GlobalExceptionHandler {
             }
         }
         
-        MDC.put("stackTrace", getStackTraceSnippet(ex));
     }
     
     private void cleanupExceptionContext() {
         MDC.remove("exceptionClass");
         MDC.remove("stackTrace");
         MDC.remove("externalStatus");
-        MDC.remove("externalBody");
         MDC.remove("type");
         MDC.remove("path");
     }
 
-    private String getStackTraceSnippet(Throwable throwable) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        throwable.printStackTrace(pw);
-        String stackTrace = sw.toString();
-        return stackTrace.length() > 1000 ? stackTrace.substring(0, 1000) + "..." : stackTrace;
+    /**
+     * 스택트레이스를 제한된 개수만큼만 포함하는 문자열로 변환합니다.
+     * @param throwable 원본 예외
+     * @param maxLines 최대 스택트레이스 라인 수
+     * @return 스택트레이스 문자열
+     */
+    private String getStackTraceString(Throwable throwable, int maxLines) {
+        StringBuilder sb = new StringBuilder();
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        
+        sb.append(throwable.toString());
+        for (int i = 0; i < Math.min(stackTrace.length, maxLines); i++) {
+            sb.append("\n\tat ").append(stackTrace[i].toString());
+        }
+        
+        if (stackTrace.length > maxLines) {
+            sb.append("\n\t... ").append(stackTrace.length - maxLines).append(" more");
+        }
+        
+        // Caused by 추가 (있는 경우, 첫 번째 원인만)
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
+            sb.append("\nCaused by: ").append(cause.toString());
+            StackTraceElement[] causeTrace = cause.getStackTrace();
+            for (int i = 0; i < Math.min(causeTrace.length, 3); i++) {
+                sb.append("\n\tat ").append(causeTrace[i].toString());
+            }
+            if (causeTrace.length > 3) {
+                sb.append("\n\t... ").append(causeTrace.length - 3).append(" more");
+            }
+        }
+        
+        return sb.toString();
     }
 }
 

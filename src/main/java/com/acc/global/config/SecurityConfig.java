@@ -1,7 +1,7 @@
 package com.acc.global.config;
 
 import com.acc.global.logging.GlobalAccessLoggingFilter;
-import com.acc.global.logging.wrapper.RequestCachingFilter;
+import com.acc.global.logging.RequestCachingFilter;
 import com.acc.global.security.jwt.JwtAuthenticationFilter;
 import com.acc.global.security.oauth.OAuth2CustomUserService;
 import com.acc.global.security.oauth.handler.OAuthFailureHandler;
