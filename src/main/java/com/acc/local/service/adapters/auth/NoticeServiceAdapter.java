@@ -6,6 +6,7 @@ import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.local.dto.auth.CreateNoticeRequest;
 import com.acc.local.dto.auth.CreateNoticeResponse;
+import com.acc.local.dto.auth.GetNoticeResponse;
 import com.acc.local.dto.auth.ListNoticesResponse;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.service.modules.auth.NoticeModule;
@@ -25,12 +26,21 @@ public class NoticeServiceAdapter implements NoticeServicePort {
 
     private final NoticeModule noticeModule;
     private final UserModule userModule;
+
     @Override
     public CreateNoticeResponse adminCreateNotice(CreateNoticeRequest request, String requesterId) {
         // 권한 체크
         userModule.isAdminUser(requesterId);
 
         return noticeModule.adminCreateNotice(request, requesterId);
+    }
+
+    @Override
+    public GetNoticeResponse adminGetNotice(String noticeId, String requesterId) {
+        // 권한 체크
+        userModule.isAdminUser(requesterId);
+
+        return noticeModule.adminGetNotice(noticeId);
     }
 
     @Override

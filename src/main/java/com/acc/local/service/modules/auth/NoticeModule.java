@@ -5,9 +5,12 @@ import com.acc.global.common.PageResponse;
 import com.acc.global.exception.ErrorCode;
 import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
+import com.acc.global.exception.notice.NoticeErrorCode;
+import com.acc.global.exception.notice.NoticeServiceException;
 import com.acc.local.domain.model.auth.Notice;
 import com.acc.local.dto.auth.CreateNoticeRequest;
 import com.acc.local.dto.auth.CreateNoticeResponse;
+import com.acc.local.dto.auth.GetNoticeResponse;
 import com.acc.local.dto.auth.ListNoticesResponse;
 import com.acc.local.entity.NoticeEntity;
 import com.acc.local.entity.UserDetailEntity;
@@ -60,6 +63,27 @@ public class NoticeModule {
                 savedNotice.getCreatedAt(),
                 savedNotice.getStartsAt(),
                 savedNotice.getEndsAt()
+        );
+    }
+
+    /**
+     * 관리자 공지사항 상세 조회
+     */
+    @Transactional
+    public GetNoticeResponse adminGetNotice(String noticeId) {
+        NoticeEntity notice = noticeRepositoryPort.findById(noticeId)
+                .orElseThrow(() -> new NoticeServiceException(NoticeErrorCode.NOTICE_NOT_FOUND));
+
+        String createdBy = getUserNameById(notice.getNoticeUserId());
+
+        return GetNoticeResponse.from(
+                notice.getNoticeId(),
+                notice.getNoticeTitle(),
+                notice.getNoticeDescription(),
+                createdBy,
+                notice.getCreatedAt(),
+                notice.getStartsAt(),
+                notice.getEndsAt()
         );
     }
 
