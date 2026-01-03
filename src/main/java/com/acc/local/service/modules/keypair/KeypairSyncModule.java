@@ -37,11 +37,11 @@ public class KeypairSyncModule {
      * OpenStack CLI나 대시보드를 통해 직접 생성/삭제된 Keypair를 감지하여
      * BFF DB와의 정합성을 유지합니다.
      */
-//    @Scheduled(cron = "0 */10 * * * *")  // 매 10분마다 실행
-    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")  // 매일 새벽 5시 (한국시간)
+    @Scheduled(cron = "0 */3 * * * *")  // 매 3분마다 실행
+//    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")  // 매일 새벽 5시 (한국시간)
     @SchedulerLock(
         name = "KeypairSyncTask",
-        lockAtMostFor = "30m",   // 최대 30분
+        lockAtMostFor = "2m",   // 최대 30분
         lockAtLeastFor = "1m"    // 최소 1분 (중복 실행 방지)
     )
     public void syncAllProjects() {
