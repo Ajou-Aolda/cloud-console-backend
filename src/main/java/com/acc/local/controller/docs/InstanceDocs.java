@@ -355,8 +355,360 @@ public interface InstanceDocs {
             @RequestParam("instanceId")
             @Parameter(description = "인스턴스 고유 ID", required = true, example = "vm-uuid-1234-5678")
             String instanceId,
-            @RequestBody
-            @Parameter(description = "인스턴스 작업 요청 정보", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "인스턴스 작업 요청 정보 - action 필드에 따라 추가 필드가 필요할 수 있습니다",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "START - 인스턴스 시작",
+                                            description = "SHUTOFF 상태의 인스턴스를 시작합니다",
+                                            value = """
+                                                    {
+                                                        "action": "START"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "STOP - 인스턴스 정지",
+                                            description = "ACTIVE 또는 ERROR 상태의 인스턴스를 정지합니다",
+                                            value = """
+                                                    {
+                                                        "action": "STOP"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "REBOOT (SOFT) - 소프트 재부팅",
+                                            description = "정상적인 종료 후 재시작 (ACTIVE 상태 필요)",
+                                            value = """
+                                                    {
+                                                        "action": "REBOOT",
+                                                        "type": "SOFT"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "REBOOT (HARD) - 하드 재부팅",
+                                            description = "강제 종료 후 재시작 (전원 순환)",
+                                            value = """
+                                                    {
+                                                        "action": "REBOOT",
+                                                        "type": "HARD"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "PAUSE - 일시 중지",
+                                            description = "인스턴스를 일시 중지합니다 (메모리 상태 유지)",
+                                            value = """
+                                                    {
+                                                        "action": "PAUSE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNPAUSE - 일시 중지 해제",
+                                            description = "PAUSED 상태의 인스턴스를 재개합니다",
+                                            value = """
+                                                    {
+                                                        "action": "UNPAUSE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "SUSPEND - 절전",
+                                            description = "인스턴스를 절전 모드로 전환합니다",
+                                            value = """
+                                                    {
+                                                        "action": "SUSPEND"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "RESUME - 재개",
+                                            description = "SUSPENDED 상태의 인스턴스를 재개합니다",
+                                            value = """
+                                                    {
+                                                        "action": "RESUME"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "LOCK - 잠금",
+                                            description = "인스턴스를 잠급니다 (일반 사용자의 작업 제한)",
+                                            value = """
+                                                    {
+                                                        "action": "LOCK"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "LOCK (사유 포함)",
+                                            description = "잠금 사유를 포함하여 인스턴스를 잠급니다",
+                                            value = """
+                                                    {
+                                                        "action": "LOCK",
+                                                        "lockedReason": "Maintenance in progress"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNLOCK - 잠금 해제",
+                                            description = "잠긴 인스턴스의 잠금을 해제합니다",
+                                            value = """
+                                                    {
+                                                        "action": "UNLOCK"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "ADD_SECURITY_GROUP - 보안 그룹 추가",
+                                            description = "인스턴스에 보안 그룹을 추가합니다",
+                                            value = """
+                                                    {
+                                                        "action": "ADD_SECURITY_GROUP",
+                                                        "name": "web-security-group"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "REMOVE_SECURITY_GROUP - 보안 그룹 제거",
+                                            description = "인스턴스에서 보안 그룹을 제거합니다",
+                                            value = """
+                                                    {
+                                                        "action": "REMOVE_SECURITY_GROUP",
+                                                        "name": "web-security-group"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "CHANGE_PASSWORD - 비밀번호 변경",
+                                            description = "인스턴스의 관리자 비밀번호를 변경합니다",
+                                            value = """
+                                                    {
+                                                        "action": "CHANGE_PASSWORD",
+                                                        "adminPass": "NewSecurePassword123!"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "RESIZE - 크기 변경",
+                                            description = "인스턴스의 Flavor를 변경합니다 (ACTIVE 또는 SHUTOFF 상태 필요)",
+                                            value = """
+                                                    {
+                                                        "action": "RESIZE",
+                                                        "flavorRef": "flavor-uuid-5678"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "CONFIRM_RESIZE - 크기 변경 확인",
+                                            description = "보류 중인 크기 변경을 확인합니다 (VERIFY_RESIZE 상태 필요)",
+                                            value = """
+                                                    {
+                                                        "action": "CONFIRM_RESIZE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "REVERT_RESIZE - 크기 변경 롤백",
+                                            description = "보류 중인 크기 변경을 취소합니다 (VERIFY_RESIZE 상태 필요)",
+                                            value = """
+                                                    {
+                                                        "action": "REVERT_RESIZE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "REBUILD (기본)",
+                                            description = "인스턴스를 새 이미지로 재구축합니다",
+                                            value = """
+                                                    {
+                                                        "action": "REBUILD",
+                                                        "imageRef": "image-uuid-5678"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "REBUILD (전체 옵션)",
+                                            description = "인스턴스를 재구축하면서 이름, 비밀번호, 메타데이터 등을 변경합니다",
+                                            value = """
+                                                    {
+                                                        "action": "REBUILD",
+                                                        "imageRef": "image-uuid-5678",
+                                                        "name": "rebuilt-server",
+                                                        "adminPass": "NewPassword123!",
+                                                        "metadata": {
+                                                            "environment": "production",
+                                                            "version": "2.0"
+                                                        },
+                                                        "description": "Rebuilt after security update",
+                                                        "keyName": "my-keypair"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "CREATE_IMAGE - 이미지 생성",
+                                            description = "인스턴스의 스냅샷 이미지를 생성합니다",
+                                            value = """
+                                                    {
+                                                        "action": "CREATE_IMAGE",
+                                                        "name": "my-server-snapshot-2026-01-03"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "CREATE_IMAGE (메타데이터 포함)",
+                                            description = "메타데이터를 포함하여 이미지를 생성합니다",
+                                            value = """
+                                                    {
+                                                        "action": "CREATE_IMAGE",
+                                                        "name": "my-server-snapshot-2026-01-03",
+                                                        "metadata": {
+                                                            "description": "Backup before major update",
+                                                            "created_by": "admin",
+                                                            "version": "1.5"
+                                                        }
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "CREATE_BACKUP - 백업 생성",
+                                            description = "인스턴스의 백업을 생성합니다 (볼륨 기반 인스턴스 미지원)",
+                                            value = """
+                                                    {
+                                                        "action": "CREATE_BACKUP",
+                                                        "name": "Daily Backup 2026-01-03",
+                                                        "backupType": "daily",
+                                                        "rotation": 7
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "CREATE_BACKUP (메타데이터 포함)",
+                                            description = "메타데이터를 포함하여 백업을 생성합니다",
+                                            value = """
+                                                    {
+                                                        "action": "CREATE_BACKUP",
+                                                        "name": "Weekly Backup 2026-01-03",
+                                                        "backupType": "weekly",
+                                                        "rotation": 4,
+                                                        "metadata": {
+                                                            "schedule": "every-sunday",
+                                                            "retention": "1-month"
+                                                        }
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "RESCUE - 복구 모드",
+                                            description = "인스턴스를 복구 모드로 전환합니다",
+                                            value = """
+                                                    {
+                                                        "action": "RESCUE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "RESCUE (전체 옵션)",
+                                            description = "복구 이미지와 비밀번호를 지정하여 복구 모드로 전환합니다",
+                                            value = """
+                                                    {
+                                                        "action": "RESCUE",
+                                                        "adminPass": "RescuePassword123!",
+                                                        "rescueImageRef": "rescue-image-uuid-1234"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNRESCUE - 복구 모드 해제",
+                                            description = "RESCUE 상태의 인스턴스를 정상 모드로 되돌립니다",
+                                            value = """
+                                                    {
+                                                        "action": "UNRESCUE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "SHELVE - 보관",
+                                            description = "인스턴스를 보관합니다 (이미지 생성 후 리소스 최소화)",
+                                            value = """
+                                                    {
+                                                        "action": "SHELVE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "SHELVE_OFFLOAD - 보관 오프로드",
+                                            description = "SHELVED 상태의 인스턴스를 하이퍼바이저에서 제거합니다",
+                                            value = """
+                                                    {
+                                                        "action": "SHELVE_OFFLOAD"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNSHELVE - 보관 해제",
+                                            description = "보관된 인스턴스를 복원합니다",
+                                            value = """
+                                                    {
+                                                        "action": "UNSHELVE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNSHELVE (가용 영역 지정)",
+                                            description = "특정 가용 영역에 인스턴스를 복원합니다",
+                                            value = """
+                                                    {
+                                                        "action": "UNSHELVE",
+                                                        "availabilityZone": "us-west"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNSHELVE (호스트 지정)",
+                                            description = "특정 호스트에 인스턴스를 복원합니다 (PROJECT_ADMIN 권한 필요)",
+                                            value = """
+                                                    {
+                                                        "action": "UNSHELVE",
+                                                        "host": "compute-node-01.example.com"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UNSHELVE (가용 영역 고정 해제)",
+                                            description = "가용 영역 고정을 해제하고 인스턴스를 복원합니다",
+                                            value = """
+                                                    {
+                                                        "action": "UNSHELVE",
+                                                        "availabilityZone": null
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "FORCE_DELETE - 강제 삭제",
+                                            description = "지연된 정리 작업 전에 인스턴스를 강제로 삭제합니다",
+                                            value = """
+                                                    {
+                                                        "action": "FORCE_DELETE"
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "RESTORE - 복원",
+                                            description = "SOFT_DELETED 상태의 인스턴스를 복원합니다",
+                                            value = """
+                                                    {
+                                                        "action": "RESTORE"
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
             InstanceActionRequest request
     );
 }
