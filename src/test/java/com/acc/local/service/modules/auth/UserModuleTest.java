@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-class UserKeystoneModuleTest {
+class UserModuleTest {
 
     @Mock
     private KeystoneAPIExternalPort keystoneAPIExternalPort;
