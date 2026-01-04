@@ -24,19 +24,19 @@ public record GetUserResponse(
     String phoneNumber,
     Integer projectLimit
 ) {
-    public static GetUserResponse from(UserKeystone userKeystone) {
+    public static GetUserResponse from(UserKeystoneDto userKeystoneDto) {
         return GetUserResponse.builder()
-                .id(userKeystone.id())
-                .name(userKeystone.name())
-                .domainId(userKeystone.domainId())
-                .defaultProjectId(userKeystone.defaultProjectId())
-                .enabled(userKeystone.enabled())
-                .federated(userKeystone.federated())
-                .links(userKeystone.links())
-                .passwordExpiresAt(userKeystone.passwordExpiresAt())
-                .email(userKeystone.email())
-                .description(userKeystone.description())
-                .options(userKeystone.options())
+                .id(userKeystoneDto.id())
+                .name(userKeystoneDto.name())
+                .domainId(userKeystoneDto.domainId())
+                .defaultProjectId(userKeystoneDto.defaultProjectId())
+                .enabled(userKeystoneDto.enabled())
+                .federated(userKeystoneDto.federated())
+                .links(userKeystoneDto.links())
+                .passwordExpiresAt(userKeystoneDto.passwordExpiresAt())
+                .email(userKeystoneDto.email())
+                .description(userKeystoneDto.description())
+                .options(userKeystoneDto.options())
                 .build();
     }
 }

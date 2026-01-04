@@ -5,7 +5,7 @@ import com.acc.local.domain.enums.auth.AuthType;
 import com.acc.local.domain.enums.auth.KeystoneTokenType;
 import com.acc.global.security.jwt.JwtUtils;
 import com.acc.local.domain.model.auth.RefreshToken;
-import com.acc.local.dto.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;
@@ -208,7 +208,7 @@ class AuthModuleTest {
     @DisplayName("관리자는 ACC 요청자의 개인정보와 keystone 토큰을 이용해 Keystone의 사용자 계정을 생성하고 ACC DB에 저장할 수 있다.")
     void givenDomainUserAndKeystoneToken_whenCreateKeystoneUser_thenReturnKeystoneUserInfoAndSaveToAccDB() throws Exception {
         // given
-        UserKeystone userKeystone = UserKeystone.builder()
+        UserKeystoneDto userKeystoneDto = UserKeystoneDto.builder()
                 .name("testUser")
                 .email("test@example.com")
                 .enabled(true)
@@ -229,13 +229,13 @@ class AuthModuleTest {
         ResponseEntity<JsonNode> mockResponse = new ResponseEntity<>(userBody, HttpStatus.OK);
         when(keystoneAPIExternalPort.createUser(eq(keystoneToken), any())).thenReturn(mockResponse);
         // when
-        UserKeystone createdUserKeystone = authModule.createUser(userKeystone, userId);
+        UserKeystoneDto createdUserKeystoneDto = authModule.createUser(userKeystoneDto, userId);
 
         // then
-        assertEquals(createdUserId, createdUserKeystone.getId());
-        assertEquals("testUser", createdUserKeystone.getName());
-        assertEquals("test@example.com", createdUserKeystone.getEmail());
-        assertTrue(createdUserKeystone.isEnabled());
+        assertEquals(createdUserId, createdUserKeystoneDto.getId());
+        assertEquals("testUser", createdUserKeystoneDto.getName());
+        assertEquals("test@example.com", createdUserKeystoneDto.getEmail());
+        assertTrue(createdUserKeystoneDto.isEnabled());
         // assertEquals("컴퓨터공학과", createdKeystoneUser.getDepartment());
         // assertEquals("010-1234-5678", createdKeystoneUser.getPhoneNumber());
         verify(keystoneAPIExternalPort).createUser(eq(keystoneToken), any());
@@ -270,14 +270,14 @@ class AuthModuleTest {
         );
         
         // when
-        UserKeystone userKeystoneDetail = authModule.getUserDetail(targetUserId, requesterId);
+        UserKeystoneDto userKeystoneDtoDetail = authModule.getUserDetail(targetUserId, requesterId);
 
         // then
-        assertEquals(targetUserId, userKeystoneDetail.getId());
-        assertEquals("testUser", userKeystoneDetail.getName());
-        assertEquals("test@example.com", userKeystoneDetail.getEmail());
-        assertEquals("test description", userKeystoneDetail.getDescription());
-        assertTrue(userKeystoneDetail.isEnabled());
+        assertEquals(targetUserId, userKeystoneDtoDetail.getId());
+        assertEquals("testUser", userKeystoneDtoDetail.getName());
+        assertEquals("test@example.com", userKeystoneDtoDetail.getEmail());
+        assertEquals("test description", userKeystoneDtoDetail.getDescription());
+        assertTrue(userKeystoneDtoDetail.isEnabled());
         // verify(keystoneAPIExternalPort).getUserDetail(targetUserId, keystoneToken);
        }
 
@@ -287,7 +287,7 @@ class AuthModuleTest {
         // given
         String targetUserId = "target-user-id";
         String requesterId = "requester-id";
-        UserKeystone userKeystone = UserKeystone.builder()
+        UserKeystoneDto userKeystoneDto = UserKeystoneDto.builder()
                 .name("updatedUser")
                 .email("updated@example.com")
                 .description("updated description")
@@ -310,14 +310,14 @@ class AuthModuleTest {
         );
         ResponseEntity<JsonNode> mockResponse = new ResponseEntity<>(userBody, HttpStatus.OK);
         when(keystoneAPIExternalPort.updateUser(eq(targetUserId), eq(keystoneToken), any())).thenReturn(mockResponse);
-        UserKeystone updatedUserKeystone = authModule.updateUser(targetUserId, userKeystone, requesterId);
+        UserKeystoneDto updatedUserKeystoneDto = authModule.updateUser(targetUserId, userKeystoneDto, requesterId);
 
         // then
-        assertEquals(targetUserId, updatedUserKeystone.getId());
-        assertEquals("updatedUser", updatedUserKeystone.getName());
-        assertEquals("updated@example.com", updatedUserKeystone.getEmail());
-        assertEquals("updated description", updatedUserKeystone.getDescription());
-        assertTrue(updatedUserKeystone.isEnabled());
+        assertEquals(targetUserId, updatedUserKeystoneDto.getId());
+        assertEquals("updatedUser", updatedUserKeystoneDto.getName());
+        assertEquals("updated@example.com", updatedUserKeystoneDto.getEmail());
+        assertEquals("updated description", updatedUserKeystoneDto.getDescription());
+        assertTrue(updatedUserKeystoneDto.isEnabled());
         // assertEquals("전자공학과", updatedKeystoneUser.getDepartment());
         // assertEquals("010-9876-5432", updatedKeystoneUser.getPhoneNumber());
         verify(keystoneAPIExternalPort).updateUser(eq(targetUserId), eq(keystoneToken), any());

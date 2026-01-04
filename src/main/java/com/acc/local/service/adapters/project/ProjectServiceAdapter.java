@@ -12,7 +12,7 @@ import com.acc.global.exception.project.ProjectErrorCode;
 import com.acc.global.exception.project.ProjectServiceException;
 import com.acc.local.domain.enums.project.ProjectRequestStatus;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.dto.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.dto.project.CreateProjectRequestRequest;
 import com.acc.local.dto.project.CreateProjectRequestResponse;
 import com.acc.local.dto.project.GetProjectResponse;
@@ -57,7 +57,7 @@ public class ProjectServiceAdapter implements ProjectServicePort {
 				// TODO(MR~): 사용자 통합정보 조회모듈 사용
 				List<ProjectParticipantDto> projectParticipants = projectModule.getProjectParticipantList(projectInfo.projectId());
 
-				UserKeystone ownerUser = null;
+				UserKeystoneDto ownerUser = null;
 				if (projectInfo.ownerKeystoneId() != null) {
 					ownerUser = authModule.getUserDetail(
 						projectInfo.ownerKeystoneId(),
@@ -68,7 +68,7 @@ public class ProjectServiceAdapter implements ProjectServicePort {
 				projectResponseList.add(ProjectResponse.from(projectInfo, ownerUser, projectParticipants));
 			}
 
-			UserKeystone userDetail = authModule.getUserDetail(requestUserId, requestUserId);
+			UserKeystoneDto userDetail = authModule.getUserDetail(requestUserId, requestUserId);
 			projectModule.getAllProjectRequestList(keyword, requestUserId).stream()
 				.filter(v -> v.status() != ProjectRequestStatus.APPROVED)
 				.forEach(
@@ -99,7 +99,7 @@ public class ProjectServiceAdapter implements ProjectServicePort {
 
 		List<ProjectRequestResponse> projectRequestResponseList = new ArrayList<>();
 		for (ProjectRequestDto projectRequest : projectRequestsList) {
-			UserKeystone requestedUser = authModule.getUserDetail(projectRequest.requestUserId(), requesterId);
+			UserKeystoneDto requestedUser = authModule.getUserDetail(projectRequest.requestUserId(), requesterId);
 			projectRequestResponseList.add(ProjectRequestResponse.from(projectRequest, requestedUser));
 		}
 

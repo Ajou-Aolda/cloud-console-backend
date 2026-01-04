@@ -3,7 +3,7 @@ package com.acc.local.external.ports;
 import com.acc.global.common.PageRequest;
 import com.acc.global.exception.AccBaseException;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.dto.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.dto.project.ProjectListDto;
 import com.acc.local.domain.model.auth.Role;
@@ -88,7 +88,7 @@ public interface KeystoneAPIExternalPort {
 
 	void retrieveProjectRole(String userId, String projectId, String projectRole, String token);
 
-	List<UserKeystone> getUsersByEmail(String keyword);
+	List<UserKeystoneDto> getUsersByEmail(String keyword);
 
 	String getAdminProjectId(String token);
 }

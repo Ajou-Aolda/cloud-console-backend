@@ -16,14 +16,14 @@ public record CreateUserResponse(
     String phoneNumber,
     Integer projectLimit
 ) {
-    public static CreateUserResponse from(UserKeystone userKeystone) {
+    public static CreateUserResponse from(UserKeystoneDto userKeystoneDto) {
         return CreateUserResponse.builder()
-                .userId(userKeystone.id())
-                .userName(userKeystone.name())
-                .defaultProjectId(userKeystone.defaultProjectId())
-                .domainId(userKeystone.domainId())
-                .email(userKeystone.email())
-                .enabled(userKeystone.enabled())
+                .userId(userKeystoneDto.id())
+                .userName(userKeystoneDto.name())
+                .defaultProjectId(userKeystoneDto.defaultProjectId())
+                .domainId(userKeystoneDto.domainId())
+                .email(userKeystoneDto.email())
+                .enabled(userKeystoneDto.enabled())
                 .build();
     }
 }

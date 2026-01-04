@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Builder
-public record UserKeystone(
+public record UserKeystoneDto(
         String id,
         String name,
         String password,
@@ -23,12 +23,12 @@ public record UserKeystone(
 ) {
 
     @Deprecated
-    public static UserKeystone from(CreateUserRequest request) {
+    public static UserKeystoneDto from(CreateUserRequest request) {
         if (request == null) {
             return null;
         }
 
-        return UserKeystone.builder()
+        return UserKeystoneDto.builder()
                 .name(extractUsernameFromEmail(request.userName()))
                 .email(request.userEmail())
                 .enabled(true)
@@ -38,12 +38,12 @@ public record UserKeystone(
     }
 
     @Deprecated
-    public static UserKeystone from(UpdateUserRequest request) {
+    public static UserKeystoneDto from(UpdateUserRequest request) {
         if (request == null) {
             return null;
         }
 
-        return UserKeystone.builder()
+        return UserKeystoneDto.builder()
                 .name(request.userName())
                 .email(request.userEmail())
                 .description(request.description())
@@ -54,8 +54,8 @@ public record UserKeystone(
     }
 
     @Deprecated
-    public static UserKeystone from(SignupRequest request) {
-        return UserKeystone.builder()
+    public static UserKeystoneDto from(SignupRequest request) {
+        return UserKeystoneDto.builder()
                 .name(extractUsernameFromEmail(request.email())) // email의 @ 앞부분만 name(아이디)로 사용
                 .email(request.email())
                 .password(request.password())
@@ -64,8 +64,8 @@ public record UserKeystone(
     }
 
     @Deprecated
-    public static UserKeystone from(AdminCreateUserRequest request) {
-        return UserKeystone.builder()
+    public static UserKeystoneDto from(AdminCreateUserRequest request) {
+        return UserKeystoneDto.builder()
                 .name(extractUsernameFromEmail(request.email())) // email의 @ 앞부분만 name(아이디)로 사용
                 .password(request.password())
                 .enabled(request.isEnabled())
@@ -87,8 +87,8 @@ public record UserKeystone(
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        UserKeystone UserKeystone = (UserKeystone) obj;
-        return Objects.equals(id, UserKeystone.id);
+        UserKeystoneDto UserKeystoneDto = (UserKeystoneDto) obj;
+        return Objects.equals(id, UserKeystoneDto.id);
     }
 
     @Override

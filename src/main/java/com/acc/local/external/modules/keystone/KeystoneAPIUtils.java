@@ -5,7 +5,7 @@ import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.external.dto.OpenstackPagination;
 import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import com.acc.local.external.dto.keystone.KeystoneProject;
-import com.acc.local.dto.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.*;
 import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
@@ -104,7 +104,7 @@ public class KeystoneAPIUtils {
         return auditIds;
     }
 
-    public static UserKeystone parseKeystoneUserResponse(ResponseEntity<JsonNode> response) {
+    public static UserKeystoneDto parseKeystoneUserResponse(ResponseEntity<JsonNode> response) {
         JsonNode body = validateAndExtractBody(response);
 
         if (!body.has("user")) {
@@ -117,7 +117,7 @@ public class KeystoneAPIUtils {
         try {
             JsonNode userObject = body.get("user");
             //TODO : DTO 내부에 from 메서드로 정의
-            return UserKeystone.builder()
+            return UserKeystoneDto.builder()
                     .id(userObject.has("id") ? userObject.get("id").asText() : null)
                     .name(userObject.has("name") ? userObject.get("name").asText() : null)
                     .domainId(userObject.has("domain_id") ? userObject.get("domain_id").asText() : null)
@@ -283,10 +283,10 @@ public class KeystoneAPIUtils {
             JsonNode usersNode = body.get("users");
             JsonNode linksNode = body.get("links");
 
-            List<UserKeystone> userKeystones = new ArrayList<>();
+            List<UserKeystoneDto> userKeystoneDtos = new ArrayList<>();
             if (usersNode != null && usersNode.isArray()) {
                 for (JsonNode userNode : usersNode) {
-                    UserKeystone userKeystone = UserKeystone.builder()
+                    UserKeystoneDto userKeystoneDto = UserKeystoneDto.builder()
                             .id(userNode.has("id") ? userNode.get("id").asText() : null)
                             .name(userNode.has("name") ? userNode.get("name").asText() : null)
                             .domainId(userNode.has("domain_id") ? userNode.get("domain_id").asText() : null)
@@ -295,7 +295,7 @@ public class KeystoneAPIUtils {
                             .email(userNode.has("email") ? userNode.get("email").asText() : null)
                             .description(userNode.has("description") ? userNode.get("description").asText() : null)
                             .build();
-                    userKeystones.add(userKeystone);
+                    userKeystoneDtos.add(userKeystoneDto);
                 }
             }
 
@@ -303,7 +303,7 @@ public class KeystoneAPIUtils {
             String prevMarker = extractMarkerFromLink(linksNode, "previous");
 
             return UserListResponse.builder()
-                    .userKeystones(userKeystones)
+                    .userKeystoneDtos(userKeystoneDtos)
                     .nextMarker(nextMarker)
                     .prevMarker(prevMarker)
                     .build();
@@ -320,12 +320,12 @@ public class KeystoneAPIUtils {
 
     // --  Request DTO 생성 메서드 ---//
 
-    public static Map<String, Object> createKeystoneUserRequest(UserKeystone userKeystone) {
+    public static Map<String, Object> createKeystoneUserRequest(UserKeystoneDto userKeystoneDto) {
         Map<String, Object> userObject = new HashMap<>();
-        userObject.put("name", userKeystone.name());
-        userObject.put("password", userKeystone.password());
-        userObject.put("enabled", userKeystone.enabled());
-        userObject.put("email", userKeystone.email());
+        userObject.put("name", userKeystoneDto.name());
+        userObject.put("password", userKeystoneDto.password());
+        userObject.put("enabled", userKeystoneDto.enabled());
+        userObject.put("email", userKeystoneDto.email());
 
         Map<String, Object> request = new HashMap<>();
         request.put("user", userObject);
@@ -333,25 +333,25 @@ public class KeystoneAPIUtils {
         return request;
     }
 
-    public static Map<String, Object> createKeystoneUpdateUserRequest(UserKeystone userKeystone) {
+    public static Map<String, Object> createKeystoneUpdateUserRequest(UserKeystoneDto userKeystoneDto) {
         Map<String, Object> userObject = new HashMap<>();
 
-        if (userKeystone.name() != null) {
-            userObject.put("name", userKeystone.name());
+        if (userKeystoneDto.name() != null) {
+            userObject.put("name", userKeystoneDto.name());
         }
-        if (userKeystone.email() != null) {
-            userObject.put("email", userKeystone.email());
+        if (userKeystoneDto.email() != null) {
+            userObject.put("email", userKeystoneDto.email());
         }
-        if (userKeystone.password() != null) {
-            userObject.put("password", userKeystone.password());
+        if (userKeystoneDto.password() != null) {
+            userObject.put("password", userKeystoneDto.password());
         }
-        if (userKeystone.description() != null) {
-            userObject.put("description", userKeystone.description());
+        if (userKeystoneDto.description() != null) {
+            userObject.put("description", userKeystoneDto.description());
         }
-        if (userKeystone.defaultProjectId() != null) {
-            userObject.put("default_project_id", userKeystone.defaultProjectId());
+        if (userKeystoneDto.defaultProjectId() != null) {
+            userObject.put("default_project_id", userKeystoneDto.defaultProjectId());
         }
-        userObject.put("enabled", userKeystone.enabled());
+        userObject.put("enabled", userKeystoneDto.enabled());
 
         Map<String, Object> request = new HashMap<>();
         request.put("user", userObject);

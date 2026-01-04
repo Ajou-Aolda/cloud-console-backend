@@ -17,15 +17,15 @@ public record UpdateUserResponse(
     String phoneNumber,
     Integer projectLimit
 ) {
-    public static UpdateUserResponse from(UserKeystone userKeystone) {
+    public static UpdateUserResponse from(UserKeystoneDto userKeystoneDto) {
         return UpdateUserResponse.builder()
-                .userId(userKeystone.id())
-                .name(userKeystone.name())
-                .domainId(userKeystone.domainId())
-                .defaultProjectId(userKeystone.defaultProjectId())
-                .enabled(userKeystone.enabled())
-                .email(userKeystone.email())
-                .description(userKeystone.description())
+                .userId(userKeystoneDto.id())
+                .name(userKeystoneDto.name())
+                .domainId(userKeystoneDto.domainId())
+                .defaultProjectId(userKeystoneDto.defaultProjectId())
+                .enabled(userKeystoneDto.enabled())
+                .email(userKeystoneDto.email())
+                .description(userKeystoneDto.description())
                 .build();
     }
 }

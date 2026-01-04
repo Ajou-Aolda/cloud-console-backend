@@ -10,7 +10,7 @@ import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.domain.model.auth.Role;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.domain.model.auth.RoleListResponse;
-import com.acc.local.dto.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserListResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -457,7 +457,7 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 
 	@Deprecated
 	@Override
-	public List<UserKeystone> getUsersByEmail(String keyword) {
+	public List<UserKeystoneDto> getUsersByEmail(String keyword) {
 		try {
 			// keystoneUserAPIModule.deleteRole(token, userId, projectId, projectRoleKeystoneId);
 			return null;
