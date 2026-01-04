@@ -1,6 +1,6 @@
 package com.acc.local.dto.auth;
 
-import com.acc.local.domain.model.auth.KeystoneUser;
+import com.acc.local.domain.model.auth.UserKeystone;
 import lombok.Builder;
 
 import java.util.List;
@@ -25,19 +25,19 @@ public record GetUserResponse(
     String phoneNumber,
     Integer projectLimit
 ) {
-    public static GetUserResponse from(KeystoneUser keystoneUser) {
+    public static GetUserResponse from(UserKeystone userKeystone) {
         return GetUserResponse.builder()
-                .id(keystoneUser.getId())
-                .name(keystoneUser.getName())
-                .domainId(keystoneUser.getDomainId())
-                .defaultProjectId(keystoneUser.getDefaultProjectId())
-                .enabled(keystoneUser.isEnabled())
-                .federated(keystoneUser.getFederated())
-                .links(keystoneUser.getLinks())
-                .passwordExpiresAt(keystoneUser.getPasswordExpiresAt())
-                .email(keystoneUser.getEmail())
-                .description(keystoneUser.getDescription())
-                .options(keystoneUser.getOptions())
+                .id(userKeystone.getId())
+                .name(userKeystone.getName())
+                .domainId(userKeystone.getDomainId())
+                .defaultProjectId(userKeystone.getDefaultProjectId())
+                .enabled(userKeystone.isEnabled())
+                .federated(userKeystone.getFederated())
+                .links(userKeystone.getLinks())
+                .passwordExpiresAt(userKeystone.getPasswordExpiresAt())
+                .email(userKeystone.getEmail())
+                .description(userKeystone.getDescription())
+                .options(userKeystone.getOptions())
                 .build();
     }
 }

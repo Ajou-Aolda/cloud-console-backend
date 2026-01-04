@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 public class UserListResponse {
 
-    private List<KeystoneUser> keystoneUsers;
+    private List<UserKeystone> userKeystones;
     private String nextMarker;
     private String prevMarker;
 }

@@ -21,7 +21,7 @@ import com.acc.global.exception.project.ProjectErrorCode;
 import com.acc.global.exception.project.ProjectServiceException;
 import com.acc.local.domain.enums.project.ProjectRequestStatus;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.KeystoneUser;
+import com.acc.local.domain.model.auth.UserKeystone;
 import com.acc.local.dto.project.InvitableUser;
 import com.acc.local.dto.project.ProjectListDto;
 import com.acc.local.dto.project.CreateProjectRequest;
@@ -33,7 +33,6 @@ import com.acc.local.dto.project.ProjectRequestDto;
 import com.acc.local.dto.project.ProjectRequestListServiceDto;
 import com.acc.local.dto.project.ProjectServiceDto;
 import com.acc.local.dto.project.quota.ProjectComputeQuotaDto;
-import com.acc.local.dto.project.quota.ProjectGlobalQuotaDto;
 import com.acc.local.dto.project.UpdateProjectRequest;
 import com.acc.local.dto.project.quota.ProjectStorageQuotaDto;
 import com.acc.local.dto.project.quota.QuotaInformation;
@@ -481,7 +480,7 @@ public class ProjectModule {
 		return true;
 	}
 
-	private KeystoneUser getUserBaseInfoFromKeystone(String userId, String token) {
+	private UserKeystone getUserBaseInfoFromKeystone(String userId, String token) {
 		ResponseEntity<JsonNode> response = keystoneAPIExternalPort.getUserDetail(userId, token);
 		if (response == null) {
 			throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 조회 응답이 null입니다.");
@@ -501,13 +500,13 @@ public class ProjectModule {
 
 	private List<InvitableUser> findInvitableUsersByEmail(String email, String projectId, String token) {
 		ResponseEntity<JsonNode> listUsersOpenstackResponse = keystoneUserAPIModule.listUsers(token, null, 30, email);
-		List<KeystoneUser> users = KeystoneAPIUtils.parseKeystoneUserListResponse(listUsersOpenstackResponse).getKeystoneUsers();
+		List<UserKeystone> users = KeystoneAPIUtils.parseKeystoneUserListResponse(listUsersOpenstackResponse).getUserKeystones();
 
-		List<UserDetailEntity> userDetailsByIds = userRepositoryPort.findUserDetailsByIds(users.stream().map(KeystoneUser::getId).toList());
+		List<UserDetailEntity> userDetailsByIds = userRepositoryPort.findUserDetailsByIds(users.stream().map(UserKeystone::getId).toList());
 
 		List<InvitableUser> invitableUsers = new ArrayList<>();
 		for (UserDetailEntity userDetailEntity : userDetailsByIds) {
-			KeystoneUser matchUser = users.stream()
+			UserKeystone matchUser = users.stream()
 				.filter(v -> v.getId().equals(userDetailEntity.getUserId()))
 				.findFirst()
 				.orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND));
@@ -530,7 +529,7 @@ public class ProjectModule {
 		List<InvitableUser> invitableUsers = new ArrayList<>();
 		for (UserDetailEntity userDetailEntity : userDetailsByIds) {
 			ResponseEntity<JsonNode> listUsersOpenstackResponse = keystoneUserAPIModule.getUserDetail(userDetailEntity.getUserId(), token);
-			KeystoneUser user = KeystoneAPIUtils.parseKeystoneUserResponse(listUsersOpenstackResponse);
+			UserKeystone user = KeystoneAPIUtils.parseKeystoneUserResponse(listUsersOpenstackResponse);
 
 			invitableUsers.add(
 				InvitableUser.builder()

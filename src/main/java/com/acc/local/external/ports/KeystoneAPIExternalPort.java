@@ -3,7 +3,7 @@ package com.acc.local.external.ports;
 import com.acc.global.common.PageRequest;
 import com.acc.global.exception.AccBaseException;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.KeystoneUser;
+import com.acc.local.domain.model.auth.UserKeystone;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.dto.project.ProjectListDto;
 import com.acc.local.domain.model.auth.Role;
@@ -11,7 +11,6 @@ import com.acc.local.domain.model.auth.RoleListResponse;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;
-import com.acc.local.entity.UserDetailEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.ResponseEntity;
 
@@ -88,7 +87,7 @@ public interface KeystoneAPIExternalPort {
 
 	void retrieveProjectRole(String userId, String projectId, String projectRole, String token);
 
-	List<KeystoneUser> getUsersByEmail(String keyword);
+	List<UserKeystone> getUsersByEmail(String keyword);
 
 	String getAdminProjectId(String token);
 }

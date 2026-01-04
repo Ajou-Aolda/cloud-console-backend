@@ -14,7 +14,7 @@ import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.acc.global.security.jwt.JwtUtils;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.KeystoneUser;
+import com.acc.local.domain.model.auth.UserKeystone;
 import com.acc.local.domain.model.auth.RefreshToken;
 import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.entity.RefreshTokenEntity;
@@ -160,16 +160,16 @@ public class AuthModule {
     }
 
     @Transactional
-    public KeystoneUser createUser(KeystoneUser keystoneUser, String userId) {
+    public UserKeystone createUser(UserKeystone userKeystone, String userId) {
         String keystoneToken = getUnscopedTokenByUserId(userId);
 
         // Keystone에 사용자 생성
-        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(keystoneUser);
+        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(userKeystone);
         ResponseEntity<JsonNode> response = keystoneAPIExternalPort.createUser(keystoneToken, userRequest);
         if (response == null) {
             throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 생성 응답이 null입니다.");
         }
-        KeystoneUser createdKeystoneUser = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+        UserKeystone createdUserKeystone = KeystoneAPIUtils.parseKeystoneUserResponse(response);
 
 
         // ACC DB에 사용자 정보 저장
@@ -177,11 +177,11 @@ public class AuthModule {
         // userRepositoryPort.saveUserDetail(...);
         // userRepositoryPort.saveUserAuth(...);
 
-        return createdKeystoneUser;
+        return createdUserKeystone;
     }
 
     @Transactional
-    public KeystoneUser getUserDetail(String targetUserId, String requesterId) {
+    public UserKeystone getUserDetail(String targetUserId, String requesterId) {
         String keystoneToken = issueSystemAdminToken(requesterId);
 
         // Keystone에서 사용자 정보 조회
@@ -189,34 +189,34 @@ public class AuthModule {
         if (response == null) {
             throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 조회 응답이 null입니다.");
         }
-        KeystoneUser keystoneUser = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+        UserKeystone userKeystone = KeystoneAPIUtils.parseKeystoneUserResponse(response);
 
         // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity에서 조회
         // ACC DB에서 추가 정보 조회 및 병합
         // userRepositoryPort.findUserDetailById(targetUserId)
         // userRepositoryPort.findUserAuthById(targetUserId)
 
-        return keystoneUser;
+        return userKeystone;
     }
 
     @Transactional
-    public KeystoneUser updateUser(String targetUserId, KeystoneUser keystoneUser, String requesterId) {
+    public UserKeystone updateUser(String targetUserId, UserKeystone userKeystone, String requesterId) {
         String keystoneToken = getUnscopedTokenByUserId(requesterId);
 
         // Keystone 사용자 업데이트
-        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUpdateUserRequest(keystoneUser);
+        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUpdateUserRequest(userKeystone);
         ResponseEntity<JsonNode> response = keystoneAPIExternalPort.updateUser(targetUserId, keystoneToken, userRequest);
         if (response == null) {
             throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 업데이트 응답이 null입니다.");
         }
-        KeystoneUser updatedKeystoneUser = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+        UserKeystone updatedUserKeystone = KeystoneAPIUtils.parseKeystoneUserResponse(response);
 
         // ACC DB에 사용자 정보 업데이트
         // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity로 분리하여 업데이트
         // userRepositoryPort.saveUserDetail(...);
         // userRepositoryPort.saveUserAuth(...);
 
-        return updatedKeystoneUser;
+        return updatedUserKeystone;
     }
 
     @Transactional
@@ -527,9 +527,9 @@ public class AuthModule {
     public String signup(SignupRequest request , String adminToken) {
         try {
             // 1. Keystone 사용자 생성 요청 생성 (email을 name에 매핑!)
-            KeystoneUser newKeystoneUser = KeystoneUser.from(request);
+            UserKeystone newUserKeystone = UserKeystone.from(request);
 
-            Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(newKeystoneUser);
+            Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(newUserKeystone);
 
             ResponseEntity<JsonNode> response = keystoneAPIExternalPort.createUser(adminToken, userRequest);
 
@@ -538,8 +538,8 @@ public class AuthModule {
             }
 
             // 2. Keystone 응답에서 userId 추출
-            KeystoneUser createdKeystoneUser = KeystoneAPIUtils.parseKeystoneUserResponse(response);
-            String userId = createdKeystoneUser.getId();
+            UserKeystone createdUserKeystone = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+            String userId = createdUserKeystone.getId();
 
             // 3. UserDetail 도메인 모델 생성 및 저장
             UserDetail userDetail = UserDetail.createForSignup(userId,request);

@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class KeystoneUser {
+public class UserKeystone {
 
     // Keystone 필드
     private String id;
@@ -35,12 +35,12 @@ public class KeystoneUser {
     private Map<String, Object> options;
 
 
-    public static KeystoneUser from(CreateUserRequest request) {
+    public static UserKeystone from(CreateUserRequest request) {
         if (request == null) {
             return null;
         }
 
-        return KeystoneUser.builder()
+        return UserKeystone.builder()
                 .name(extractUsernameFromEmail(request.userName()))
                 .email(request.userEmail())
                 .enabled(true)
@@ -49,12 +49,12 @@ public class KeystoneUser {
                 .build();
     }
 
-    public static KeystoneUser from(UpdateUserRequest request) {
+    public static UserKeystone from(UpdateUserRequest request) {
         if (request == null) {
             return null;
         }
 
-        return KeystoneUser.builder()
+        return UserKeystone.builder()
                 .name(request.userName())
                 .email(request.userEmail())
                 .description(request.description())
@@ -64,8 +64,8 @@ public class KeystoneUser {
                 .build();
     }
 
-    public static KeystoneUser from(SignupRequest request) {
-        return KeystoneUser.builder()
+    public static UserKeystone from(SignupRequest request) {
+        return UserKeystone.builder()
                 .name(extractUsernameFromEmail(request.email())) // email의 @ 앞부분만 name(아이디)로 사용
                 .email(request.email())
                 .password(request.password())
@@ -73,8 +73,8 @@ public class KeystoneUser {
                 .build();
     }
 
-    public static KeystoneUser from(AdminCreateUserRequest request) {
-        return KeystoneUser.builder()
+    public static UserKeystone from(AdminCreateUserRequest request) {
+        return UserKeystone.builder()
                 .name(extractUsernameFromEmail(request.email())) // email의 @ 앞부분만 name(아이디)로 사용
                 .password(request.password())
                 .enabled(request.isEnabled())
@@ -95,8 +95,8 @@ public class KeystoneUser {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        KeystoneUser keystoneUser = (KeystoneUser) obj;
-        return Objects.equals(id, keystoneUser.id);
+        UserKeystone userKeystone = (UserKeystone) obj;
+        return Objects.equals(id, userKeystone.id);
     }
 
     @Override

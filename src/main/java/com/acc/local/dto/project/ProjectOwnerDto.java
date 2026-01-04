@@ -1,6 +1,6 @@
 package com.acc.local.dto.project;
 
-import com.acc.local.domain.model.auth.KeystoneUser;
+import com.acc.local.domain.model.auth.UserKeystone;
 
 import lombok.Builder;
 
@@ -9,7 +9,7 @@ public record ProjectOwnerDto(
 	String userId,
 	String userName
 ) {
-	public static ProjectOwnerDto from(KeystoneUser createdBy) {
+	public static ProjectOwnerDto from(UserKeystone createdBy) {
 		return ProjectOwnerDto.builder()
 			.userId(createdBy.getId())
 			.userName(createdBy.getName())
