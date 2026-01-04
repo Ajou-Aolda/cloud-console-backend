@@ -305,13 +305,7 @@ public class ProjectModule {
 			.build();
 
 		String keystoneToken = authModule.getUnscopedTokenByUserId(requesterId);
-
-		Map<String, Object> projectRequest = KeystoneAPIUtils.createKeystoneUpdateProjectRequest(project);
-		ResponseEntity<JsonNode> response = keystoneAPIExternalPort.updateProject(projectId, keystoneToken, projectRequest);
-		if (response == null) {
-			throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_UPDATE_FAILED, "프로젝트 업데이트 응답이 null입니다.");
-		}
-		return KeystoneAPIUtils.parseKeystoneProjectResponse(response);
+		return keystoneAPIExternalPort.updateProject(projectId, keystoneToken, project);
 	}
 
 	@Transactional

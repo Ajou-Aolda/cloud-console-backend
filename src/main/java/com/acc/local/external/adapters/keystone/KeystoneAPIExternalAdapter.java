@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.domain.model.auth.Role;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
@@ -491,9 +492,16 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> updateProject(String projectId, String token, Map<String, Object> projectRequest) {
+	public KeystoneProject updateProject(String projectId, String token, KeystoneProject project) {
 		try {
-			return keystoneProjectAPIModule.updateProject(projectId, token, projectRequest);
+			Map<String, Object> projectRequest = KeystoneAPIUtils.createKeystoneUpdateProjectRequest(project);
+			ResponseEntity<JsonNode> keystoneProjectUpdateResponse = keystoneProjectAPIModule.updateProject(projectId, token, projectRequest);
+
+			if (keystoneProjectUpdateResponse == null) {
+				throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_UPDATE_FAILED, "프로젝트 업데이트 응답이 null입니다.");
+			}
+
+			return KeystoneAPIUtils.parseKeystoneProjectResponse(keystoneProjectUpdateResponse);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {
