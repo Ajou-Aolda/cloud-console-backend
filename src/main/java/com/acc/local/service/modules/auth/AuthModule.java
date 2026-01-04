@@ -109,12 +109,7 @@ public class AuthModule {
         }
         KeystoneToken tokenInfo = KeystoneAPIUtils.extractKeystoneToken(tokenInfoResponse);
 
-        ResponseEntity<JsonNode> permissionResponse = keystoneAPIExternalPort.getAccountPermissionList(tokenInfo.userId(), keystoneToken);
-        if (permissionResponse == null) {
-            throw new JwtAuthenticationException(AuthErrorCode.KEYSTONE_TOKEN_AUTHENTICATION_FAILED);
-        }
-        Map<String, ProjectRole> permissionMap = KeystoneAPIUtils.createUserPermissionMap(permissionResponse);
-
+        Map<String, ProjectRole> permissionMap = keystoneAPIExternalPort.getAccountPermissionList(tokenInfo.userId(), keystoneToken);
         return permissionMap.getOrDefault(projectId, ProjectRole.NONE);
     }
 

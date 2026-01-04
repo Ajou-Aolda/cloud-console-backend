@@ -69,7 +69,7 @@ public interface KeystoneAPIExternalPort {
 
 	// ----- Role -----
 
-	ResponseEntity<JsonNode> getAccountPermissionList(String userId, String token);
+	Map<String, ProjectRole> getAccountPermissionList(String userId, String token);
 
 	Role createRole(String token, Map<String, Object> roleRequest);
 

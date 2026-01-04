@@ -533,9 +533,13 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	// ----- Role -----
 
 	@Override
-	public ResponseEntity<JsonNode> getAccountPermissionList(String userId, String token) {
+	public Map<String, ProjectRole> getAccountPermissionList(String userId, String token) {
 		try {
-			return keystoneRoleAPIModule.getAccountPermissionList(userId, token);
+			ResponseEntity<JsonNode> accountPermissionListResponse = keystoneRoleAPIModule.getAccountPermissionList(userId, token);
+			if (accountPermissionListResponse == null) {
+				throw new JwtAuthenticationException(AuthErrorCode.KEYSTONE_TOKEN_AUTHENTICATION_FAILED);
+			}
+			return KeystoneAPIUtils.createUserPermissionMap(accountPermissionListResponse);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {
