@@ -329,11 +329,10 @@ class KeystoneAPIExternalAdapterTest {
 		when(keystoneProjectAPIModule.getProjectDetail(projectId, token)).thenReturn(expectedResponse);
 
 		// when
-		ResponseEntity<JsonNode> result = keystoneAPIExternalAdapter.getProjectDetail(projectId, token);
+		KeystoneProject result = keystoneAPIExternalAdapter.getProjectDetail(projectId, token);
 
 		// then
 		assertNotNull(result);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
 		verify(keystoneProjectAPIModule).getProjectDetail(projectId, token);
 	}
 

@@ -475,9 +475,15 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> getProjectDetail(String projectId, String token) {
+	public KeystoneProject getProjectDetail(String projectId, String token) {
 		try {
-			return keystoneProjectAPIModule.getProjectDetail(projectId, token);
+			ResponseEntity<JsonNode> response = keystoneProjectAPIModule.getProjectDetail(projectId, token);
+
+			if (response == null) {
+				throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_RETRIEVAL_FAILED, "프로젝트 조회 응답이 null입니다.");
+			}
+
+			return KeystoneAPIUtils.parseKeystoneProjectResponse(response);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {

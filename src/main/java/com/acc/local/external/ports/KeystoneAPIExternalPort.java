@@ -62,7 +62,7 @@ public interface KeystoneAPIExternalPort {
 
 	ResponseEntity<JsonNode> createProject(String token, Map<String, Object> projectRequest);
 
-	ResponseEntity<JsonNode> getProjectDetail(String projectId, String token);
+	KeystoneProject getProjectDetail(String projectId, String token);
 
 	KeystoneProject updateProject(String projectId, String token, KeystoneProject project);
 

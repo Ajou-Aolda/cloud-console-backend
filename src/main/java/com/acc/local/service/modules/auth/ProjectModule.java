@@ -279,13 +279,7 @@ public class ProjectModule {
 
 	@Transactional
 	public ProjectServiceDto getProjectDetail(String projectId, String scopedToken) {
-		ResponseEntity<JsonNode> response = keystoneAPIExternalPort.getProjectDetail(projectId, scopedToken);
-
-		if (response == null) {
-			throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_RETRIEVAL_FAILED, "프로젝트 조회 응답이 null입니다.");
-		}
-
-		KeystoneProject openstackProject = KeystoneAPIUtils.parseKeystoneProjectResponse(response);
+		KeystoneProject openstackProject = keystoneAPIExternalPort.getProjectDetail(projectId, scopedToken);
 		ProjectEntity databaseProject = getDatabaseProject(projectId);
 
 		ProjectComputeQuotaDto projectComputeQuotaDetail = getProjectComputeQuotaDetail(projectId, scopedToken);
