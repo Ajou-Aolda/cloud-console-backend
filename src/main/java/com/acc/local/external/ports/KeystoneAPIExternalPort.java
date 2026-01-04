@@ -65,7 +65,7 @@ public interface KeystoneAPIExternalPort {
 
 	ResponseEntity<JsonNode> updateProject(String projectId, String token, Map<String, Object> projectRequest);
 
-	ResponseEntity<JsonNode> deleteProject(String projectId, String token);
+	void deleteProject(String projectId, String token);
 
 	// ----- Role -----
 

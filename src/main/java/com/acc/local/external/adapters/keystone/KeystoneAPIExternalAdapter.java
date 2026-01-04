@@ -512,9 +512,10 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> deleteProject(String projectId, String token) {
+	public void deleteProject(String projectId, String token) {
 		try {
-			return keystoneProjectAPIModule.deleteProject(projectId, token);
+			keystoneProjectAPIModule.deleteProject(projectId, token);
+			return;
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {

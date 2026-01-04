@@ -369,10 +369,10 @@ class KeystoneAPIExternalAdapterTest {
 		when(keystoneProjectAPIModule.deleteProject(projectId, token)).thenReturn(expectedResponse);
 
 		// when
-		ResponseEntity<JsonNode> result = keystoneAPIExternalAdapter.deleteProject(projectId, token);
+		keystoneAPIExternalAdapter.deleteProject(projectId, token);
 
 		// then
-		assertNotNull(result);
+//		assertNotNull(result);
 		verify(keystoneProjectAPIModule).deleteProject(projectId, token);
 	}
 
