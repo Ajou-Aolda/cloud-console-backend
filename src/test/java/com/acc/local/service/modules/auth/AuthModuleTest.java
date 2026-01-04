@@ -5,7 +5,7 @@ import com.acc.local.domain.enums.auth.AuthType;
 import com.acc.local.domain.enums.auth.KeystoneTokenType;
 import com.acc.global.security.jwt.JwtUtils;
 import com.acc.local.domain.model.auth.RefreshToken;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;

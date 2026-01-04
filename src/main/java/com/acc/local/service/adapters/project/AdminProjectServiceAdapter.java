@@ -4,7 +4,7 @@ import com.acc.global.common.PageRequest;
 import com.acc.global.common.PageResponse;
 import com.acc.local.domain.enums.project.ProjectRequestStatus;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.dto.project.CreateProjectRequest;
 
 import com.acc.local.dto.project.CreateProjectResponse;

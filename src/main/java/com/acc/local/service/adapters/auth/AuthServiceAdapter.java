@@ -2,7 +2,7 @@ package com.acc.local.service.adapters.auth;
 
 import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.domain.model.auth.RefreshToken;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.dto.auth.*;
 import com.acc.local.dto.project.ProjectServiceDto;

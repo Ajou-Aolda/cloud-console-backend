@@ -14,7 +14,7 @@ import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.acc.global.security.jwt.JwtUtils;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.RefreshToken;
 import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.entity.RefreshTokenEntity;

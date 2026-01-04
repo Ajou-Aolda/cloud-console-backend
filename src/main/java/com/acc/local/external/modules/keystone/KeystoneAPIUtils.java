@@ -5,7 +5,7 @@ import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.external.dto.OpenstackPagination;
 import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import com.acc.local.external.dto.keystone.KeystoneProject;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.*;
 import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.dto.auth.KeystonePasswordLoginRequest;

@@ -5,7 +5,7 @@ import com.acc.global.common.PageResponse;
 import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.local.domain.enums.auth.AuthType;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;

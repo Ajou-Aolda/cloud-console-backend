@@ -3,7 +3,7 @@ package com.acc.local.external.ports;
 import com.acc.global.common.PageRequest;
 import com.acc.global.exception.AccBaseException;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.dto.project.ProjectListDto;
 import com.acc.local.domain.model.auth.Role;

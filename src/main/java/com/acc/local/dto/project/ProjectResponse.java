@@ -6,7 +6,7 @@ import java.util.List;
 import com.acc.local.domain.enums.project.ProjectRequestStatus;
 import com.acc.local.domain.enums.project.ProjectRequestType;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.dto.project.quota.ProjectGlobalQuotaDto;
 
 import lombok.Builder;

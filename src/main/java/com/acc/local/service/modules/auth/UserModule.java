@@ -5,7 +5,7 @@ import com.acc.global.common.PageResponse;
 import com.acc.global.exception.AccBaseException;
 import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.domain.model.auth.UserAuthDetail;
 import com.acc.local.domain.model.auth.UserDetail;

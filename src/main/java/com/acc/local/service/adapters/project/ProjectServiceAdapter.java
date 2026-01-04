@@ -12,7 +12,7 @@ import com.acc.global.exception.project.ProjectErrorCode;
 import com.acc.global.exception.project.ProjectServiceException;
 import com.acc.local.domain.enums.project.ProjectRequestStatus;
 import com.acc.local.domain.enums.project.ProjectRole;
-import com.acc.local.domain.model.auth.UserKeystone;
+import com.acc.local.dto.auth.UserKeystone;
 import com.acc.local.dto.project.CreateProjectRequestRequest;
 import com.acc.local.dto.project.CreateProjectRequestResponse;
 import com.acc.local.dto.project.GetProjectResponse;

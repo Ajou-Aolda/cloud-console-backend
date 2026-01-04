@@ -1,6 +1,5 @@
 package com.acc.local.dto.auth;
 
-import com.acc.local.domain.model.auth.UserKeystone;
 import lombok.Builder;
 
 @Builder
