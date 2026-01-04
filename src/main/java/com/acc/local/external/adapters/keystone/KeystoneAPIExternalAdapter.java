@@ -12,6 +12,7 @@ import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.domain.model.auth.RoleListResponse;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserListResponse;
+import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -288,9 +289,18 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	// ----- Project -----
 
 	@Override
-	public ResponseEntity<JsonNode> createProject(String token, Map<String, Object> projectRequest) {
+	public KeystoneProject createProject(String adminToken, CreateKeystoneProjectRequest createKeystoneProjectRequest) {
 		try {
-			return keystoneProjectAPIModule.createProject(token, projectRequest);
+			ResponseEntity<JsonNode> projectSavedResponse = keystoneProjectAPIModule.createProject(
+					adminToken,
+					createKeystoneProjectRequest.toKeystoneRequest()
+			);
+
+			if (projectSavedResponse == null) {
+				throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_CREATION_FAILED, "프로젝트 생성 응답이 null입니다.");
+			}
+
+			return KeystoneAPIUtils.parseKeystoneProjectResponse(projectSavedResponse);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {

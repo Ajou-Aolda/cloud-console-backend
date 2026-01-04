@@ -237,15 +237,8 @@ public class ProjectModule {
 			.projectName(request.projectName())
 			.projectDescription(request.projectDescription())
 			.build();
+		KeystoneProject keystoneSavedProject = keystoneAPIExternalPort.createProject(adminToken, project);
 
-		Map<String, Object> projectRequest = KeystoneAPIUtils.createKeystoneCreateProjectRequest(project);
-		ResponseEntity<JsonNode> response = keystoneAPIExternalPort.createProject(adminToken, projectRequest);
-
-		if (response == null) {
-			throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_CREATION_FAILED, "프로젝트 생성 응답이 null입니다.");
-		}
-
-		KeystoneProject keystoneSavedProject = KeystoneAPIUtils.parseKeystoneProjectResponse(response);
 		ProjectEntity aoldaProject = ProjectEntity.builder()
 			.projectId(keystoneSavedProject.getId())
 			.ownerKeystoneId(request.projectOwnerId())

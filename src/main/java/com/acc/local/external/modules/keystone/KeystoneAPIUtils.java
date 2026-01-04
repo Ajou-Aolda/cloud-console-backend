@@ -359,20 +359,6 @@ public class KeystoneAPIUtils {
         return request;
     }
 
-    public static Map<String, Object> createKeystoneCreateProjectRequest(CreateKeystoneProjectRequest project) {
-        Map<String, Object> projectObject = new HashMap<>();
-        projectObject.put("name", project.projectName());
-
-        if (project.projectDescription() != null) {
-            projectObject.put("description", project.projectDescription());
-        }
-
-        Map<String, Object> request = new HashMap<>();
-        request.put("project", projectObject);
-
-        return request;
-    }
-
     public static Map<String, Object> createKeystoneUpdateProjectRequest(KeystoneProject project) {
         Map<String, Object> projectObject = new HashMap<>();
 

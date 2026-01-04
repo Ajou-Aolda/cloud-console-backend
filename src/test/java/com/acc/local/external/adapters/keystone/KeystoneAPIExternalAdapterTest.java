@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.util.Map;
 
 import com.acc.local.domain.enums.project.ProjectRole;
+import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import com.acc.local.external.dto.keystone.KeystoneProject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -309,11 +310,10 @@ class KeystoneAPIExternalAdapterTest {
 		when(keystoneProjectAPIModule.createProject(token, projectRequest)).thenReturn(expectedResponse);
 
 		// when
-		ResponseEntity<JsonNode> result = keystoneAPIExternalAdapter.createProject(token, projectRequest);
+		KeystoneProject result = keystoneAPIExternalAdapter.createProject(token, CreateKeystoneProjectRequest.builder().build());
 
 		// then
 		assertNotNull(result);
-		assertEquals(HttpStatus.CREATED, result.getStatusCode());
 		verify(keystoneProjectAPIModule).createProject(token, projectRequest);
 	}
 
