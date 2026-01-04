@@ -15,13 +15,13 @@ import java.util.List;
 @Schema(description = "인터페이스 연결 요청")
 public class InterfaceAttachmentRequest {
 
-    @Schema(description = "인터페이스 ID", example = "ce531f90-199f-48c0-816c-13e38010b442")
+    @Schema(description = "인터페이스 ID (interfaceId와 networkId는 상호 배타적)", example = "ce531f90-199f-48c0-816c-13e38010b442")
     private String interfaceId;
 
-    @Schema(description = "네트워크 ID", example = "3cb9bc59-5699-4588-a4b1-b87f96708bc6")
+    @Schema(description = "네트워크 ID (interfaceId와 networkId는 상호 배타적)", example = "3cb9bc59-5699-4588-a4b1-b87f96708bc6")
     private String networkId;
 
-    @Schema(description = "고정 IP 주소 목록")
+    @Schema(description = "고정 IP 주소 목록 (networkId와 함께 사용 가능)")
     private List<FixedIp> fixedIps;
 
     @Getter
