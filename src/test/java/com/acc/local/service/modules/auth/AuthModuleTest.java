@@ -232,10 +232,10 @@ class AuthModuleTest {
         UserKeystoneDto createdUserKeystoneDto = authModule.createUser(userKeystoneDto, userId);
 
         // then
-        assertEquals(createdUserId, createdUserKeystoneDto.getId());
-        assertEquals("testUser", createdUserKeystoneDto.getName());
-        assertEquals("test@example.com", createdUserKeystoneDto.getEmail());
-        assertTrue(createdUserKeystoneDto.isEnabled());
+        assertEquals(createdUserId, createdUserKeystoneDto.id());
+        assertEquals("testUser", createdUserKeystoneDto.name());
+        assertEquals("test@example.com", createdUserKeystoneDto.email());
+        assertTrue(createdUserKeystoneDto.enabled());
         // assertEquals("컴퓨터공학과", createdKeystoneUser.getDepartment());
         // assertEquals("010-1234-5678", createdKeystoneUser.getPhoneNumber());
         verify(keystoneAPIExternalPort).createUser(eq(keystoneToken), any());
@@ -273,11 +273,11 @@ class AuthModuleTest {
         UserKeystoneDto userKeystoneDtoDetail = authModule.getUserDetail(targetUserId, requesterId);
 
         // then
-        assertEquals(targetUserId, userKeystoneDtoDetail.getId());
-        assertEquals("testUser", userKeystoneDtoDetail.getName());
-        assertEquals("test@example.com", userKeystoneDtoDetail.getEmail());
-        assertEquals("test description", userKeystoneDtoDetail.getDescription());
-        assertTrue(userKeystoneDtoDetail.isEnabled());
+        assertEquals(targetUserId, userKeystoneDtoDetail.id());
+        assertEquals("testUser", userKeystoneDtoDetail.name());
+        assertEquals("test@example.com", userKeystoneDtoDetail.email());
+        assertEquals("test description", userKeystoneDtoDetail.description());
+        assertTrue(userKeystoneDtoDetail.enabled());
         // verify(keystoneAPIExternalPort).getUserDetail(targetUserId, keystoneToken);
        }
 
@@ -313,11 +313,11 @@ class AuthModuleTest {
         UserKeystoneDto updatedUserKeystoneDto = authModule.updateUser(targetUserId, userKeystoneDto, requesterId);
 
         // then
-        assertEquals(targetUserId, updatedUserKeystoneDto.getId());
-        assertEquals("updatedUser", updatedUserKeystoneDto.getName());
-        assertEquals("updated@example.com", updatedUserKeystoneDto.getEmail());
-        assertEquals("updated description", updatedUserKeystoneDto.getDescription());
-        assertTrue(updatedUserKeystoneDto.isEnabled());
+        assertEquals(targetUserId, updatedUserKeystoneDto.id());
+        assertEquals("updatedUser", updatedUserKeystoneDto.name());
+        assertEquals("updated@example.com", updatedUserKeystoneDto.email());
+        assertEquals("updated description", updatedUserKeystoneDto.description());
+        assertTrue(updatedUserKeystoneDto.enabled());
         // assertEquals("전자공학과", updatedKeystoneUser.getDepartment());
         // assertEquals("010-9876-5432", updatedKeystoneUser.getPhoneNumber());
         verify(keystoneAPIExternalPort).updateUser(eq(targetUserId), eq(keystoneToken), any());
