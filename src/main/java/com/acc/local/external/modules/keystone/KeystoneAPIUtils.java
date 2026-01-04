@@ -359,34 +359,6 @@ public class KeystoneAPIUtils {
         return request;
     }
 
-    public static Map<String, Object> createKeystoneUpdateProjectRequest(KeystoneProject project) {
-        Map<String, Object> projectObject = new HashMap<>();
-
-        if (project.getName() != null) {
-            projectObject.put("name", project.getName());
-        }
-        if (project.getDescription() != null) {
-            projectObject.put("description", project.getDescription());
-        }
-        if (project.getDomainId() != null) {
-            projectObject.put("domain_id", project.getDomainId());
-        }
-        if (project.getEnabled() != null) {
-            projectObject.put("enabled", project.getEnabled());
-        }
-        if (project.getIsDomain() != null) {
-            projectObject.put("is_domain", project.getIsDomain());
-        }
-        if (project.getTags() != null) {
-            projectObject.put("tags", project.getTags());
-        }
-
-        Map<String, Object> request = new HashMap<>();
-        request.put("project", projectObject);
-
-        return request;
-    }
-
     public static Map<String, Object> createProjectScopeTokenRequest(String projectId, String unScopedToken) {
         Map<String, Object> authRequest = new HashMap<>();
         authRequest.put("auth", Map.of(

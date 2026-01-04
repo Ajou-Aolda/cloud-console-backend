@@ -13,6 +13,7 @@ import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import com.acc.local.external.dto.keystone.KeystoneProject;
+import com.acc.local.external.dto.keystone.UpdateKeystoneProjectRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.ResponseEntity;
 
@@ -65,7 +66,7 @@ public interface KeystoneAPIExternalPort {
 
 	KeystoneProject getProjectDetail(String projectId, String token);
 
-	KeystoneProject updateProject(String projectId, String token, KeystoneProject project);
+	KeystoneProject updateProject(String projectId, String token, UpdateKeystoneProjectRequest updateRequest);
 
 	void deleteProject(String projectId, String token);
 

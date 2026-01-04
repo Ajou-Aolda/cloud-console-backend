@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.acc.local.external.dto.keystone.UpdateKeystoneProjectRequest;
+import org.hibernate.sql.Update;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -286,13 +288,17 @@ public class ProjectModule {
 
 	@Transactional
 	public KeystoneProject updateProject(String projectId, UpdateProjectRequest updatedProjectRequest, String requesterId) {
-		KeystoneProject project = KeystoneProject.builder()
-			.name(updatedProjectRequest.name())
-			.description(updatedProjectRequest.description())
-			.build();
+		UpdateKeystoneProjectRequest updateRequest = UpdateKeystoneProjectRequest.builder()
+				.name(updatedProjectRequest.name())
+				.isDomain(updatedProjectRequest.isDomain())
+				.description(updatedProjectRequest.description())
+				.domainId(updatedProjectRequest.domainId())
+				.enabled(updatedProjectRequest.enabled())
+				.tags(updatedProjectRequest.tags())
+				.build();
 
 		String keystoneToken = authModule.getUnscopedTokenByUserId(requesterId);
-		return keystoneAPIExternalPort.updateProject(projectId, keystoneToken, project);
+		return keystoneAPIExternalPort.updateProject(projectId, keystoneToken, updateRequest);
 	}
 
 	@Transactional

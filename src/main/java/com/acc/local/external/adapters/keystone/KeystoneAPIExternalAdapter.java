@@ -13,6 +13,8 @@ import com.acc.local.domain.model.auth.RoleListResponse;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
+import com.acc.local.external.dto.keystone.UpdateKeystoneProjectRequest;
+import org.hibernate.sql.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -508,10 +510,12 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public KeystoneProject updateProject(String projectId, String token, KeystoneProject project) {
+	public KeystoneProject updateProject(String projectId, String token, UpdateKeystoneProjectRequest updateRequest) {
 		try {
-			Map<String, Object> projectRequest = KeystoneAPIUtils.createKeystoneUpdateProjectRequest(project);
-			ResponseEntity<JsonNode> keystoneProjectUpdateResponse = keystoneProjectAPIModule.updateProject(projectId, token, projectRequest);
+			ResponseEntity<JsonNode> keystoneProjectUpdateResponse = keystoneProjectAPIModule.updateProject(
+					projectId, token,
+					updateRequest.toKeystoneRequest()
+			);
 
 			if (keystoneProjectUpdateResponse == null) {
 				throw new AuthServiceException(AuthErrorCode.KEYSTONE_PROJECT_UPDATE_FAILED, "프로젝트 업데이트 응답이 null입니다.");
