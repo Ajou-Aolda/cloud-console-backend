@@ -18,12 +18,12 @@ public record CreateUserResponse(
 ) {
     public static CreateUserResponse from(UserKeystone userKeystone) {
         return CreateUserResponse.builder()
-                .userId(userKeystone.getId())
-                .userName(userKeystone.getName())
-                .defaultProjectId(userKeystone.getDefaultProjectId())
-                .domainId(userKeystone.getDomainId())
-                .email(userKeystone.getEmail())
-                .enabled(userKeystone.isEnabled())
+                .userId(userKeystone.id())
+                .userName(userKeystone.name())
+                .defaultProjectId(userKeystone.defaultProjectId())
+                .domainId(userKeystone.domainId())
+                .email(userKeystone.email())
+                .enabled(userKeystone.enabled())
                 .build();
     }
 }

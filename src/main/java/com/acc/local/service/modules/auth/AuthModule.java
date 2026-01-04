@@ -535,7 +535,7 @@ public class AuthModule {
 
             // 2. Keystone 응답에서 userId 추출
             UserKeystone createdUserKeystone = KeystoneAPIUtils.parseKeystoneUserResponse(response);
-            String userId = createdUserKeystone.getId();
+            String userId = createdUserKeystone.id();
 
             // 3. UserDetail 도메인 모델 생성 및 저장
             UserDetail userDetail = UserDetail.createForSignup(userId,request);

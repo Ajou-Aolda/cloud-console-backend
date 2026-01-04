@@ -26,17 +26,17 @@ public record GetUserResponse(
 ) {
     public static GetUserResponse from(UserKeystone userKeystone) {
         return GetUserResponse.builder()
-                .id(userKeystone.getId())
-                .name(userKeystone.getName())
-                .domainId(userKeystone.getDomainId())
-                .defaultProjectId(userKeystone.getDefaultProjectId())
-                .enabled(userKeystone.isEnabled())
-                .federated(userKeystone.getFederated())
-                .links(userKeystone.getLinks())
-                .passwordExpiresAt(userKeystone.getPasswordExpiresAt())
-                .email(userKeystone.getEmail())
-                .description(userKeystone.getDescription())
-                .options(userKeystone.getOptions())
+                .id(userKeystone.id())
+                .name(userKeystone.name())
+                .domainId(userKeystone.domainId())
+                .defaultProjectId(userKeystone.defaultProjectId())
+                .enabled(userKeystone.enabled())
+                .federated(userKeystone.federated())
+                .links(userKeystone.links())
+                .passwordExpiresAt(userKeystone.passwordExpiresAt())
+                .email(userKeystone.email())
+                .description(userKeystone.description())
+                .options(userKeystone.options())
                 .build();
     }
 }

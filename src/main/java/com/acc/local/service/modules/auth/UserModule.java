@@ -59,7 +59,7 @@ public class UserModule {
 
         // 2. Keystone 응답에서 userId 추출
         UserKeystone createdUserKeystone = KeystoneAPIUtils.parseKeystoneUserResponse(response);
-        String userId = createdUserKeystone.getId();
+        String userId = createdUserKeystone.id();
 
         // 3. UserDetail 도메인 모델 생성 및 저장
         UserDetail userDetail = UserDetail.createForAdmin(userId, request);
@@ -150,13 +150,13 @@ public class UserModule {
 
         // 4. 병합하여 반환
         return AdminGetUserResponse.builder()
-                .userId(userKeystone.getId())
+                .userId(userKeystone.id())
                 .username(userDetail.getUserName())
                 .email(userAuth.getUserEmail())
                 .department(userAuth.getDepartment())
                 .studentId(userAuth.getStudentId())
                 .phoneNumber(userDetail.getUserPhoneNumber())
-                .isEnabled(userKeystone.isEnabled())
+                .isEnabled(userKeystone.enabled())
                 .isAdmin(userDetail.getIsAdmin())
                 .isDeleted(userDetail.getIsDeleted())
                 .build();
@@ -234,7 +234,7 @@ public class UserModule {
      */
     private List<AdminListUsersResponse> filterAndConvertUsers(List<UserKeystone> userKeystones) {
         List<String> userIds = userKeystones.stream()
-                .map(UserKeystone::getId)
+                .map(UserKeystone::id)
                 .toList();
 
         // ACC DB에서 사용자 정보 bulk 조회
@@ -262,7 +262,7 @@ public class UserModule {
             Map<String, UserDetailEntity> userDetailMap,
             Map<String, UserAuthDetailEntity> userAuthMap) {
 
-        String userId = userKeystone.getId();
+        String userId = userKeystone.id();
         UserDetailEntity userDetail = userDetailMap.get(userId);
 
         // 미가입 사용자 또는 삭제된 사용자는 제외
@@ -279,7 +279,7 @@ public class UserModule {
                 .email(userAuth != null ? userAuth.getUserEmail() : null)
                 .phoneNumber(userDetail.getUserPhoneNumber())
                 .department(userAuth != null ? userAuth.getDepartment() : null)
-                .enabled(userKeystone.isEnabled())
+                .enabled(userKeystone.enabled())
                 .defaultProjectName(null)
                 .build();
     }
@@ -382,7 +382,7 @@ public class UserModule {
                         .enabled(true) // role이 할당되어 있다는 것은 활성 사용자
                         .build())
                 .collect(Collectors.toMap(
-                        UserKeystone::getId,
+                        UserKeystone::id,
                         user -> user,
                         (existing, replacement) -> existing // 중복 시 첫 번째 유지
                 ))

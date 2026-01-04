@@ -35,9 +35,9 @@ public record ProjectResponse(
 		if (participants.isEmpty() && owner != null) {
 			participants.add(
 				ProjectParticipantDto.builder()
-					.userId(owner.getId())
-					.userName(owner.getName())
-					.userEmail(owner.getEmail())
+					.userId(owner.id())
+					.userName(owner.name())
+					.userEmail(owner.email())
 					.role(ProjectRole.PROJECT_ADMIN)
 				.build()
 			);
@@ -79,8 +79,8 @@ public record ProjectResponse(
 			.rejectReason(projectRequestDto.rejectReason())
 			.participants(List.of(
 				ProjectParticipantDto.builder()
-					.userId(projectRequestUser.getId())
-					.userName(projectRequestUser.getName())
+					.userId(projectRequestUser.id())
+					.userName(projectRequestUser.name())
 					.role(ProjectRole.PROJECT_ADMIN)
 					.build()
 			))

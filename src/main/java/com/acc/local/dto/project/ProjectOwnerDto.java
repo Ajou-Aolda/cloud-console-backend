@@ -11,8 +11,8 @@ public record ProjectOwnerDto(
 ) {
 	public static ProjectOwnerDto from(UserKeystone createdBy) {
 		return ProjectOwnerDto.builder()
-			.userId(createdBy.getId())
-			.userName(createdBy.getName())
+			.userId(createdBy.id())
+			.userName(createdBy.name())
 			.build();
 	}
 }

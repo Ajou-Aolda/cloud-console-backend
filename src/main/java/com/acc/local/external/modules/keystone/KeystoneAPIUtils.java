@@ -322,10 +322,10 @@ public class KeystoneAPIUtils {
 
     public static Map<String, Object> createKeystoneUserRequest(UserKeystone userKeystone) {
         Map<String, Object> userObject = new HashMap<>();
-        userObject.put("name", userKeystone.getName());
-        userObject.put("password", userKeystone.getPassword());
-        userObject.put("enabled", userKeystone.isEnabled());
-        userObject.put("email", userKeystone.getEmail());
+        userObject.put("name", userKeystone.name());
+        userObject.put("password", userKeystone.password());
+        userObject.put("enabled", userKeystone.enabled());
+        userObject.put("email", userKeystone.email());
 
         Map<String, Object> request = new HashMap<>();
         request.put("user", userObject);
@@ -336,22 +336,22 @@ public class KeystoneAPIUtils {
     public static Map<String, Object> createKeystoneUpdateUserRequest(UserKeystone userKeystone) {
         Map<String, Object> userObject = new HashMap<>();
 
-        if (userKeystone.getName() != null) {
-            userObject.put("name", userKeystone.getName());
+        if (userKeystone.name() != null) {
+            userObject.put("name", userKeystone.name());
         }
-        if (userKeystone.getEmail() != null) {
-            userObject.put("email", userKeystone.getEmail());
+        if (userKeystone.email() != null) {
+            userObject.put("email", userKeystone.email());
         }
-        if (userKeystone.getPassword() != null) {
-            userObject.put("password", userKeystone.getPassword());
+        if (userKeystone.password() != null) {
+            userObject.put("password", userKeystone.password());
         }
-        if (userKeystone.getDescription() != null) {
-            userObject.put("description", userKeystone.getDescription());
+        if (userKeystone.description() != null) {
+            userObject.put("description", userKeystone.description());
         }
-        if (userKeystone.getDefaultProjectId() != null) {
-            userObject.put("default_project_id", userKeystone.getDefaultProjectId());
+        if (userKeystone.defaultProjectId() != null) {
+            userObject.put("default_project_id", userKeystone.defaultProjectId());
         }
-        userObject.put("enabled", userKeystone.isEnabled());
+        userObject.put("enabled", userKeystone.enabled());
 
         Map<String, Object> request = new HashMap<>();
         request.put("user", userObject);

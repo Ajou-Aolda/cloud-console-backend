@@ -496,18 +496,18 @@ public class ProjectModule {
 		ResponseEntity<JsonNode> listUsersOpenstackResponse = keystoneUserAPIModule.listUsers(token, null, 30, email);
 		List<UserKeystone> users = KeystoneAPIUtils.parseKeystoneUserListResponse(listUsersOpenstackResponse).getUserKeystones();
 
-		List<UserDetailEntity> userDetailsByIds = userRepositoryPort.findUserDetailsByIds(users.stream().map(UserKeystone::getId).toList());
+		List<UserDetailEntity> userDetailsByIds = userRepositoryPort.findUserDetailsByIds(users.stream().map(UserKeystone::id).toList());
 
 		List<InvitableUser> invitableUsers = new ArrayList<>();
 		for (UserDetailEntity userDetailEntity : userDetailsByIds) {
 			UserKeystone matchUser = users.stream()
-				.filter(v -> v.getId().equals(userDetailEntity.getUserId()))
+				.filter(v -> v.id().equals(userDetailEntity.getUserId()))
 				.findFirst()
 				.orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND));
 
 			invitableUsers.add(
 				InvitableUser.builder()
-					.userEmail(matchUser.getName())
+					.userEmail(matchUser.name())
 					.userName(userDetailEntity.getUserName())
 					.userId(userDetailEntity.getUserId())
 					.build()
@@ -527,7 +527,7 @@ public class ProjectModule {
 
 			invitableUsers.add(
 				InvitableUser.builder()
-					.userEmail(user.getName())
+					.userEmail(user.name())
 					.userName(userDetailEntity.getUserName())
 					.userId(userDetailEntity.getUserId())
 					.build()

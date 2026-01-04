@@ -19,13 +19,13 @@ public record UpdateUserResponse(
 ) {
     public static UpdateUserResponse from(UserKeystone userKeystone) {
         return UpdateUserResponse.builder()
-                .userId(userKeystone.getId())
-                .name(userKeystone.getName())
-                .domainId(userKeystone.getDomainId())
-                .defaultProjectId(userKeystone.getDefaultProjectId())
-                .enabled(userKeystone.isEnabled())
-                .email(userKeystone.getEmail())
-                .description(userKeystone.getDescription())
+                .userId(userKeystone.id())
+                .name(userKeystone.name())
+                .domainId(userKeystone.domainId())
+                .defaultProjectId(userKeystone.defaultProjectId())
+                .enabled(userKeystone.enabled())
+                .email(userKeystone.email())
+                .description(userKeystone.description())
                 .build();
     }
 }
