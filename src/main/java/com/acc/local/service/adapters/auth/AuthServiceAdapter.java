@@ -50,7 +50,7 @@ public class AuthServiceAdapter implements AuthServicePort {
     public CreateUserResponse createUser(CreateUserRequest createUserRequest , String userId) {
 
         // TODO: userid 를 통해, 요청을 보낸 사람이 Root인지 권한 확인
-
+        // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
         UserKeystone userKeystone = UserKeystone.from(createUserRequest);
         UserKeystone createdUserKeystone = authModule.createUser(userKeystone, userId);
         return CreateUserResponse.from(createdUserKeystone);
@@ -68,6 +68,7 @@ public class AuthServiceAdapter implements AuthServicePort {
     public UpdateUserResponse updateUser(String targetUserId, UpdateUserRequest updateUserRequest, String requesterId) {
         // TODO: requesterId를 통해, 요청을 보낸 사람이 Root or 본인인지 권한 확인
 
+        // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
         UserKeystone userKeystone = UserKeystone.from(updateUserRequest);
         UserKeystone updatedUserKeystone = authModule.updateUser(targetUserId, userKeystone, requesterId);
         return UpdateUserResponse.from(updatedUserKeystone);

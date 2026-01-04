@@ -46,6 +46,7 @@ public class UserModule {
     @Transactional
     public String adminCreateUser(AdminCreateUserRequest request, String adminToken) {
         // 1. Keystone 사용자 생성 요청 생성
+        // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
         UserKeystone newUserKeystone = UserKeystone.from(request);
 
         Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(newUserKeystone);

@@ -22,6 +22,7 @@ public record UserKeystone(
         Map<String, Object> options
 ) {
 
+    @Deprecated
     public static UserKeystone from(CreateUserRequest request) {
         if (request == null) {
             return null;
@@ -36,6 +37,7 @@ public record UserKeystone(
                 .build();
     }
 
+    @Deprecated
     public static UserKeystone from(UpdateUserRequest request) {
         if (request == null) {
             return null;
@@ -51,6 +53,7 @@ public record UserKeystone(
                 .build();
     }
 
+    @Deprecated
     public static UserKeystone from(SignupRequest request) {
         return UserKeystone.builder()
                 .name(extractUsernameFromEmail(request.email())) // email의 @ 앞부분만 name(아이디)로 사용
@@ -60,6 +63,7 @@ public record UserKeystone(
                 .build();
     }
 
+    @Deprecated
     public static UserKeystone from(AdminCreateUserRequest request) {
         return UserKeystone.builder()
                 .name(extractUsernameFromEmail(request.email())) // email의 @ 앞부분만 name(아이디)로 사용
