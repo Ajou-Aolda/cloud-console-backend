@@ -23,7 +23,7 @@ public class NovaServerInterfaceExternalAdapter implements NovaServerInterfaceEx
     private final NovaPortInterfaceAPIModule novaPortInterfaceAPIModule;
 
     @Override
-    public List<InterfaceAttachmentResponse> callListInterfaces(String keystoneToken, String projectId, String instanceId) {
+    public List<InterfaceAttachmentResponse> callListInterfaces(String keystoneToken, String instanceId) {
         ResponseEntity<JsonNode> response;
         try {
             response = novaPortInterfaceAPIModule.listPortInterfaces(keystoneToken, instanceId);
@@ -39,7 +39,7 @@ public class NovaServerInterfaceExternalAdapter implements NovaServerInterfaceEx
     }
 
     @Override
-    public InterfaceAttachmentResponse callCreateInterface(String keystoneToken, String projectId, String instanceId, InterfaceAttachmentRequest request) {
+    public InterfaceAttachmentResponse callCreateInterface(String keystoneToken, String instanceId, InterfaceAttachmentRequest request) {
         CreateInterfaceRequest novaRequest = buildCreateInterfaceRequest(request);
 
         ResponseEntity<JsonNode> response;
@@ -57,7 +57,7 @@ public class NovaServerInterfaceExternalAdapter implements NovaServerInterfaceEx
     }
 
     @Override
-    public void callDetachInterface(String keystoneToken, String projectId, String instanceId, String interfaceId) {
+    public void callDetachInterface(String keystoneToken, String instanceId, String interfaceId) {
         ResponseEntity<JsonNode> response;
         try {
             response = novaPortInterfaceAPIModule.detachInterface(keystoneToken, instanceId, interfaceId);

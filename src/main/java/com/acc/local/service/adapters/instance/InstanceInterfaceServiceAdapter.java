@@ -22,19 +22,19 @@ public class InstanceInterfaceServiceAdapter implements InstanceInterfaceService
     @Override
     public List<InterfaceAttachmentResponse> listInterfaces(String userId, String projectId, String instanceId) {
         String keystoneToken = authModule.issueProjectScopeToken(projectId, userId);
-        return instanceInterfaceModule.listInterfaces(keystoneToken, projectId, instanceId);
+        return instanceInterfaceModule.listInterfaces(keystoneToken, instanceId);
     }
 
     @Override
     public InterfaceAttachmentResponse createInterface(String userId, String projectId, String instanceId, InterfaceAttachmentRequest request) {
         String keystoneToken = authModule.issueProjectScopeToken(projectId, userId);
-        return instanceInterfaceModule.createInterface(keystoneToken, projectId, instanceId, request);
+        return instanceInterfaceModule.createInterface(keystoneToken, instanceId, request);
     }
 
     @Override
     public void detachInterface(String userId, String projectId, String instanceId, String interfaceId) {
         String keystoneToken = authModule.issueProjectScopeToken(projectId, userId);
-        instanceInterfaceModule.detachInterface(keystoneToken, projectId, instanceId, interfaceId);
+        instanceInterfaceModule.detachInterface(keystoneToken, instanceId, interfaceId);
     }
 }
 

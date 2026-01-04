@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface NovaServerInterfaceExternalPort {
 
-    List<InterfaceAttachmentResponse> callListInterfaces(String keystoneToken, String projectId, String instanceId);
-    InterfaceAttachmentResponse callCreateInterface(String keystoneToken, String projectId, String instanceId, InterfaceAttachmentRequest request);
-    void callDetachInterface(String keystoneToken, String projectId, String instanceId, String interfaceId);
+    List<InterfaceAttachmentResponse> callListInterfaces(String keystoneToken, String instanceId);
+    InterfaceAttachmentResponse callCreateInterface(String keystoneToken, String instanceId, InterfaceAttachmentRequest request);
+    void callDetachInterface(String keystoneToken, String instanceId, String interfaceId);
 }
 

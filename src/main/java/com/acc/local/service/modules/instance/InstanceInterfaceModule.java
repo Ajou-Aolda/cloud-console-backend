@@ -14,16 +14,16 @@ public class InstanceInterfaceModule {
 
     private final NovaServerInterfaceExternalPort novaServerInterfaceExternalPort;
 
-    public List<InterfaceAttachmentResponse> listInterfaces(String keystoneToken, String projectId, String instanceId) {
-        return novaServerInterfaceExternalPort.callListInterfaces(keystoneToken, projectId, instanceId);
+    public List<InterfaceAttachmentResponse> listInterfaces(String keystoneToken, String instanceId) {
+        return novaServerInterfaceExternalPort.callListInterfaces(keystoneToken, instanceId);
     }
 
-    public InterfaceAttachmentResponse createInterface(String keystoneToken, String projectId, String instanceId, InterfaceAttachmentRequest request) {
-        return novaServerInterfaceExternalPort.callCreateInterface(keystoneToken, projectId, instanceId, request);
+    public InterfaceAttachmentResponse createInterface(String keystoneToken, String instanceId, InterfaceAttachmentRequest request) {
+        return novaServerInterfaceExternalPort.callCreateInterface(keystoneToken, instanceId, request);
     }
 
-    public void detachInterface(String keystoneToken, String projectId, String instanceId, String interfaceId) {
-        novaServerInterfaceExternalPort.callDetachInterface(keystoneToken, projectId, instanceId, interfaceId);
+    public void detachInterface(String keystoneToken, String instanceId, String interfaceId) {
+        novaServerInterfaceExternalPort.callDetachInterface(keystoneToken, instanceId, interfaceId);
     }
 }
 
