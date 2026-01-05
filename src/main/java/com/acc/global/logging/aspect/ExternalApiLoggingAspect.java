@@ -43,6 +43,7 @@ public class ExternalApiLoggingAspect {
         MDC.put("targetSystem", targetSystem);
         MDC.put("module", className);
         MDC.put("method", methodName);
+        MDC.put("attempt", "1");
         
         String argsJson = sanitizeArgs(joinPoint.getArgs(), signature.getParameterNames());
         Object argsArg = raw("args", argsJson);
@@ -55,17 +56,20 @@ public class ExternalApiLoggingAspect {
                 MDC.put("statusCode", String.valueOf(response.getStatusCode().value()));
                 if (response.getStatusCode().is4xxClientError()) {
                     isSuccess = false;
-                    log.warn("[External] {} Client Error - {} {} {}", targetSystem, className, methodName, argsArg);
+                    MDC.put("success", String.valueOf(isSuccess));
+                    log.warn("[External] {} Client Error - {} {}", targetSystem, className, methodName, argsArg);
                 } else if (response.getStatusCode().is5xxServerError()) {
                     isSuccess = false;
-                    log.error("[External] {} Server Error - {} {} {}", targetSystem, className, methodName, argsArg);
+                    MDC.put("success", String.valueOf(isSuccess));
+                    log.error("[External] {} Server Error - {} {}", targetSystem, className, methodName, argsArg);
                 }
             }
-            
-            if (isSuccess) {
-                log.info("[External] {} Call Success - {} {} {}", targetSystem, className, methodName, argsArg);
-            }
+
+
             MDC.put("success", String.valueOf(isSuccess));
+            if (isSuccess) {
+                log.info("[External] {} Call Success - {} {}", targetSystem, className, methodName, argsArg);
+            }
             return result;
 
         } catch (Throwable ex) {
@@ -79,17 +83,17 @@ public class ExternalApiLoggingAspect {
                 Object responseBodyArg = getResponseBodyArg(webEx.getResponseBodyAsString());
                 
                 if (webEx.getStatusCode().is4xxClientError()) {
-                    log.warn("[External] {} Client Exception - {} {} {}", targetSystem, className, methodName, argsArg, responseBodyArg);
+                    log.warn("[External] {} Client Exception - {} {}", targetSystem, className, methodName, responseBodyArg, argsArg);
                 } else {
-                    log.error("[External] {} System Exception - {} {} {}", targetSystem, className, methodName, argsArg, responseBodyArg);
+                    log.error("[External] {} System Exception - {} {}", targetSystem, className, methodName, responseBodyArg, argsArg);
                 }
             } else {
-                log.error("[External] {} Unknown Exception - {} {} {}", targetSystem, className, methodName, argsArg);
+                log.error("[External] {} Unknown Exception - {} {}", targetSystem, className, methodName, argsArg);
             }
             throw ex;
         } finally {
             MDC.put("durationMs", String.valueOf(System.currentTimeMillis() - startTime));
-            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs");
+            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs", "attempt");
         }
     }
 
