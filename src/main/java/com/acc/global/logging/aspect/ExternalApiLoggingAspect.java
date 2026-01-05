@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import static net.logstash.logback.argument.StructuredArguments.keyValue;
 import static net.logstash.logback.argument.StructuredArguments.raw;
 
 import java.util.HashMap;
@@ -74,11 +75,13 @@ public class ExternalApiLoggingAspect {
 
             if (ex instanceof WebClientResponseException webEx) {
                 MDC.put("statusCode", String.valueOf(webEx.getStatusCode().value()));
-                MDC.put("responseBody", parseBody(webEx.getResponseBodyAsString()));
+                
+                Object responseBodyArg = getResponseBodyArg(webEx.getResponseBodyAsString());
+                
                 if (webEx.getStatusCode().is4xxClientError()) {
-                    log.warn("[External] {} Client Exception - {} {} {}", targetSystem, className, methodName, argsArg);
+                    log.warn("[External] {} Client Exception - {} {} {}", targetSystem, className, methodName, argsArg, responseBodyArg);
                 } else {
-                    log.error("[External] {} System Exception - {} {} {}", targetSystem, className, methodName, argsArg);
+                    log.error("[External] {} System Exception - {} {} {}", targetSystem, className, methodName, argsArg, responseBodyArg);
                 }
             } else {
                 log.error("[External] {} Unknown Exception - {} {} {}", targetSystem, className, methodName, argsArg);
@@ -86,7 +89,7 @@ public class ExternalApiLoggingAspect {
             throw ex;
         } finally {
             MDC.put("durationMs", String.valueOf(System.currentTimeMillis() - startTime));
-            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs", "responseBody");
+            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs");
         }
     }
 
@@ -121,15 +124,20 @@ public class ExternalApiLoggingAspect {
         }
     }
 
-    private String parseBody(String body) {
+    private Object getResponseBodyArg(String body) {
+        if (body == null) {
+            return keyValue("responseBody", null);
+        }
+        String trimmedBody = body.trim();
         try {
-            if (body != null && body.startsWith("{") && body.endsWith("}")) {
-                return objectMapper.writeValueAsString(body);
+            if (trimmedBody.startsWith("{") && trimmedBody.endsWith("}")) {
+                objectMapper.readTree(trimmedBody);
+                return raw("responseBody", trimmedBody);
             }
         } catch (JsonProcessingException e) {
-            return body;
+            return keyValue("responseBody", body);
         }
-        return body;
+        return keyValue("responseBody", body);
     }
 
     private boolean isSensitive(String name) {
