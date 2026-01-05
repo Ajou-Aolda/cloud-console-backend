@@ -79,13 +79,10 @@ apm:
     server-url: ${APM_SERVER_URL}
 
 logging:
-  pattern:
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
-    root: INFO
     reactor.netty.http.client: TRACE
   loki:
-    url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
+    url: ${LOKI_URL}
 
 management:
   endpoints:

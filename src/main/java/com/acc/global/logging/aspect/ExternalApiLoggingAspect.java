@@ -74,6 +74,7 @@ public class ExternalApiLoggingAspect {
 
             if (ex instanceof WebClientResponseException webEx) {
                 MDC.put("statusCode", String.valueOf(webEx.getStatusCode().value()));
+                MDC.put("responseBody", parseBody(webEx.getResponseBodyAsString()));
                 if (webEx.getStatusCode().is4xxClientError()) {
                     log.warn("[External] {} Client Exception - {} {} {}", targetSystem, className, methodName, argsArg);
                 } else {
@@ -85,7 +86,7 @@ public class ExternalApiLoggingAspect {
             throw ex;
         } finally {
             MDC.put("durationMs", String.valueOf(System.currentTimeMillis() - startTime));
-            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs");
+            cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs", "responseBody");
         }
     }
 
@@ -118,6 +119,17 @@ public class ExternalApiLoggingAspect {
         } catch (JsonProcessingException e) {
             return "{\"error\": \"Serialization Failed\"}";
         }
+    }
+
+    private String parseBody(String body) {
+        try {
+            if (body != null && body.startsWith("{") && body.endsWith("}")) {
+                return objectMapper.writeValueAsString(body);
+            }
+        } catch (JsonProcessingException e) {
+            return body;
+        }
+        return body;
     }
 
     private boolean isSensitive(String name) {

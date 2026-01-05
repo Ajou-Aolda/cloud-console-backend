@@ -36,16 +36,12 @@ public class GlobalExceptionHandler {
         HttpStatus status = HttpStatus.valueOf(errorCode.getStatus());
         Object stackTraceArg = value("stackTrace", getStackTraceString(ex, 10));
 
-        if (ex.getCause() instanceof WebClientResponseException webEx) {
-            handleWrappedExternalException(ex, webEx);
+        if (status.is5xxServerError()) {
+            log.error("[Exception] Server Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), stackTraceArg);
         } else {
-            if (status.is5xxServerError()) {
-                log.error("[Exception] Server Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), stackTraceArg);
-            } else {
-                log.warn("[Exception] Client Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), stackTraceArg);
-            }
+            log.warn("[Exception] Client Error - Code: {}, Message: {}", errorCode.getCode(), ex.getCustomMessage(), stackTraceArg);
         }
-        
+
         cleanupExceptionContext();
         return ResponseEntity.status(status).body(new ErrorResponse(errorCode, ex.getCustomMessage()));
     }
@@ -64,58 +60,6 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(CommonErrorCode.INTERNAL_FAILURE, ex.getMessage()));
     }
 
-    private void handleWrappedExternalException(AccBaseException parentEx, WebClientResponseException cause) {
-        HttpStatus externalStatus = HttpStatus.valueOf(cause.getStatusCode().value());
-        String errorCode = parentEx.getErrorCode().getCode();
-        MDC.put("externalStatus", String.valueOf(externalStatus.value()));
-        
-        String body = cause.getResponseBodyAsString();
-        Object bodyArg = null;
-        if (body != null && !body.isEmpty()) {
-            try {
-                if (body.trim().startsWith("{")) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> jsonMap = objectMapper.readValue(body, Map.class);
-                    bodyArg = raw("externalBody", objectMapper.writeValueAsString(jsonMap));
-                } else if (body.trim().startsWith("[")) {
-                    @SuppressWarnings("unchecked")
-                    List<Object> jsonList = objectMapper.readValue(body, List.class);
-                    bodyArg = raw("externalBody", objectMapper.writeValueAsString(jsonList));
-                } else {
-                    bodyArg = value("externalBody", body);
-                }
-            } catch (Exception e) {
-                bodyArg = value("externalBody", body);
-            }
-        }
-
-        Object stackTraceArg = value("stackTrace", getStackTraceString(parentEx, 10));
-        if (externalStatus.is5xxServerError()) {
-            logError("[Exception] External System Failure (Wrapped)", errorCode, externalStatus, bodyArg, stackTraceArg);
-        } else if (externalStatus == HttpStatus.BAD_REQUEST) {
-            logError("[Exception] External Bad Request (Wrapped) - Possible Logic Bug", errorCode, externalStatus, bodyArg, stackTraceArg);
-        } else if (externalStatus == HttpStatus.NOT_FOUND || externalStatus == HttpStatus.CONFLICT) {
-            logWarn("[Exception] External Resource Issue (Wrapped)", errorCode, externalStatus, bodyArg, stackTraceArg);
-        } else {
-            logWarn("[Exception] External Client Error (Wrapped)", errorCode, externalStatus, bodyArg, stackTraceArg);
-        }
-    }
-    
-    private void logError(String msg, String errorCode, HttpStatus externalStatus, Object bodyArg, Object stackTraceArg) {
-        if (bodyArg != null) {
-            log.error("{} - Code: {}, External: {}", msg, errorCode, externalStatus, bodyArg, stackTraceArg);
-        } else {
-            log.error("{} - Code: {}, External: {}", msg, errorCode, externalStatus, stackTraceArg);
-        }
-    }
-
-    private void logWarn(String msg, String errorCode, HttpStatus externalStatus, Object bodyArg, Object stackTraceArg) {
-        if (bodyArg != null) {
-            log.warn("{} - Code: {}, External: {}", msg, errorCode, externalStatus, bodyArg, stackTraceArg);
-        } else {
-            log.warn("{} - Code: {}, External: {}", msg, errorCode, externalStatus, stackTraceArg);
-        }
-    }
 
     private void setupExceptionContext(Exception ex, HttpServletRequest request) {
         MDC.put("type", "EXCEPTION");
@@ -136,17 +80,10 @@ public class GlobalExceptionHandler {
     private void cleanupExceptionContext() {
         MDC.remove("exceptionClass");
         MDC.remove("stackTrace");
-        MDC.remove("externalStatus");
         MDC.remove("type");
         MDC.remove("path");
     }
 
-    /**
-     * 스택트레이스를 제한된 개수만큼만 포함하는 문자열로 변환합니다.
-     * @param throwable 원본 예외
-     * @param maxLines 최대 스택트레이스 라인 수
-     * @return 스택트레이스 문자열
-     */
     private String getStackTraceString(Throwable throwable, int maxLines) {
         StringBuilder sb = new StringBuilder();
         StackTraceElement[] stackTrace = throwable.getStackTrace();
