@@ -38,7 +38,7 @@ public class SecurityGroupController implements SecurityGroupDocs {
     public ResponseEntity<Object> createSecurityGroup(Authentication authentication, CreateSecurityGroupRequest request, String projectId) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String id = securityGroupServicePort.createSecurityGroup(request, projectId, jwtInfo.getUserId());
-        return ResponseEntity.created(URI.create("/api/v1/security-groups/" + id)).build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override

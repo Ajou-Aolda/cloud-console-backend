@@ -6,10 +6,8 @@ import com.acc.local.dto.network.CreateRouterRequest;
 import com.acc.local.dto.network.ViewRoutersResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -131,11 +129,6 @@ public interface RouterDocs {
             @ApiResponse(
                     responseCode = "201",
                     description = "라우터 생성 성공",
-                    headers = @Header(
-                            name = "Location",
-                            description = "생성된 라우터의 리소스 URL",
-                            schema = @Schema(type = "string", example = "/api/routers/{routerId}")
-                    ),
                     content = @Content()
             ),
             @ApiResponse(

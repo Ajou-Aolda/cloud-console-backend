@@ -6,10 +6,8 @@ import com.acc.local.dto.network.CreateInterfaceRequest;
 import com.acc.local.dto.network.ViewInterfacesResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -177,11 +175,6 @@ public interface InterfaceDocs {
             @ApiResponse(
                     responseCode = "201",
                     description = "인터페이스 생성 성공",
-                    headers = @Header(
-                            name = "Location",
-                            description = "생성된 인터페이스의 리소스 URL",
-                            schema = @Schema(type = "string", example = "/api/interfaces/{interfaceId}")
-                    ),
                     content = @Content()
             ),
             @ApiResponse(

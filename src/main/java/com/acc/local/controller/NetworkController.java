@@ -38,7 +38,7 @@ public class NetworkController implements NetworkDocs {
             CreateNetworkRequest request) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String id = networkServicePort.createNetwork(request, jwtInfo.getUserId(), projectId);
-        return ResponseEntity.created(URI.create("/api/v1/networks/" + id)).build();
+        return ResponseEntity.created(null).build();
     }
 
     @Override

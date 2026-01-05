@@ -4,7 +4,7 @@ server:
   port: ${SERVICE_PORT:8080}
 spring:
   profiles:
-    active: db, google, discord, mail, prod
+    active: db, google, discord, mail, openstack-resilience, prod
   servlet:
     multipart:
       max-file-size: 1GB
