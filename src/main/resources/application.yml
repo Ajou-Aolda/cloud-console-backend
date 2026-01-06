@@ -4,7 +4,7 @@ server:
   port: ${SERVICE_PORT:8080}
 spring:
   profiles:
-    active: db, google, discord, mail, openstack-resilience, prod
+    active: ${SPRING_PROFILES_ACTIVE}
   servlet:
     multipart:
       max-file-size: 1GB
@@ -77,24 +77,6 @@ oauth:
 
 apm:
     server-url: ${APM_SERVER_URL}
-
-logging:
-  level:
-    reactor.netty.http.client: TRACE
-  loki:
-    url: ${LOKI_URL}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, metrics, prometheus
-  tracing:
-    sampling:
-      probability: 1.0 # Trace everything for now (adjust for prod)
-  otlp:
-    tracing:
-      endpoint: ${TEMPO_URL:http://localhost:4318/v1/traces}
 
 quick-start:
   default-image-id: ${DEFAULT_IMAGE_ID_X86_64}

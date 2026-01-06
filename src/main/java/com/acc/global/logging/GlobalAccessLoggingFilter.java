@@ -56,7 +56,6 @@ public class GlobalAccessLoggingFilter extends OncePerRequestFilter {
             MDC.put("userId", getUserId());
             
             if (request.getQueryString() != null) MDC.put("queryParams", request.getQueryString());
-
             if (status >= 400) {
                 String body = getRequestBody(request);
                 String sanitizedBody = null;
