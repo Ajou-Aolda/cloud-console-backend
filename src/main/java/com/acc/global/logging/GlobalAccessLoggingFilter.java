@@ -99,6 +99,10 @@ public class GlobalAccessLoggingFilter extends OncePerRequestFilter {
     private String getRequestBody(HttpServletRequest request) {
         if (request instanceof ContentCachingRequestWrapper wrapper) {
             byte[] buf = wrapper.getContentAsByteArray();
+            if (buf.length > 1024 * 1024) {
+                return "[Large Payload: " + buf.length + " bytes]";
+            }
+
             if (buf.length > 0) {
                 try { return new String(buf, 0, buf.length, wrapper.getCharacterEncoding()); } 
                 catch (Exception e) { return "[Binary/Unparseable]"; }
