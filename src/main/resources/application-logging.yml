@@ -15,3 +15,6 @@ management:
   otlp:
     tracing:
       endpoint: ${TEMPO_URL:http://localhost:4318/v1/traces}
+  opentelemetry:
+    resource-attributes:
+      service.name: ACC-Backend

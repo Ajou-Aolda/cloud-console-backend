@@ -38,7 +38,7 @@ public class ExternalApiLoggingAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String className = signature.getDeclaringType().getSimpleName();
         String methodName = signature.getName();
-        String targetSystem = String.valueOf(SystemType.findByName(className));
+        String targetSystem = String.valueOf(SystemType.findByName(className.split("(?=[A-Z])")[0]));
 
         MDC.put("type", "EXTERNAL");
         MDC.put("targetSystem", targetSystem);
