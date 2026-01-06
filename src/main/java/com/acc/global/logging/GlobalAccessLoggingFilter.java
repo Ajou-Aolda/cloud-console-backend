@@ -17,6 +17,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import static net.logstash.logback.argument.StructuredArguments.raw;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -55,7 +56,7 @@ public class GlobalAccessLoggingFilter extends OncePerRequestFilter {
             MDC.put("clientIp", getClientIp(request));
             MDC.put("userId", getUserId());
             
-            if (request.getQueryString() != null) MDC.put("queryParams", request.getQueryString());
+            if (request.getQueryString() != null) MDC.put("queryParams", decoding(request.getQueryString()));
             if (status >= 400) {
                 String body = getRequestBody(request);
                 String sanitizedBody = null;
@@ -118,6 +119,14 @@ public class GlobalAccessLoggingFilter extends OncePerRequestFilter {
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         return (ip == null || ip.isEmpty()) ? request.getRemoteAddr() : ip;
+    }
+
+    private String decoding(String value) {
+        try {
+            return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return value;
+        }
     }
 }
 
