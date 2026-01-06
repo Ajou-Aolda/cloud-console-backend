@@ -1,5 +1,6 @@
 package com.acc.global.logging;
 
+import com.acc.global.logging.enums.Sensitive;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -108,7 +109,7 @@ public class GlobalAccessLoggingFilter extends OncePerRequestFilter {
     }
 
     private String sanitizeBody(String body) {
-        return body.replaceAll("(?i)\"(password|token|secret|credential)\"\\s*:\\s*\"[^\"]+\"", "\"$1\":\"***\"");
+        return body.replaceAll("(?i)\"" + Sensitive.SENSITIVES_REGEX + "\"\\s*:\\s*\"[^\"]+\"", "\"$1\":\"***\"");
     }
 
     private String getClientIp(HttpServletRequest request) {

@@ -1,5 +1,6 @@
 package com.acc.global.logging.aspect;
 
+import com.acc.global.logging.enums.SystemType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ExternalApiLoggingAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String className = signature.getDeclaringType().getSimpleName();
         String methodName = signature.getName();
-        String targetSystem = determineTargetSystem(className);
+        String targetSystem = String.valueOf(SystemType.findByName(className));
 
         MDC.put("type", "EXTERNAL");
         MDC.put("targetSystem", targetSystem);
@@ -95,14 +96,6 @@ public class ExternalApiLoggingAspect {
             MDC.put("durationMs", String.valueOf(System.currentTimeMillis() - startTime));
             cleanupMdcKeys("type", "targetSystem", "module", "method", "statusCode", "success", "exception", "errorMessage", "durationMs", "attempt");
         }
-    }
-
-    private String determineTargetSystem(String className) {
-        String lower = className.toLowerCase();
-        if (lower.contains("openstack") || lower.contains("nova") || lower.contains("neutron") || lower.contains("cinder") || lower.contains("keystone") || lower.contains("glance")) return "OPENSTACK";
-        if (lower.contains("google")) return "GOOGLE";
-        if (lower.contains("keycloak")) return "KEYCLOAK";
-        return "UNKNOWN";
     }
 
     private String sanitizeArgs(Object[] args, String[] paramNames) {
