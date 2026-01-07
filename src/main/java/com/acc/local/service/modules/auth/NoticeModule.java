@@ -8,10 +8,7 @@ import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.global.exception.notice.NoticeErrorCode;
 import com.acc.global.exception.notice.NoticeServiceException;
 import com.acc.local.domain.model.auth.Notice;
-import com.acc.local.dto.auth.CreateNoticeRequest;
-import com.acc.local.dto.auth.CreateNoticeResponse;
-import com.acc.local.dto.auth.GetNoticeResponse;
-import com.acc.local.dto.auth.ListNoticesResponse;
+import com.acc.local.dto.auth.*;
 import com.acc.local.entity.NoticeEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.repository.ports.NoticeRepositoryPort;
@@ -91,11 +88,12 @@ public class NoticeModule {
      * 관리자 공지사항 목록 조회 (마커 기반 페이지네이션)
      */
     @Transactional
-    public PageResponse<ListNoticesResponse> adminListNotices(PageRequest pageRequest) {
+    public PageResponse<ListNoticesResponse> adminListNotices(PageRequest pageRequest, NoticeFilterRequest filter) {
         return noticeRepositoryPort.findAllNotices(
                 pageRequest.getMarker(),
                 pageRequest.getDirection().name().equals("prev") ? "prev" : "next",
-                pageRequest.getLimit()
+                pageRequest.getLimit(),
+                filter
         );
     }
 

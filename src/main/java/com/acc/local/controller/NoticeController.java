@@ -4,11 +4,7 @@ import com.acc.global.common.PageRequest;
 import com.acc.global.common.PageResponse;
 import com.acc.global.security.jwt.JwtInfo;
 import com.acc.local.controller.docs.NoticeDocs;
-import com.acc.local.dto.auth.CreateNoticeRequest;
-import com.acc.local.dto.auth.CreateNoticeResponse;
-import com.acc.local.dto.auth.GetNoticeResponse;
-import com.acc.local.dto.auth.ListNoticesResponse;
-import com.acc.local.dto.auth.ListRolesResponse;
+import com.acc.local.dto.auth.*;
 import com.acc.local.service.ports.NoticeServicePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +26,11 @@ public class NoticeController implements NoticeDocs {
     }
 
     @Override
-    public ResponseEntity<PageResponse<ListNoticesResponse>> listNotices(PageRequest page, Authentication authentication) {
+    public ResponseEntity<PageResponse<ListNoticesResponse>> listNotices(PageRequest page, NoticeFilterRequest filter, Authentication authentication) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String requesterId = jwtInfo.getUserId();
 
-        PageResponse<ListNoticesResponse> response = noticeServicePort.adminListNotices(page, requesterId);
+        PageResponse<ListNoticesResponse> response = noticeServicePort.adminListNotices(page, filter, requesterId);
         return ResponseEntity.ok(response);
     }
 

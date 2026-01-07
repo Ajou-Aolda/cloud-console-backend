@@ -148,6 +148,12 @@ public interface NoticeDocs {
                     required = false
             )
             PageRequest page,
+            @Parameter(
+                    description = "필터 파라미터\n"
+                            + "- activeOnly: 활성 공지만 조회 (true/false)",
+                    required = false
+            )
+            NoticeFilterRequest filter,
             @Parameter(hidden = true) Authentication authentication
     );
 

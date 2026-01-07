@@ -4,10 +4,7 @@ import com.acc.global.common.PageRequest;
 import com.acc.global.common.PageResponse;
 import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
-import com.acc.local.dto.auth.CreateNoticeRequest;
-import com.acc.local.dto.auth.CreateNoticeResponse;
-import com.acc.local.dto.auth.GetNoticeResponse;
-import com.acc.local.dto.auth.ListNoticesResponse;
+import com.acc.local.dto.auth.*;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.service.modules.auth.NoticeModule;
 import com.acc.local.service.modules.auth.UserModule;
@@ -44,9 +41,9 @@ public class NoticeServiceAdapter implements NoticeServicePort {
     }
 
     @Override
-    public PageResponse<ListNoticesResponse> adminListNotices(PageRequest page, String requesterId) {
+    public PageResponse<ListNoticesResponse> adminListNotices(PageRequest page, NoticeFilterRequest filter, String requesterId) {
         // 권한 체크
         userModule.isAdminUser(requesterId);
-        return noticeModule.adminListNotices(page);
+        return noticeModule.adminListNotices(page, filter);
     }
 }
