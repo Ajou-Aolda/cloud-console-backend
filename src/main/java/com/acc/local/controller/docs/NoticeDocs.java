@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -77,144 +78,112 @@ public interface NoticeDocs {
             CreateNoticeRequest request,
             @Parameter(hidden = true) Authentication authentication);
 
+    // ------------------------------------------------------------------------
+    // GET /notices (fetch list or detail)
+    // ------------------------------------------------------------------------
     @Operation(
-            summary = "[관리자] 공지 목록 조회",
-            description = "관리자가 공지 목록을 조회합니다.\n\n"
-                    + "- 페이지네이션 (마커 기반)\n"
-                    + "- activeOnly: 활성 공지만 조회 (startsAt <= 현재 <= endsAt)\n"
-                    + "- 정렬: 생성일시(createdAt) 기준 최신순 (DESC)\n\n"
-                    + "예시 쿼리\n"
-                    + "- 첫 조회: GET /api/v1/admin/notices?limit=10&activeOnly=true\n"
-                    + "- 다음 페이지: GET /api/v1/admin/notices?marker={lastId}&direction=next&limit=10&activeOnly=true\n"
-                    + "- 이전 페이지: GET /api/v1/admin/notices?marker={firstId}&direction=prev&limit=10&activeOnly=true\n"
-                    + "- 전체 조회: GET /api/v1/admin/notices"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "공지 목록 조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                                    {
-                                      "contents": [
-                                        {
-                                          "noticeId": "550e8400-e29b-41d4-a716-446655440000",
-                                          "title": "장학 공지",
-                                          "content": "아올다 회원은 전액 장학을 지원합니다.",
-                                          "createdBy": "admin",
-                                          "createdAt": "2025-01-01T09:00:00",
-                                          "startsAt": "2025-01-01T00:00:00",
-                                          "endsAt": "2025-12-31T23:59:59"
-                                        }
-                                      ],
-                                      "first": true,
-                                      "last": false,
-                                      "size": 1,
-                                      "nextMarker": "550e8400-e29b-41d4-a716-446655440001",
-                                      "prevMarker": null
-                                    }
-                                    """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청 - 잘못된 파라미터 형식입니다.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증 실패 - 유효하지 않은 토큰입니다.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "권한 없음 - 관리자 권한이 필요한 기능입니다.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "서버 오류 - Acc 서버 내부 에러가 발생했습니다.",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            )
-    })
-    @GetMapping("")
-    ResponseEntity<PageResponse<ListNoticesResponse>> listNotices(
-            @Parameter(
-                    description = "페이지네이션 파라미터\n"
-                            + "- marker: 경계 ID (첫 조회 시 null)\n"
-                            + "- direction: next(기본) | prev\n"
-                            + "- limit: 데이터 수",
-                    required = false
-            )
-            PageRequest page,
-            @Parameter(
-                    description = "필터 파라미터\n"
-                            + "- activeOnly: 활성 공지만 조회 (true/false)",
-                    required = false
-            )
-            NoticeFilterRequest filter,
-            @Parameter(hidden = true) Authentication authentication
-    );
+            summary = "[관리자] 공지 목록/상세 조회",
+            description = """
+                noticeId 존재 시 상세 조회,
+                없으면 필터 + 페이지네이션 기반 목록 조회.
 
-    @Operation(
-            summary = "[관리자] 공지 상세 조회",
-            description = "관리자가 특정 공지의 상세 정보를 조회합니다."
+                pagination 규칙
+                - marker 단독 사용 금지
+                - direction 단독 사용 금지
+                - noticeId 와 pagination 파라미터 동시 금지
+
+                예시 쿼리
+                - 첫 조회: GET /api/v1/admin/notices?limit=10&activeOnly=true
+                - 다음 페이지: GET /api/v1/admin/notices?marker={lastId}&direction=next&limit=10&activeOnly=true
+                - 이전 페이지: GET /api/v1/admin/notices?marker={firstId}&direction=prev&limit=10&activeOnly=true
+                - 상세 조회: GET /api/v1/admin/notices?noticeId=550e8400-e29b-41d4-a716-446655440000
+                """
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "공지 상세 조회 성공",
+                    description = "단건 조회 또는 목록 조회 성공",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                                    {
-                                      "noticeId": "550e8400-e29b-41d4-a716-446655440000",
-                                      "title": "장학 공지",
-                                      "content": "아올다 회원은 전액 장학을 지원합니다.",
-                                      "createdBy": "admin",
-                                      "createdAt": "2025-01-01T09:00:00",
-                                      "startsAt": "2025-01-01T00:00:00",
-                                      "endsAt": "2025-12-31T23:59:59"
-                                    }
-                                    """
-                            )
+                            schema = @Schema(implementation = Object.class),
+                            examples = {
+                                    // -------- 목록 예시 --------
+                                    @ExampleObject(
+                                            name = "ListResponse Example",
+                                            summary = "[목록 조회 예시]",
+                                            value = """
+                                            {
+                                              "contents": [
+                                                {
+                                                  "noticeId": "550e8400-e29b-41d4-a716-446655440000",
+                                                  "title": "장학 공지",
+                                                  "content": "아올다 회원은 전액 장학을 지원합니다.",
+                                                  "createdBy": "admin",
+                                                  "createdAt": "2025-01-01T09:00:00",
+                                                  "startsAt": "2025-01-01T00:00:00",
+                                                  "endsAt": "2025-12-31T23:59:59"
+                                                }
+                                              ],
+                                              "first": true,
+                                              "last": false,
+                                              "size": 1,
+                                              "nextMarker": "550e8400-e29b-41d4-a716-446655440001",
+                                              "prevMarker": null
+                                            }
+                                            """
+                                    ),
+                                    // -------- 상세 예시 --------
+                                    @ExampleObject(
+                                            name = "DetailResponse Example",
+                                            summary = "[단건 조회 예시]",
+                                            value = """
+                                            {
+                                              "noticeId": "550e8400-e29b-41d4-a716-446655440000",
+                                              "title": "장학 공지",
+                                              "content": "아올다 회원은 전액 장학을 지원합니다.",
+                                              "createdBy": "admin",
+                                              "createdAt": "2025-01-01T09:00:00",
+                                              "startsAt": "2025-01-01T00:00:00",
+                                              "endsAt": "2025-12-31T23:59:59"
+                                            }
+                                            """
+                                    )
+                            }
                     )
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청 - 잘못된 파라미터 형식입니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰입니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "403",
                     description = "권한 없음 - 관리자 권한이 필요한 기능입니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "404",
                     description = "리소스 없음 - 공지를 찾을 수 없습니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "서버 오류 - ACC 서버 내부 에러가 발생했습니다.",
-                    content = @Content()
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    @GetMapping("/{noticeId}")
-    ResponseEntity<GetNoticeResponse> getNotice(
-            @PathVariable
-            @Parameter(description = "조회할 공지 ID", required = true, example = "550e8400-e29b-41d4-a716-446655440000")
+    @GetMapping("")
+    ResponseEntity<?> getNotices(
+            @Parameter(hidden = true) Authentication authentication,
+            @RequestParam(value = "noticeId", required = false)
+            @Parameter(description = "공지 ID (상세 조회 시 사용)", required = false, example = "550e8400-e29b-41d4-a716-446655440000")
             String noticeId,
-            @Parameter(hidden = true) Authentication authentication
+            @ParameterObject @ModelAttribute PageRequest page,
+            @ParameterObject @ModelAttribute NoticeFilterRequest filter
     );
 }

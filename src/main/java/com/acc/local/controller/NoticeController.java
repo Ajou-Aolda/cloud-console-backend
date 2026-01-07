@@ -26,21 +26,18 @@ public class NoticeController implements NoticeDocs {
     }
 
     @Override
-    public ResponseEntity<PageResponse<ListNoticesResponse>> listNotices(PageRequest page, NoticeFilterRequest filter, Authentication authentication) {
+    public ResponseEntity<?> getNotices(Authentication authentication, String noticeId, PageRequest page, NoticeFilterRequest filter) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String requesterId = jwtInfo.getUserId();
 
-        PageResponse<ListNoticesResponse> response = noticeServicePort.adminListNotices(page, filter, requesterId);
-        return ResponseEntity.ok(response);
-    }
-
-    @Override
-    public ResponseEntity<GetNoticeResponse> getNotice(String noticeId, Authentication authentication) {
-        JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        String requesterId = jwtInfo.getUserId();
-
-        GetNoticeResponse response = noticeServicePort.adminGetNotice(noticeId, requesterId);
-        return ResponseEntity.ok(response);
+        // noticeId가 있으면 상세 조회, 없으면 목록 조회
+        if (noticeId != null && !noticeId.isBlank()) {
+            GetNoticeResponse response = noticeServicePort.adminGetNotice(noticeId, requesterId);
+            return ResponseEntity.ok(response);
+        } else {
+            PageResponse<ListNoticesResponse> response = noticeServicePort.adminListNotices(page, filter, requesterId);
+            return ResponseEntity.ok(response);
+        }
     }
 
 }
