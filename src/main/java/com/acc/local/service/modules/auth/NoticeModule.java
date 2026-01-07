@@ -98,9 +98,6 @@ public class NoticeModule {
     }
 
 
-    // 업데이트 로직은 단일 공지 개념에서 생성 API로 대체 (업서트)
-
-
     /**
      * 사용자 이름 조회
      */
