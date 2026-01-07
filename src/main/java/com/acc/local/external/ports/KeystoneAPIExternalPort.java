@@ -56,7 +56,7 @@ public interface KeystoneAPIExternalPort {
 
 	ResponseEntity<JsonNode> updateUser(String userId, String token, Map<String, Object> userRequest);
 
-	ResponseEntity<JsonNode> deleteUser(String userId, String token);
+	void deleteUser(String userId, String token);
 
 	UserListResponse listUsers(String token, String marker, Integer limit);
 
