@@ -56,8 +56,8 @@ class NoticeModuleTest {
         CreateNoticeRequest request = CreateNoticeRequest.builder()
                 .title("시스템 점검 안내")
                 .content("내일 새벽 시스템 점검이 있습니다.")
-                .startsAt(LocalDateTime.now().toString())
-                .endsAt(LocalDateTime.now().plusDays(1).toString())
+                .startsAt(LocalDateTime.now())
+                .endsAt(LocalDateTime.now().plusDays(1))
                 .build();
 
         String creatorId = "user-1";
@@ -69,8 +69,8 @@ class NoticeModuleTest {
                 .noticeDescription("내일 새벽 시스템 점검이 있습니다.")
                 .noticeUserId(creatorId)
                 .createdAt(LocalDateTime.now())
-                .startsAt(LocalDateTime.parse(request.startsAt()))
-                .endsAt(LocalDateTime.parse(request.endsAt()))
+                .startsAt(request.startsAt())
+                .endsAt(request.endsAt())
                 .build();
 
         when(noticeRepositoryPort.save(any()))
@@ -107,8 +107,8 @@ class NoticeModuleTest {
         CreateNoticeRequest request = CreateNoticeRequest.builder()
                 .title("공지")
                 .content("내용")
-                .startsAt(LocalDateTime.now().toString())
-                .endsAt(LocalDateTime.now().plusHours(1).toString())
+                .startsAt(LocalDateTime.now())
+                .endsAt(LocalDateTime.now().plusHours(1))
                 .build();
 
         String creatorId = "unknown-user";

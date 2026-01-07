@@ -23,10 +23,10 @@ public class NoticeController implements NoticeDocs {
 
     @Override
     public ResponseEntity<CreateNoticeResponse> createNotice(CreateNoticeRequest request, Authentication authentication) {
-
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String userId = jwtInfo.getUserId();
-        return ResponseEntity.ok(noticeServicePort.adminCreateNotice(request,userId));
+        CreateNoticeResponse response = noticeServicePort.adminCreateNotice(request, userId);
+        return ResponseEntity.status(201).body(response);
     }
 
     @Override

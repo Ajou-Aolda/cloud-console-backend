@@ -21,14 +21,31 @@ import org.springframework.web.bind.annotation.*;
 public interface NoticeDocs {
 
     @Operation(
-            summary = "공지 생성",
-            description = "관리자가 공지를 생성합니다."
+            summary = "[관리자] 공지 생성",
+            description = "관리자가 공지를 생성합니다.\n\n"
+                    + "- 날짜 필드(startsAt/endsAt)는 ISO-8601 형식(예: 2025-01-01T09:00:00)을 사용합니다.\n"
+                    + "- 초 단위까지 지정하며, 타임존은 미포함(KST 기준)합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "공지 생성 성공",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                    {
+                                      "noticeId": "550e8400-e29b-41d4-a716-446655440000",
+                                      "title": "장학 공지",
+                                      "content": "아올다 회원은 전액 장학을 지원합니다.",
+                                      "createdBy": "admin",
+                                      "createdAt": "2025-01-01T09:00:00",
+                                      "startsAt": "2025-01-01T00:00:00",
+                                      "endsAt": "2025-12-31T23:59:59"
+                                    }
+                                    """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -62,10 +79,13 @@ public interface NoticeDocs {
             summary = "[관리자] 공지 목록 조회",
             description = "관리자가 공지 목록을 조회합니다.\n\n"
                     + "- 페이지네이션 (마커 기반)\n"
+                    + "- activeOnly: 활성 공지만 조회 (startsAt <= 현재 <= endsAt)\n"
+                    + "- 정렬: 생성일시(createdAt) 기준 최신순 (DESC)\n\n"
                     + "예시 쿼리\n"
-                    + "- 첫 조회: GET /api/v1/admin/notices?limit=10\n"
-                    + "- 다음 페이지: GET /api/v1/admin/notices?marker={lastId}&direction=next&limit=10\n"
-                    + "- 이전 페이지: GET /api/v1/admin/notices?marker={firstId}&direction=prev&limit=10"
+                    + "- 첫 조회: GET /api/v1/admin/notices?limit=10&activeOnly=true\n"
+                    + "- 다음 페이지: GET /api/v1/admin/notices?marker={lastId}&direction=next&limit=10&activeOnly=true\n"
+                    + "- 이전 페이지: GET /api/v1/admin/notices?marker={firstId}&direction=prev&limit=10&activeOnly=true\n"
+                    + "- 전체 조회: GET /api/v1/admin/notices"
     )
     @ApiResponses(value = {
             @ApiResponse(
