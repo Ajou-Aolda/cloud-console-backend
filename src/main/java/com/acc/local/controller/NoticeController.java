@@ -42,5 +42,5 @@ public class NoticeController implements NoticeDocs {
         GetNoticeResponse response = noticeServicePort.adminGetNotice(noticeId, requesterId);
         return ResponseEntity.ok(response);
     }
-}
 
+}

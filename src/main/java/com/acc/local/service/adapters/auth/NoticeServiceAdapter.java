@@ -46,4 +46,6 @@ public class NoticeServiceAdapter implements NoticeServicePort {
         userModule.isAdminUser(requesterId);
         return noticeModule.adminListNotices(page, filter);
     }
+
+    // 업데이트 API는 단일 공지 개념에서 생성 API로 대체 (업서트)
 }
