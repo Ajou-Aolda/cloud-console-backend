@@ -5,6 +5,7 @@ import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.global.exception.auth.JwtAuthenticationException;
 import com.acc.local.dto.auth.*;
+import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.repository.ports.OAuthVerificationTokenRepositoryPort;
 import com.acc.global.properties.OpenstackProperties;
@@ -195,16 +196,22 @@ public class AuthModule {
     }
 
     @Transactional
-    public UserKeystoneDto updateUser(String targetUserId, UserKeystoneDto userKeystoneDto, String requesterId) {
+    public UserKeystoneDto updateUser(String targetUserId, UpdateUserRequest updateUserRequest, String requesterId) {
         String keystoneToken = getUnscopedTokenByUserId(requesterId);
 
         // Keystone 사용자 업데이트
-        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUpdateUserRequest(userKeystoneDto);
-        ResponseEntity<JsonNode> response = keystoneAPIExternalPort.updateUser(targetUserId, keystoneToken, userRequest);
-        if (response == null) {
-            throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 업데이트 응답이 null입니다.");
-        }
-        UserKeystoneDto updatedUserKeystoneDto = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+        UpdateKeystoneUserRequest updateRequestDto = UpdateKeystoneUserRequest.builder()
+                .name(updateUserRequest.userName())
+                .email(updateUserRequest.userEmail())
+                .description(updateUserRequest.description())
+                .isEnable(updateUserRequest.enabled())
+                .defaultProjectId(updateUserRequest.defaultProjectId())
+                // 아래 DB측 저장로직에서 처리필요
+                //  .(department)
+                //  .(phoneNumber)
+                //  .(projectLimit)
+                .build();
+        UserKeystoneDto updatedUserKeystoneDto = keystoneAPIExternalPort.updateUser(targetUserId, keystoneToken, updateRequestDto);
 
         // ACC DB에 사용자 정보 업데이트
         // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity로 분리하여 업데이트

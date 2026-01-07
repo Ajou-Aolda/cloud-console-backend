@@ -16,6 +16,7 @@ import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
 import com.acc.local.entity.UserAuthDetailEntity;
 import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.acc.local.repository.ports.UserRepositoryPort;
@@ -77,22 +78,15 @@ public class UserModule {
      * System Admin 권한으로 Keystone 사용자 수정 및 ACC DB 업데이트
      */
     @Transactional
-    public String adminUpdateUser(AdminUpdateUserRequest request, String adminToken , String userId) {
-
+    public String adminUpdateUser(AdminUpdateUserRequest request, String adminToken, String userId) {
 
         // 1. Keystone 사용자 업데이트
-        UserKeystoneDto updateUserKeystoneDto = UserKeystoneDto.builder()
+        UpdateKeystoneUserRequest updateRequestDto = UpdateKeystoneUserRequest.builder()
                 .name(request.email() != null ? request.email() : null) // email을 name(아이디)로 사용
                 .password(request.password())
-                .enabled(request.isEnabled())
+                .isEnable(request.isEnabled())
                 .build();
-
-        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUpdateUserRequest(updateUserKeystoneDto);
-        ResponseEntity<JsonNode> response = keystoneAPIExternalPort.updateUser(userId, adminToken, userRequest);
-
-        if (response == null) {
-            throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 업데이트 응답이 null입니다.");
-        }
+        keystoneAPIExternalPort.updateUser(userId, adminToken, updateRequestDto);
 
         // 2. ACC DB 업데이트
         // UserDetailEntity 업데이트

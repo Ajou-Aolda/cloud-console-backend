@@ -14,6 +14,7 @@ import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import com.acc.local.external.dto.keystone.UpdateKeystoneProjectRequest;
+import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import org.hibernate.sql.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -228,10 +229,16 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> updateUser(String userId, String token, Map<String, Object> userRequest) {
+	public UserKeystoneDto updateUser(String userId, String token, UpdateKeystoneUserRequest userRequest) {
 		try {
 			log.info("Keystone updateUser 요청 - userId: {}, request: {}", userId, userRequest);
-			return keystoneUserAPIModule.updateUser(userId, token, userRequest);
+
+			ResponseEntity<JsonNode> keystoneResponse = keystoneUserAPIModule.updateUser(userId, token, userRequest.toKeystoneRequest());
+			if (keystoneResponse == null) {
+				throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 업데이트 응답이 null입니다.");
+			}
+
+			return KeystoneAPIUtils.parseKeystoneUserResponse(keystoneResponse);
 		} catch (WebClientResponseException e) {
 			log.error("Keystone updateUser 실패 - userId: {}, status: {}, response: {}",
 					userId, e.getStatusCode(), e.getResponseBodyAsString());

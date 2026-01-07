@@ -333,32 +333,6 @@ public class KeystoneAPIUtils {
         return request;
     }
 
-    public static Map<String, Object> createKeystoneUpdateUserRequest(UserKeystoneDto userKeystoneDto) {
-        Map<String, Object> userObject = new HashMap<>();
-
-        if (userKeystoneDto.name() != null) {
-            userObject.put("name", userKeystoneDto.name());
-        }
-        if (userKeystoneDto.email() != null) {
-            userObject.put("email", userKeystoneDto.email());
-        }
-        if (userKeystoneDto.password() != null) {
-            userObject.put("password", userKeystoneDto.password());
-        }
-        if (userKeystoneDto.description() != null) {
-            userObject.put("description", userKeystoneDto.description());
-        }
-        if (userKeystoneDto.defaultProjectId() != null) {
-            userObject.put("default_project_id", userKeystoneDto.defaultProjectId());
-        }
-        userObject.put("enabled", userKeystoneDto.enabled());
-
-        Map<String, Object> request = new HashMap<>();
-        request.put("user", userObject);
-
-        return request;
-    }
-
     public static Map<String, Object> createProjectScopeTokenRequest(String projectId, String unScopedToken) {
         Map<String, Object> authRequest = new HashMap<>();
         authRequest.put("auth", Map.of(

@@ -14,6 +14,7 @@ import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
 import com.acc.local.external.dto.keystone.KeystoneProject;
 import com.acc.local.external.dto.keystone.UpdateKeystoneProjectRequest;
+import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.ResponseEntity;
 
@@ -54,7 +55,7 @@ public interface KeystoneAPIExternalPort {
 
 	ResponseEntity<JsonNode> getUserDetail(String userId, String token);
 
-	ResponseEntity<JsonNode> updateUser(String userId, String token, Map<String, Object> userRequest);
+	UserKeystoneDto updateUser(String userId, String token, UpdateKeystoneUserRequest userRequest);
 
 	void deleteUser(String userId, String token);
 
