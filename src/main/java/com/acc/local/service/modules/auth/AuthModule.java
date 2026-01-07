@@ -181,11 +181,7 @@ public class AuthModule {
         String keystoneToken = issueSystemAdminToken(requesterId);
 
         // Keystone에서 사용자 정보 조회
-        ResponseEntity<JsonNode> response = keystoneAPIExternalPort.getUserDetail(targetUserId, keystoneToken);
-        if (response == null) {
-            throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 조회 응답이 null입니다.");
-        }
-        UserKeystoneDto userKeystoneDto = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+        UserKeystoneDto userKeystoneDto = keystoneAPIExternalPort.getUserDetail(targetUserId, keystoneToken);
 
         // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity에서 조회
         // ACC DB에서 추가 정보 조회 및 병합

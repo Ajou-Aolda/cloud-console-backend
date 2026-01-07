@@ -212,9 +212,14 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> getUserDetail(String userId, String token) {
+	public UserKeystoneDto getUserDetail(String userId, String token) {
 		try {
-			return keystoneUserAPIModule.getUserDetail(userId, token);
+			ResponseEntity<JsonNode> keystoneResponse = keystoneUserAPIModule.getUserDetail(userId, token);
+			if (keystoneResponse == null) {
+				throw new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.");
+			}
+
+			return KeystoneAPIUtils.parseKeystoneUserResponse(keystoneResponse);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {

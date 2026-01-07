@@ -129,11 +129,7 @@ public class UserModule {
     @Transactional(readOnly = true)
     public AdminGetUserResponse adminGetUser(String userId, String adminToken) {
         // 1. Keystone에서 사용자 정보 조회
-        ResponseEntity<JsonNode> response = keystoneAPIExternalPort.getUserDetail(userId, adminToken);
-        if (response == null) {
-            throw new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다.");
-        }
-        UserKeystoneDto userKeystoneDto = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+        UserKeystoneDto userKeystoneDto = keystoneAPIExternalPort.getUserDetail(userId, adminToken);
 
         // 2. ACC DB에서 추가 정보 조회
         UserDetailEntity userDetail = userRepositoryPort.findUserDetailById(userId)

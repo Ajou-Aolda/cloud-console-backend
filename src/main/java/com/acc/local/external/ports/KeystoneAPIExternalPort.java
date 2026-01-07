@@ -53,7 +53,7 @@ public interface KeystoneAPIExternalPort {
 
 	ResponseEntity<JsonNode> createUser(String token, Map<String, Object> userRequest);
 
-	ResponseEntity<JsonNode> getUserDetail(String userId, String token);
+	UserKeystoneDto getUserDetail(String userId, String token);
 
 	UserKeystoneDto updateUser(String userId, String token, UpdateKeystoneUserRequest userRequest);
 

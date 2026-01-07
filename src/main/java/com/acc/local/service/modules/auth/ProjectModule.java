@@ -458,22 +458,13 @@ public class ProjectModule {
 
 	private boolean checkIsUserValid(String userId, String token) {
 		try {
-			getUserBaseInfoFromKeystone(userId, token);
+			keystoneAPIExternalPort.getUserDetail(userId, token);
 		} catch (KeystoneException e) {
 			if (e.getErrorCode() == AuthErrorCode.USER_NOT_FOUND) {
 				return false;
 			}
 		}
 		return true;
-	}
-
-	private UserKeystoneDto getUserBaseInfoFromKeystone(String userId, String token) {
-		ResponseEntity<JsonNode> response = keystoneAPIExternalPort.getUserDetail(userId, token);
-		if (response == null) {
-			throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 조회 응답이 null입니다.");
-		}
-
-		return KeystoneAPIUtils.parseKeystoneUserResponse(response);
 	}
 
 	// TODO: REFACTOR - 너무 많은 요청; 이메일에 대한 db 캐싱을 통해 검색횟수 최소화 필요
