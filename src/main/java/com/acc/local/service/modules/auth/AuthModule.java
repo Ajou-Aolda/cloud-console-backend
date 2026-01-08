@@ -168,45 +168,6 @@ public class AuthModule {
     }
 
     @Transactional
-    public UserKeystoneDto updateUser(String targetUserId, UpdateUserRequest updateUserRequest, String requesterId) {
-        String keystoneToken = getUnscopedTokenByUserId(requesterId);
-
-        // Keystone 사용자 업데이트
-        UpdateKeystoneUserRequest updateRequestDto = UpdateKeystoneUserRequest.builder()
-                .name(updateUserRequest.userName())
-                .email(updateUserRequest.userEmail())
-                .description(updateUserRequest.description())
-                .isEnable(updateUserRequest.enabled())
-                .defaultProjectId(updateUserRequest.defaultProjectId())
-                // 아래 DB측 저장로직에서 처리필요
-                //  .(department)
-                //  .(phoneNumber)
-                //  .(projectLimit)
-                .build();
-        UserKeystoneDto updatedUserKeystoneDto = keystoneAPIExternalPort.updateUser(targetUserId, keystoneToken, updateRequestDto);
-
-        // ACC DB에 사용자 정보 업데이트
-        // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity로 분리하여 업데이트
-        // userRepositoryPort.saveUserDetail(...);
-        // userRepositoryPort.saveUserAuth(...);
-
-        return updatedUserKeystoneDto;
-    }
-
-    @Transactional
-    public void deleteUser(String targetUserId, String requesterId) {
-        String keystoneToken = getUnscopedTokenByUserId(requesterId);
-
-        // Keystone에서 사용자 삭제
-        keystoneAPIExternalPort.deleteUser(targetUserId, keystoneToken);
-
-        // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity 삭제
-        // ACC DB에서도 사용자 삭제
-        // userRepositoryPort.deleteUserDetailById(targetUserId);
-        // userRepositoryPort.deleteUserAuthById(targetUserId);
-    }
-
-    @Transactional
     public boolean isUserExistsByEmail(String email) {
         // TODO: API 개발 시, 확인 필요 - Email은 Keystone에서 관리하므로 이 메서드 재검토 필요
         return false;

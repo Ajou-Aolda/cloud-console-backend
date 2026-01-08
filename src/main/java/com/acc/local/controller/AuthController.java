@@ -77,45 +77,6 @@ public class AuthController implements AuthDocs {
         return ResponseEntity.ok(response);
     }
 
-    @Deprecated
-    @PutMapping("/user/{keystoneUserId}")
-    public ResponseEntity<UpdateUserResponse> updateUser(
-            @PathVariable String keystoneUserId,
-            @RequestBody @Validated UpdateUserRequest request,
-            Authentication authentication
-    ) {
-        JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        String requesterId = jwtInfo.getUserId();
-        UpdateUserResponse response = authServicePort.updateUser(keystoneUserId, request, requesterId);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @Deprecated
-    @DeleteMapping("/user/{keystoneUserId}")
-    public ResponseEntity<Void> deleteUser(
-            @PathVariable String keystoneUserId,
-            Authentication authentication
-    ) {
-        JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        String requesterId = jwtInfo.getUserId();
-        authServicePort.deleteUser(keystoneUserId, requesterId);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Deprecated
-    @GetMapping("/token/keystone/scoped")
-    public ResponseEntity<String> issueProjectScopeToken(
-            @RequestParam String projectId,
-            Authentication authentication
-    ) {
-        JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        String userId = jwtInfo.getUserId();
-        String token = authServicePort.issueProjectScopeToken(projectId, userId);
-        return ResponseEntity.ok(token);
-    }
-
     // TEST 로그인
     @PostMapping("/login/general")
     public ResponseEntity<String> loginGeneral(@RequestBody @Validated KeystonePasswordLoginRequest request) {

@@ -53,22 +53,6 @@ public class AuthServiceAdapter implements AuthServicePort {
         UserKeystoneDto userKeystoneDto = authModule.getUserDetail(targetUserId, requesterId);
         return GetUserResponse.from(userKeystoneDto);
     }
-    @Deprecated
-    @Override
-    public UpdateUserResponse updateUser(String targetUserId, UpdateUserRequest updateUserRequest, String requesterId) {
-        // TODO: requesterId를 통해, 요청을 보낸 사람이 Root or 본인인지 권한 확인
-
-        // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
-        UserKeystoneDto updatedUserKeystoneDto = authModule.updateUser(targetUserId, updateUserRequest, requesterId);
-        return UpdateUserResponse.from(updatedUserKeystoneDto);
-    }
-    @Deprecated
-    @Override
-    public void deleteUser(String targetUserId, String requesterId) {
-        // TODO: requesterId를 통해, 요청을 보낸 사람이 Root or 본인인지 권한 확인
-        
-        authModule.deleteUser(targetUserId, requesterId);
-    }
 
     @Override
     public ProjectRole getProjectPermission(String projectId, String userid) {
@@ -83,11 +67,6 @@ public class AuthServiceAdapter implements AuthServicePort {
                 .projectPermission(permission.name().toLowerCase())
                 .projectId(keystoneProjectId)
                 .build();
-    }
-
-    @Override
-    public String issueProjectScopeToken(String projectId, String userId) {
-        return authModule.issueProjectScopeToken(projectId,userId);
     }
 
     @Override

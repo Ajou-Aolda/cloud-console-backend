@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -77,7 +78,7 @@ public class UserModule {
 
         // 1. Keystone 사용자 업데이트
         UpdateKeystoneUserRequest updateRequestDto = UpdateKeystoneUserRequest.builder()
-                .name(request.email() != null ? request.email() : null) // email을 name(아이디)로 사용
+                .email(Optional.of(request.email()).orElse(null))
                 .password(request.password())
                 .isEnable(request.isEnabled())
                 .build();

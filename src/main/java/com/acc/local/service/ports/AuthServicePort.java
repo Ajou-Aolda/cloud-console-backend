@@ -11,10 +11,7 @@ public interface AuthServicePort {
     boolean validateJwt(String jwtToken);
     void invalidateUserTokens(String userId);
     GetUserResponse getUserDetail(String targetUserId, String requesterId);
-    UpdateUserResponse updateUser(String targetUserId, UpdateUserRequest updateUserRequest, String requesterId);
-    void deleteUser(String targetUserId, String requesterId);
 
-    String issueProjectScopeToken(String projectId , String userId);
     String authenticateKeystoneAndGenerateJwt(KeystonePasswordLoginRequest request);
     LoginTokens login(KeystonePasswordLoginRequest request);
     ProjectTokenResponse issueProjectAccessToken(String userId, String projectId);
