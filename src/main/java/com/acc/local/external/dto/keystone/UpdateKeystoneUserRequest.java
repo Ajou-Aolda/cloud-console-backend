@@ -8,7 +8,6 @@ import java.util.Map;
 
 @Builder
 public record UpdateKeystoneUserRequest(
-        String name,
         String email,
         String password,
         String description,
@@ -18,10 +17,8 @@ public record UpdateKeystoneUserRequest(
     public Map<String, Object> toKeystoneRequest() {
         Map<String, Object> userObject = new HashMap<>();
 
-        if (name() != null) {
-            userObject.put("name", name());
-        }
         if (email() != null) {
+            userObject.put("name", extractUsernameFromEmail(email()));
             userObject.put("email", email());
         }
         if (password() != null) {
@@ -39,5 +36,16 @@ public record UpdateKeystoneUserRequest(
         request.put("user", userObject);
 
         return request;
+    }
+
+    /**
+     * 이메일에서 username 부분(@앞부분)만 추출
+     * Skyline에서 @를 도메인으로 인식하는 문제 해결용
+     */
+    private static String extractUsernameFromEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return email;
+        }
+        return email.substring(0, email.indexOf("@"));
     }
 }
