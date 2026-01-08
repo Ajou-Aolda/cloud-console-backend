@@ -40,8 +40,6 @@ public interface KeystoneAPIExternalPort {
 
 	KeystoneToken getTokenInfo(String token);
 
-	ResponseEntity<JsonNode> getScopeTokenInfo(String token, Map<String, Object> request);
-
 	ResponseEntity<JsonNode> issueScopedToken(Map<String, Object> tokenRequest);
 
 	ResponseEntity<JsonNode> issueUnscopedToken(Map<String, Object> passwordAuthRequest);
