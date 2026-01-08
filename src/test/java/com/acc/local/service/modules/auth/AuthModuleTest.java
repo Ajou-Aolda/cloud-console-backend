@@ -107,24 +107,6 @@ class AuthModuleTest {
         // );
     }
 
-    public void mockScopedRequest(String returnScopedToken, String projectId, String unscopedToken) throws JsonProcessingException {
-        // return examples
-        HttpHeaders issueScopedTokenHeader = new HttpHeaders();
-        issueScopedTokenHeader.set("X-Subject-Token", returnScopedToken);
-
-        JsonNode issueScopedBody = objectMapper.readTree("{\"token\": {\"methods\": [\"password\", \"token\"], \"user\": {\"domain\": {\"id\": \"default\", \"name\": \"Default\"}, \"id\": \"5d8dc5fb0a0b412fa239eade92059b69\", \"name\": \"Acc_test_123\", \"password_expires_at\": null}, \"audit_ids\": [\"zs3FjaQQQ0ikRHBT5g-wTg\", \"acpjPWkbRCW7Pv7nVgUcZA\"], \"expires_at\": \"2025-09-29T12:29:18.000000Z\", \"issued_at\": \"2025-09-28T12:31:32.000000Z\"}}");
-
-        // request template
-        Map<String, Object> scopedTokenRequest = KeystoneAPIUtils.createProjectScopeTokenRequest(projectId, unscopedToken);
-
-        // request mock
-        mockMethodExternalRequest(
-            keystoneAPIExternalPort.issueScopedToken(scopedTokenRequest),
-            issueScopedTokenHeader,
-            issueScopedBody
-        );
-    }
-
     public void mockUnscopedRequest(String returnUnscopedToken, String username, String password) throws JsonProcessingException {
         when(keystoneAPIExternalPort.getAdminToken(any())).thenReturn(new KeystoneToken(
             KeystoneTokenType.UNSCOPED,

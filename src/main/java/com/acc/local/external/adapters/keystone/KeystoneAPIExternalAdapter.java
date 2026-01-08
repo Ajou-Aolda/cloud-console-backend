@@ -143,23 +143,6 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> issueScopedToken(Map<String, Object> tokenRequest) {
-		try {
-			return keystoneAuthAPIModule.issueScopedToken(tokenRequest);
-		} catch (WebClientResponseException e) {
-			HttpStatusCode status = e.getStatusCode();
-			if (status == HttpStatus.UNAUTHORIZED) {
-				throw new KeystoneException(AuthErrorCode.UNAUTHORIZED, e);
-			} else if (status == HttpStatus.FORBIDDEN) {
-				throw new KeystoneException(AuthErrorCode.FORBIDDEN_ACCESS, e);
-			} else if (status == HttpStatus.BAD_REQUEST) {
-				throw new KeystoneException(AuthErrorCode.INVALID_REQUEST_PARAMETER, e);
-			}
-			throw new KeystoneException(AuthErrorCode.KEYSTONE_TOKEN_GENERATION_FAILED, e);
-		}
-	}
-
-	@Override
 	public ResponseEntity<JsonNode> issueUnscopedToken(Map<String, Object> passwordAuthRequest) {
 		try {
 			return keystoneAuthAPIModule.issueUnscopedToken(passwordAuthRequest);
