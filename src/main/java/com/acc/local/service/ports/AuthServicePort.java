@@ -10,7 +10,6 @@ public interface AuthServicePort {
     UserPermissionResponse getUserPermission(String keystoneProjectId, String userId);
     boolean validateJwt(String jwtToken);
     void invalidateUserTokens(String userId);
-    CreateUserResponse createUser(CreateUserRequest createUserRequest ,String userId);
     GetUserResponse getUserDetail(String targetUserId, String requesterId);
     UpdateUserResponse updateUser(String targetUserId, UpdateUserRequest updateUserRequest, String requesterId);
     void deleteUser(String targetUserId, String requesterId);

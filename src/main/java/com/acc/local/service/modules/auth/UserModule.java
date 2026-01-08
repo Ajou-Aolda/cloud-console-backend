@@ -16,6 +16,7 @@ import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
 import com.acc.local.entity.UserAuthDetailEntity;
 import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.external.dto.keystone.CreateKeystoneUserRequest;
 import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
@@ -48,29 +49,23 @@ public class UserModule {
     public String adminCreateUser(AdminCreateUserRequest request, String adminToken) {
         // 1. Keystone 사용자 생성 요청 생성
         // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
-        UserKeystoneDto newUserKeystoneDto = UserKeystoneDto.from(request);
+        CreateKeystoneUserRequest newUserKeystoneDto = CreateKeystoneUserRequest.builder()
+                .email(request.email())
+                .password("asdf1234") // TODO: 비밀번호 입력받는 필드가 없어 관련논의 필요
+                .isEnable(request.isEnabled())
+                .build();
+        UserKeystoneDto createdUserKeystoneDto = keystoneAPIExternalPort.createUser(adminToken, newUserKeystoneDto);
+        String userIdentityId = createdUserKeystoneDto.id();
 
-        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(newUserKeystoneDto);
-
-        ResponseEntity<JsonNode> response = keystoneAPIExternalPort.createUser(adminToken, userRequest);
-
-        if (response == null) {
-            throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 생성 응답이 null입니다.");
-        }
-
-        // 2. Keystone 응답에서 userId 추출
-        UserKeystoneDto createdUserKeystoneDto = KeystoneAPIUtils.parseKeystoneUserResponse(response);
-        String userId = createdUserKeystoneDto.id();
-
-        // 3. UserDetail 도메인 모델 생성 및 저장
-        UserDetail userDetail = UserDetail.createForAdmin(userId, request);
+        // 2. UserDetail 도메인 모델 생성 및 저장
+        UserDetail userDetail = UserDetail.createForAdmin(userIdentityId, request);
         UserDetailEntity userDetailEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
 
-        // 4. UserAuthDetail 도메인 모델 생성 및 저장
-        UserAuthDetail userAuthDetail = UserAuthDetail.createForAdmin(userId, request);
+        // 3. UserAuthDetail 도메인 모델 생성 및 저장
+        UserAuthDetail userAuthDetail = UserAuthDetail.createForAdmin(userIdentityId, request);
         userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDetailEntity));
 
-        return userId;
+        return userIdentityId;
     }
 
     /**

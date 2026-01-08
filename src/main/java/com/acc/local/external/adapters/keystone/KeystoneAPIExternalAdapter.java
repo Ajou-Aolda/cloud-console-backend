@@ -12,9 +12,7 @@ import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
 import com.acc.local.domain.model.auth.RoleListResponse;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserListResponse;
-import com.acc.local.external.dto.keystone.CreateKeystoneProjectRequest;
-import com.acc.local.external.dto.keystone.UpdateKeystoneProjectRequest;
-import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
+import com.acc.local.external.dto.keystone.*;
 import org.hibernate.sql.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -31,7 +29,6 @@ import com.acc.local.dto.project.ProjectListDto;
 import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.external.dto.OpenstackPagination;
-import com.acc.local.external.dto.keystone.KeystoneProject;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.modules.keystone.KeystoneAuthAPIModule;
 import com.acc.local.external.modules.keystone.KeystoneProjectAPIModule;
@@ -193,9 +190,14 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	// ----- User -----
 
 	@Override
-	public ResponseEntity<JsonNode> createUser(String token, Map<String, Object> userRequest) {
+	public UserKeystoneDto createUser(String token, CreateKeystoneUserRequest createUserRequest) {
 		try {
-			return keystoneUserAPIModule.createUser(token, userRequest);
+			ResponseEntity<JsonNode> keystoneResponse = keystoneUserAPIModule.createUser(token, createUserRequest.toKeystoneRequest());
+			if (keystoneResponse == null) {
+				throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 생성 응답이 null입니다.");
+			}
+
+			return KeystoneAPIUtils.parseKeystoneUserResponse(keystoneResponse);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {

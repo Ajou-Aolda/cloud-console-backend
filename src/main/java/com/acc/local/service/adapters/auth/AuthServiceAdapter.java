@@ -47,16 +47,6 @@ public class AuthServiceAdapter implements AuthServicePort {
 
     @Deprecated
     @Override
-    public CreateUserResponse createUser(CreateUserRequest createUserRequest , String userId) {
-
-        // TODO: userid 를 통해, 요청을 보낸 사람이 Root인지 권한 확인
-        // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
-        UserKeystoneDto userKeystoneDto = UserKeystoneDto.from(createUserRequest);
-        UserKeystoneDto createdUserKeystoneDto = authModule.createUser(userKeystoneDto, userId);
-        return CreateUserResponse.from(createdUserKeystoneDto);
-    }
-    @Deprecated
-    @Override
     public GetUserResponse getUserDetail(String targetUserId, String requesterId) {
         // TODO: requesterId를 통해, 요청을 보낸 사람이 Root or 본인인지 권한 확인
 

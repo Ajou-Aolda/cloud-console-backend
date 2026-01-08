@@ -320,19 +320,6 @@ public class KeystoneAPIUtils {
 
     // --  Request DTO 생성 메서드 ---//
 
-    public static Map<String, Object> createKeystoneUserRequest(UserKeystoneDto userKeystoneDto) {
-        Map<String, Object> userObject = new HashMap<>();
-        userObject.put("name", userKeystoneDto.name());
-        userObject.put("password", userKeystoneDto.password());
-        userObject.put("enabled", userKeystoneDto.enabled());
-        userObject.put("email", userKeystoneDto.email());
-
-        Map<String, Object> request = new HashMap<>();
-        request.put("user", userObject);
-
-        return request;
-    }
-
     public static Map<String, Object> createProjectScopeTokenRequest(String projectId, String unScopedToken) {
         Map<String, Object> authRequest = new HashMap<>();
         authRequest.put("auth", Map.of(

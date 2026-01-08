@@ -5,6 +5,7 @@ import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.global.exception.auth.JwtAuthenticationException;
 import com.acc.local.dto.auth.*;
+import com.acc.local.external.dto.keystone.CreateKeystoneUserRequest;
 import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.repository.ports.OAuthVerificationTokenRepositoryPort;
@@ -153,27 +154,6 @@ public class AuthModule {
     private boolean checkTokenPrivilegeSystemAdmin(ResponseEntity<JsonNode> tokenInfoResponse) {
         KeystoneToken keystoneToken = KeystoneAPIUtils.extractKeystoneToken(tokenInfoResponse);
         return keystoneToken.isAdmin();
-    }
-
-    @Transactional
-    public UserKeystoneDto createUser(UserKeystoneDto userKeystoneDto, String userId) {
-        String keystoneToken = getUnscopedTokenByUserId(userId);
-
-        // Keystone에 사용자 생성
-        Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(userKeystoneDto);
-        ResponseEntity<JsonNode> response = keystoneAPIExternalPort.createUser(keystoneToken, userRequest);
-        if (response == null) {
-            throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 생성 응답이 null입니다.");
-        }
-        UserKeystoneDto createdUserKeystoneDto = KeystoneAPIUtils.parseKeystoneUserResponse(response);
-
-
-        // ACC DB에 사용자 정보 저장
-        // TODO: API 개발 시, 확인 필요 - UserDetailEntity와 UserAuthDetailEntity로 분리하여 저장
-        // userRepositoryPort.saveUserDetail(...);
-        // userRepositoryPort.saveUserAuth(...);
-
-        return createdUserKeystoneDto;
     }
 
     @Transactional
@@ -526,18 +506,12 @@ public class AuthModule {
         try {
             // 1. Keystone 사용자 생성 요청 생성 (email을 name에 매핑!)
             // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
-            UserKeystoneDto newUserKeystoneDto = UserKeystoneDto.from(request);
-
-            Map<String, Object> userRequest = KeystoneAPIUtils.createKeystoneUserRequest(newUserKeystoneDto);
-
-            ResponseEntity<JsonNode> response = keystoneAPIExternalPort.createUser(adminToken, userRequest);
-
-            if (response == null) {
-                throw new AuthServiceException(AuthErrorCode.KEYSTONE_USER_CREATION_FAILED, "사용자 생성 응답이 null입니다.");
-            }
-
-            // 2. Keystone 응답에서 userId 추출
-            UserKeystoneDto createdUserKeystoneDto = KeystoneAPIUtils.parseKeystoneUserResponse(response);
+            CreateKeystoneUserRequest createKeystoneUserRequest = CreateKeystoneUserRequest.builder()
+                    .email(request.email())
+                    .password(request.password())
+                    .isEnable(true)
+                    .build();
+            UserKeystoneDto createdUserKeystoneDto = keystoneAPIExternalPort.createUser(adminToken, createKeystoneUserRequest);
             String userId = createdUserKeystoneDto.id();
 
             // 3. UserDetail 도메인 모델 생성 및 저장

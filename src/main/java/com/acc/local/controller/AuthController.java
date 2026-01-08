@@ -64,20 +64,6 @@ public class AuthController implements AuthDocs {
         return ResponseEntity.ok(response);
     }
 
-    // TODO: keycloak 서버 띄워진 후 테스트 필요 (keycloak 토큰 정보의 userId로 사용자 정보 확인 가능)
-    @Deprecated
-    @PostMapping("/user")
-    public ResponseEntity<CreateUserResponse> createKeystoneUser(
-            @ModelAttribute @Validated CreateUserRequest request,
-            Authentication authentication
-    ) {
-        JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
-        String userId = jwtInfo.getUserId();
-        CreateUserResponse response = authServicePort.createUser(request, userId);
-
-        return ResponseEntity.status(201).body(response);
-    }
-
     @Deprecated
     @GetMapping("/user/{keystoneUserId}")
     public ResponseEntity<GetUserResponse> getUserDetail(
