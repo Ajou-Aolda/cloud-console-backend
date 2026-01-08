@@ -38,7 +38,7 @@ public interface KeystoneAPIExternalPort {
 
 	ResponseEntity<JsonNode> requestFederateLogin(String keycloakCode);
 
-	ResponseEntity<JsonNode> getTokenInfo(String token);
+	KeystoneToken getTokenInfo(String token);
 
 	ResponseEntity<JsonNode> getScopeTokenInfo(String token, Map<String, Object> request);
 

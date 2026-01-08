@@ -119,10 +119,16 @@ public class KeystoneAPIExternalAdapter implements KeystoneAPIExternalPort {
 	}
 
 	@Override
-	public ResponseEntity<JsonNode> getTokenInfo(String token) {
+	public KeystoneToken getTokenInfo(String token) {
 		try {
             log.info("token - 시스템 어드민  {}" ,token);
-			return keystoneAuthAPIModule.getTokenInfo(token);
+			ResponseEntity<JsonNode> keystoneResponse = keystoneAuthAPIModule.getTokenInfo(token);
+
+			if (keystoneResponse == null) {
+				throw new JwtAuthenticationException(AuthErrorCode.KEYSTONE_TOKEN_AUTHENTICATION_FAILED);
+			}
+
+			return KeystoneAPIUtils.extractKeystoneToken(keystoneResponse);
 		} catch (WebClientResponseException e) {
 			HttpStatusCode status = e.getStatusCode();
 			if (status == HttpStatus.UNAUTHORIZED) {
