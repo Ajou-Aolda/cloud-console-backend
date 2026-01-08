@@ -462,7 +462,6 @@ public class AuthModule {
     public String signup(SignupRequest request , String adminToken) {
         try {
             // 1. Keystone 사용자 생성 요청 생성 (email을 name에 매핑!)
-            // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
             CreateKeystoneUserRequest createKeystoneUserRequest = CreateKeystoneUserRequest.builder()
                     .email(request.email())
                     .password(request.password())

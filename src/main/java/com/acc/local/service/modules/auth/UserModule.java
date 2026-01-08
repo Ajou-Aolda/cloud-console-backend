@@ -49,7 +49,6 @@ public class UserModule {
     @Transactional
     public String adminCreateUser(AdminCreateUserRequest request, String adminToken) {
         // 1. Keystone 사용자 생성 요청 생성
-        // TODO: refactor - User단위 객체level 구조화에 따른 refactor 필요
         CreateKeystoneUserRequest newUserKeystoneDto = CreateKeystoneUserRequest.builder()
                 .email(request.email())
                 .password("asdf1234") // TODO: 비밀번호 입력받는 필드가 없어 관련논의 필요
