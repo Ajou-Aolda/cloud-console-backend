@@ -14,6 +14,7 @@ import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -107,6 +108,37 @@ public class NeutronSubnetExternalAdapter implements NeutronSubnetExternalPort {
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SUBNET_RETRIEVAL_FAILED, e);
             }
         }
+    }
+
+    @Override
+    public ViewSubnetsResponse getSubnetDetails(String keystoneToken, String subnetId) {
+        try {
+
+            ResponseEntity<JsonNode> response = subnetsAPIModule.showSubnet(keystoneToken, subnetId);
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new NeutronException(NeutronErrorCode.NEUTRON_SUBNET_RETRIEVAL_FAILED);
+            }
+
+            JsonNode body = response.getBody().get("subnet");
+            return ViewSubnetsResponse.builder()
+                    .subnetId(body.get("id").asText())
+                    .subnetName(body.get("name").asText())
+                    .networkId(body.get("network_id").asText())
+                    .cidr(body.get("cidr").asText())
+                    .gatewayIp(body.get("gateway_ip").asText())
+                    .createdAt(body.get("created_at").asText())
+                    .description(body.get("description").asText())
+                    .build();
+        } catch (WebClientResponseException e) {
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SUBNET_BAD_REQUEST, e);
+                case 401 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SUBNET_UNAUTHORIZED, e);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_SUBNET_NOT_FOUND, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_SUBNET_RETRIEVAL_FAILED, e);
+            }
+        }
+
     }
 
     private Map<String, String> getListSubnetsParams(String networkId, String marker, String direction, int limit) {
