@@ -1,5 +1,6 @@
 package com.acc.local.service.adapters.network;
 
+import com.acc.global.common.PageRequest;
 import com.acc.global.common.PageResponse;
 import com.acc.global.exception.network.NetworkErrorCode;
 import com.acc.global.exception.network.NetworkException;
@@ -57,14 +58,14 @@ public class SubnetServiceAdapter implements SubnetServicePort {
     }
 
     @Override
-    public PageResponse<ViewSubnetsResponse> listSubnets(String marker, String direction, int limit, String networkId, String projectId, String userId) {
+    public PageResponse<ViewSubnetsResponse> listSubnets(PageRequest page, String networkId, String projectId, String userId) {
         String token = authModule.issueProjectScopeToken(projectId, userId);
 
         return neutronModule.listSubnets(token,
                 networkId,
-                marker,
-                direction.equals("prev") ? "prev" : "next",
-                limit);
+                page.getMarker(),
+                page.getDirection().name().equals("prev") ? "prev" : "next",
+                page.getLimit());
     }
 
     @Override
