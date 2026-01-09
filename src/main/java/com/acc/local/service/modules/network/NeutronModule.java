@@ -102,8 +102,8 @@ public class NeutronModule {
             return true;
         }
 
-        ViewNetworksResponse network = neutronNetworkExternalPort.getNetworkDetails(keystoneToken, subnet.getNetworkId());
-        return !network.getNetworkName().equals("default-network");
+         String networkName = neutronNetworkExternalPort.getNetworkNameAndId(keystoneToken, subnet.getNetworkId()).get("name");
+        return !networkName.equals("default-network");
     }
 
     public void deleteSubnet(String keystoneToken, String subnetId) {
