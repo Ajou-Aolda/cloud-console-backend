@@ -4,9 +4,9 @@ import com.acc.global.common.PageResponse;
 import com.acc.global.exception.network.NeutronErrorCode;
 import com.acc.global.exception.network.NeutronException;
 import com.acc.local.dto.network.CreateNetworkRequest;
+import com.acc.local.dto.network.CreateSubnetRequest;
 import com.acc.local.dto.network.ViewSubnetsResponse;
 import com.acc.local.external.dto.neutron.subnets.BulkCreateSubnetRequest;
-import com.acc.local.external.dto.neutron.subnets.CreateSubnetRequest;
 import com.acc.local.external.modules.neutron.NeutronSubnetsAPIModule;
 import com.acc.local.external.ports.NeutronSubnetExternalPort;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,7 +33,7 @@ public class NeutronSubnetExternalAdapter implements NeutronSubnetExternalPort {
 
     private final NeutronSubnetsAPIModule subnetsAPIModule;
 
-    public List<Map<String, String>> callCreateSubnet(String keystoneToken, List<CreateNetworkRequest.Subnet> subnets, String networkId) {
+    public List<Map<String, String>> callCreateSubnet(String keystoneToken, List<CreateSubnetRequest> subnets, String networkId) {
         try {
             ResponseEntity<JsonNode> response = subnetsAPIModule.bulkCreateSubnets(keystoneToken,
                     BulkCreateSubnetRequest.builder()
@@ -42,6 +42,8 @@ public class NeutronSubnetExternalAdapter implements NeutronSubnetExternalPort {
                                             .cidr(subnet.getCidr())
                                             .networkId(networkId)
                                             .ipVersion(4)
+                                            .description(subnet.getDescription())
+                                            .gatewayIp(subnet.getGatewayIp())
                                             .name(subnet.getSubnetName())
                                             .build()).toList()
                             )

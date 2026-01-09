@@ -40,7 +40,11 @@ public class CreateSubnetRequest {
             "){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])$")
     private String gatewayIp;
 
-    @Schema(description = "서브넷 설명",
+    @Schema(description = """
+            서브넷 설명
+            
+            - nullable
+            """,
             example = "This is my subnet",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;

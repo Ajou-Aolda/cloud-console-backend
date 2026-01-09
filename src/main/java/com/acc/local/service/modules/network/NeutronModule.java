@@ -65,7 +65,7 @@ public class NeutronModule {
         String subnetId = createSubnet(
                 keystoneToken,
                 List.of(
-                        CreateNetworkRequest.Subnet.builder().
+                        CreateSubnetRequest.builder().
                                 cidr(DEFAULT_CIDR).
                                 subnetName("default-subnet").
                                 build()
@@ -86,7 +86,7 @@ public class NeutronModule {
         ).getFirst();
     }
 
-    public List<Map<String, String>> createSubnet(String keystoneToken, List<CreateNetworkRequest.Subnet> subnets, String networkId) {
+    public List<Map<String, String>> createSubnet(String keystoneToken, List<CreateSubnetRequest> subnets, String networkId) {
         return neutronSubnetExternalPort.callCreateSubnet(keystoneToken, subnets, networkId);
     }
 
