@@ -86,8 +86,36 @@ public class NeutronModule {
         ).getFirst();
     }
 
+    /* --- Subnets --- */
+
     public List<Map<String, String>> createSubnet(String keystoneToken, List<CreateSubnetRequest> subnets, String networkId) {
         return neutronSubnetExternalPort.callCreateSubnet(keystoneToken, subnets, networkId);
+    }
+
+    public boolean canDeleteSubnet(String keystoneToken, String subnetId) {
+        ViewSubnetsResponse subnet = neutronSubnetExternalPort.getSubnetDetails(keystoneToken, subnetId);
+        if (subnet == null) {
+            throw new NetworkException(NetworkErrorCode.NOT_FOUND_SUBNET);
+        }
+
+        if (!subnet.getSubnetName().equals("default-subnet")) {
+            return true;
+        }
+
+        ViewNetworksResponse network = neutronNetworkExternalPort.getNetworkDetails(keystoneToken, subnet.getNetworkId());
+        return !network.getNetworkName().equals("default-network");
+    }
+
+    public void deleteSubnet(String keystoneToken, String subnetId) {
+        neutronSubnetExternalPort.callDeleteSubnet(keystoneToken, subnetId);
+    }
+
+    public PageResponse<ViewSubnetsResponse> listSubnets(String keystoneToken, String networkId, String marker, String direction, int limit) {
+        return neutronSubnetExternalPort.callListSubnets(keystoneToken, networkId, marker, direction, limit);
+    }
+
+    public ViewSubnetsResponse getSubnetDetails(String keystoneToken, String subnetId) {
+        return neutronSubnetExternalPort.getSubnetDetails(keystoneToken, subnetId);
     }
 
     /* --- Routers --- */
