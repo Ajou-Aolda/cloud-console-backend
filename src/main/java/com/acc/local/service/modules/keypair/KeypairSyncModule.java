@@ -3,183 +3,229 @@ package com.acc.local.service.modules.keypair;
 import com.acc.local.dto.keypair.KeypairSyncDto;
 import com.acc.local.entity.KeypairEntity;
 import com.acc.local.entity.ProjectEntity;
+import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.external.ports.KeypairExternalPort;
 import com.acc.local.repository.ports.KeypairRepositoryPort;
 import com.acc.local.repository.ports.ProjectRepositoryPort;
+import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.service.modules.auth.AuthModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * OpenStack과 DB 간의 Keypair 동기화를 담당하는 모듈
+ * - userId 기반으로 모든 사용자의 전체 keypair를 조회하여 fingerprint 기준으로 동기화
+ * - Case 1: OpenStack에 없고 DB에 있는 경우 → DB에서 삭제 (실제 존재하지 않는 리소스)
+ * - Case 2: OpenStack에 있고 DB에 없는 경우 → OpenStack에서 삭제 (projectId를 알 수 없기에 DB에 저장 불가)
+ * - Case 3: Fingerprint는 같지만 Name이 다른 경우 → OpenStack의 이름을 기준으로 DB에서 업데이트
+ */
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class KeypairSyncModule {
 
-    private final KeypairExternalPort keypairExternalPort;
     private final KeypairRepositoryPort keypairRepositoryPort;
     private final ProjectRepositoryPort projectRepositoryPort;
+    private final UserRepositoryPort userRepositoryPort;
+    private final KeypairExternalPort keypairExternalPort;
     private final AuthModule authModule;
 
     /**
-     * 모든 프로젝트의 Keypair 동기화
-     * 매일 새벽 5시(한국시간)에 실행되며, 분산 환경에서 중복 실행 방지를 위해 ShedLock 사용
-     *
-     * OpenStack CLI나 대시보드를 통해 직접 생성/삭제된 Keypair를 감지하여
-     * BFF DB와의 정합성을 유지합니다.
+     * 전체 시스템의 Keypair 동기화 수행
+     * 매일 새벽 3시에 실행 (cron: 초 분 시 일 월 요일)
      */
-    @Scheduled(cron = "0 */3 * * * *")  // 매 3분마다 실행
-//    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")  // 매일 새벽 5시 (한국시간)
-    @SchedulerLock(
-        name = "KeypairSyncTask",
-        lockAtMostFor = "2m",   // 최대 30분
-        lockAtLeastFor = "1m"    // 최소 1분 (중복 실행 방지)
-    )
-    public void syncAllProjects() {
-        List<ProjectEntity> projects = projectRepositoryPort.findAll();
-
-        if (projects.isEmpty()) {
-            log.info("[Keypair Sync] No projects found. Skipping sync.");
-            return;
-        }
-
-        int totalAdded = 0;
-        int totalDeleted = 0;
-        int totalUpdated = 0;
-        int errorCount = 0;
-
-        for (ProjectEntity project : projects) {
-            try {
-                SyncResult result = syncProjectKeypairs(project);
-                totalAdded += result.added();
-                totalDeleted += result.deleted();
-                totalUpdated += result.updated();
-
-            } catch (Exception e) {
-                errorCount++;
-                log.error("[Keypair Sync] Failed for project: {}", project.getProjectId(), e);
-            }
-        }
-        log.info("[Keypair Sync] Completed: +{} added, -{} deleted, ~{} updated, {} errors", totalAdded, totalDeleted, totalUpdated, errorCount);
-    }
-
-    /**
-     * 특정 프로젝트의 Keypair 동기화
-     *
-     * @param project 동기화할 프로젝트
-     * @return 동기화 결과 (추가/삭제/수정 개수)
-     */
+    @Scheduled(cron = "0 0 3 * * *")
+    @SchedulerLock(name = "keypairSync", lockAtMostFor = "30m", lockAtLeastFor = "10m")
     @Transactional
-    public SyncResult syncProjectKeypairs(ProjectEntity project) {
-        String projectId = project.getProjectId();
+    public void syncAllKeypairs() {
+        log.info("Starting global keypair synchronization");
 
         try {
-            // 1. 프로젝트 스코프 토큰 발급
-            String ownerUserId = project.getOwnerKeystoneId();
-            String token = authModule.issueProjectScopeToken(projectId, ownerUserId);
+            // 1. DB에서 모든 keypair 조회 (fingerprint 기준)
+            Map<String, KeypairEntity> dbKeypairMap = getAllDbKeypairs();
 
-            // 2. OpenStack에서 Keypair 목록 조회
-            List<KeypairSyncDto> osKeypairs = keypairExternalPort.listKeypairsByProject(token);
+            // 2. DB에 저장된 모든 고유 userId 추출
+            Set<String> allUserIds = dbKeypairMap.values().stream()
+                    .map(k -> k.getUser().getUserId())
+                    .collect(Collectors.toSet());
 
-            // 3. DB에서 Keypair 목록 조회
-            List<KeypairEntity> dbKeypairs = keypairRepositoryPort.findAllByProjectId(projectId);
+            // 3. OpenStack에서 각 사용자의 모든 keypair 조회 (fingerprint 기준)
+            Map<String, KeypairSyncDto> openstackKeypairMap = getAllOpenstackKeypairs(allUserIds);
 
-            // 4. Map으로 변환 (O(1) 검색)
-            Map<String, KeypairSyncDto> osMap = osKeypairs.stream()
-                .collect(Collectors.toMap(
-                    KeypairSyncDto::getFingerprint,  // fingerprint를 키로 사용
-                    Function.identity()
-                ));
+            // 4. 동기화 수행
+            performSync(dbKeypairMap, openstackKeypairMap, allUserIds);
 
-            Map<String, KeypairEntity> dbMap = dbKeypairs.stream()
-                .collect(Collectors.toMap(
-                    KeypairEntity::getKeypairId,    // fingerprint (PK)
-                    Function.identity()
-                ));
-
-            // 5. 차이 계산
-            Set<String> osFingerprints = osMap.keySet();
-            Set<String> dbFingerprints = dbMap.keySet();
-
-            // OpenStack에만 있음 -> DB 추가
-            List<KeypairEntity> toAdd = osFingerprints.stream()
-                .filter(fp -> !dbFingerprints.contains(fp))
-                .map(fp -> {
-                    KeypairSyncDto dto = osMap.get(fp);
-                    return KeypairEntity.builder()
-                        .keypairId(dto.getFingerprint())
-                        .keypairName(dto.getName())
-                        .project(project)
-                        .build();
-                })
-                .toList();
-
-            // DB에만 있음 -> DB 삭제
-            List<KeypairEntity> toDelete = dbFingerprints.stream()
-                .filter(fp -> !osFingerprints.contains(fp))
-                .map(dbMap::get)
-                .toList();
-
-            // 이름 변경 감지 (fingerprint는 같지만 name이 다른 경우)
-            List<KeypairEntity> toUpdate = osFingerprints.stream()
-                .filter(dbFingerprints::contains)
-                .filter(fp -> {
-                    String osName = osMap.get(fp).getName();
-                    String dbName = dbMap.get(fp).getKeypairName();
-                    return !osName.equals(dbName);
-                })
-                .map(fp -> {
-                    KeypairEntity entity = dbMap.get(fp);
-                    return KeypairEntity.builder()
-                        .keypairId(entity.getKeypairId())
-                        .keypairName(osMap.get(fp).getName())
-                        .project(entity.getProject())
-                        .build();
-                })
-                .toList();
-
-            // 6. 배치 실행
-            if (!toAdd.isEmpty()) {
-                keypairRepositoryPort.saveAll(toAdd);
-                log.info("[Keypair Sync] Project {}: Added {} keypairs",
-                    projectId, toAdd.size());
-            }
-
-            if (!toDelete.isEmpty()) {
-                keypairRepositoryPort.deleteAll(toDelete);
-                log.warn("[Keypair Sync] Project {}: Deleted {} keypairs (orphan records)",
-                    projectId, toDelete.size());
-            }
-
-            if (!toUpdate.isEmpty()) {
-                keypairRepositoryPort.saveAll(toUpdate);
-                log.info("[Keypair Sync] Project {}: Updated {} keypair names",
-                    projectId, toUpdate.size());
-            }
-            return new SyncResult(toAdd.size(), toDelete.size(), toUpdate.size());
-
+            log.info("Completed global keypair synchronization");
         } catch (Exception e) {
-            log.error("[Keypair Sync] Failed to sync project {}: {}", projectId, e.getMessage(), e);
-            throw e;
+            log.error("Critical error during keypair synchronization", e);
         }
     }
 
     /**
-     * 동기화 결과
-     *
-     * @param added 추가된 Keypair 개수
-     * @param deleted 삭제된 Keypair 개수
-     * @param updated 수정된 Keypair 개수
+     * DB에서 모든 Keypair를 조회하여 fingerprint를 키로 하는 맵 생성
      */
-    public record SyncResult(int added, int deleted, int updated) {}
+    private Map<String, KeypairEntity> getAllDbKeypairs() {
+        List<KeypairEntity> allKeypairs = new ArrayList<>();
+
+        // 모든 프로젝트에서 keypair 조회
+        List<ProjectEntity> allProjects = projectRepositoryPort.findAll();
+        for (ProjectEntity project : allProjects) {
+            try {
+                List<KeypairEntity> projectKeypairs = keypairRepositoryPort.findAllByProjectId(project.getProjectId());
+                allKeypairs.addAll(projectKeypairs);
+            } catch (Exception e) {
+                log.warn("Failed to fetch keypairs for project: {}. Error: {}",
+                        project.getProjectId(), e.getMessage());
+            }
+        }
+
+        return allKeypairs.stream()
+                .collect(Collectors.toMap(
+                        KeypairEntity::getKeypairId,  // fingerprint
+                        k -> k,
+                        (existing, replacement) -> existing  // 중복 시 기존 값 유지
+                ));
+    }
+
+    /**
+     * OpenStack에서 모든 사용자의 Keypair를 조회하여 fingerprint를 키로 하는 맵 생성
+     */
+    private Map<String, KeypairSyncDto> getAllOpenstackKeypairs(Set<String> allUserIds) {
+        Map<String, KeypairSyncDto> openstackKeypairMap = new HashMap<>();
+
+        for (String userId : allUserIds) {
+            try {
+                // 사용자 정보 조회
+                UserDetailEntity user = userRepositoryPort.findUserDetailById(userId).orElse(null);
+                if (user == null) {
+                    log.warn("User not found in DB: {}", userId);
+                    continue;
+                }
+
+                // Unscoped 토큰 발급하여 해당 사용자의 모든 keypair 조회
+                String unscopedToken = authModule.getUnscopedTokenByUserId(userId);
+                List<KeypairSyncDto> userKeypairs = keypairExternalPort.listKeypairsByUser(unscopedToken);
+
+                for (KeypairSyncDto osKeypair : userKeypairs) {
+                    // userId 정보 추가 (해당 사용자로 조회했으므로)
+                    KeypairSyncDto enrichedKeypair = osKeypair.toBuilder()
+                            .userId(userId)  // 조회한 사용자의 ID 설정
+                            .build();
+                    openstackKeypairMap.put(enrichedKeypair.getFingerprint(), enrichedKeypair);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to fetch keypairs for user: {}. Error: {}", userId, e.getMessage());
+            }
+        }
+
+        return openstackKeypairMap;
+    }
+
+    /**
+     * DB와 OpenStack의 Keypair 동기화 수행
+     */
+    private void performSync(
+            Map<String, KeypairEntity> dbKeypairMap,
+            Map<String, KeypairSyncDto> openstackKeypairMap,
+            Set<String> allUserIds) {
+
+        List<KeypairEntity> toDelete = new ArrayList<>();
+        int updatedCount = 0;
+
+        // Case 1: OpenStack에 없고 DB에 있는 경우 → DB에서 삭제
+        for (Map.Entry<String, KeypairEntity> entry : dbKeypairMap.entrySet()) {
+            String fingerprint = entry.getKey();
+            KeypairEntity dbKeypair = entry.getValue();
+
+            if (!openstackKeypairMap.containsKey(fingerprint)) {
+                toDelete.add(dbKeypair);
+                log.info("Case 1 - Marking for deletion from DB: fingerprint={}, name={}",
+                        fingerprint, dbKeypair.getKeypairName());
+            } else {
+                // Case 3: Fingerprint는 같지만 Name이 다른 경우 → DB 업데이트
+                KeypairSyncDto osKeypair = openstackKeypairMap.get(fingerprint);
+                if (!dbKeypair.getKeypairName().equals(osKeypair.getName())) {
+                    String oldName = dbKeypair.getKeypairName();
+                    dbKeypair.updateKeypairName(osKeypair.getName());
+                    // JPA Dirty Checking으로 자동 UPDATE (saveAll 불필요)
+                    updatedCount++;
+                    log.info("Case 3 - Updating keypair name in DB: fingerprint={}, oldName={}, newName={}",
+                            fingerprint, oldName, osKeypair.getName());
+                }
+            }
+        }
+
+        // Case 2: OpenStack에 있고 DB에 없는 경우 → OpenStack에서 삭제
+        for (Map.Entry<String, KeypairSyncDto> entry : openstackKeypairMap.entrySet()) {
+            String fingerprint = entry.getKey();
+            KeypairSyncDto osKeypair = entry.getValue();
+
+            if (!dbKeypairMap.containsKey(fingerprint)) {
+                log.info("Case 2 - Orphan keypair found in OpenStack: fingerprint={}, name={}",
+                        fingerprint, osKeypair.getName());
+
+                // OpenStack에서 삭제 시도 (각 사용자의 토큰으로 시도)
+                deleteOrphanKeypair(osKeypair, allUserIds);
+            }
+        }
+
+        // DB 변경사항 일괄 처리 (삭제만 명시적 처리, 업데이트는 Dirty Checking으로 자동 처리)
+        if (!toDelete.isEmpty()) {
+            keypairRepositoryPort.deleteAll(toDelete);
+            log.info("Deleted {} keypairs from DB", toDelete.size());
+        }
+        log.info("Sync completed. Deleted: {}, Updated: {}", toDelete.size(), updatedCount);
+    }
+
+    /**
+     * OpenStack에만 존재하는 고아 Keypair 삭제
+     * osKeypair에 이미 userId 정보가 포함되어 있음 (listKeypairsByUser 조회 시 설정)
+     */
+    private void deleteOrphanKeypair(KeypairSyncDto osKeypair, Set<String> allUserIds) {
+        String ownerUserId = osKeypair.getUserId();
+
+        if (ownerUserId != null && !ownerUserId.isEmpty()) {
+            // userId 정보가 있는 경우, 해당 사용자의 토큰으로 삭제
+            try {
+                String ownerToken = authModule.getUnscopedTokenByUserId(ownerUserId);
+                keypairExternalPort.deleteKeypair(ownerToken, osKeypair.getName());
+                log.info("Successfully deleted orphan keypair from OpenStack: name={}, owner={}",
+                        osKeypair.getName(), ownerUserId);
+                return;
+            } catch (Exception e) {
+                log.warn("Failed to delete keypair {} with owner {} token: {}. Trying all users.",
+                        osKeypair.getName(), ownerUserId, e.getMessage());
+            }
+        }
+
+        // 폴백: userId 정보가 없거나 삭제 실패 시 모든 사용자로 시도
+        deleteKeypairWithAllUsers(osKeypair, allUserIds);
+    }
+
+    /**
+     * 모든 사용자의 토큰으로 Keypair 삭제 시도 (폴백 메소드)
+     */
+    private void deleteKeypairWithAllUsers(KeypairSyncDto osKeypair, Set<String> allUserIds) {
+        for (String userId : allUserIds) {
+            try {
+                String unscopedToken = authModule.getUnscopedTokenByUserId(userId);
+                keypairExternalPort.deleteKeypair(unscopedToken, osKeypair.getName());
+                log.info("Successfully deleted orphan keypair from OpenStack (fallback): name={}, user={}",
+                        osKeypair.getName(), userId);
+                break; // 성공하면 다음 사용자 시도 불필요
+            } catch (Exception e) {
+                log.debug("Failed to delete keypair {} with user {} token: {}",
+                        osKeypair.getName(), userId, e.getMessage());
+            }
+        }
+    }
 }
+
 

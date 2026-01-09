@@ -90,7 +90,7 @@ public class KeypairExternalAdapter implements KeypairExternalPort {
     }
 
     @Override
-    public List<KeypairSyncDto> listKeypairsByProject(String keystoneToken) {
+    public List<KeypairSyncDto> listKeypairsByUser(String keystoneToken) {
         List<KeypairSyncDto> allKeypairs = new ArrayList<>();
         String marker = null;
         boolean hasMore = true;
@@ -120,8 +120,6 @@ public class KeypairExternalAdapter implements KeypairExternalPort {
                         KeypairSyncDto dto = KeypairSyncDto.builder()
                             .name(keypair.get("name").asText())
                             .fingerprint(keypair.get("fingerprint").asText())
-                            .publicKey(keypair.get("public_key").asText())
-                            .type(keypair.has("type") ? keypair.get("type").asText() : "ssh")
                             .build();
 
                         allKeypairs.add(dto);

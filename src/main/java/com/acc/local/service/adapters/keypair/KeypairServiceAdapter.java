@@ -40,12 +40,11 @@ public class KeypairServiceAdapter implements KeypairServicePort {
         if (!keypairUtil.validateKeypairName(request.getKeypairName())) {
             throw new KeypairException(KeypairErrorCode.INVALID_KEYPAIR_NAME);
         }
-        return keypairModule.createKeypair(request, keystoneToken, projectId);
+        return keypairModule.createKeypair(request, keystoneToken, projectId, userId);
     }
 
     @Override
     public void deleteKeypair(String keypairId, String userId, String projectId) {
-        String keystoneToken = authModule.issueProjectScopeToken(projectId, userId);
-        keypairModule.deleteKeypair(keypairId, keystoneToken, projectId);
+        keypairModule.deleteKeypair(keypairId, projectId, userId);
     }
 }

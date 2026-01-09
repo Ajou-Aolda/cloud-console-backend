@@ -10,5 +10,5 @@ public interface KeypairExternalPort {
 
     CreateKeypairResponse createKeypair(String keystoneToken, CreateKeypairRequest request);
     void deleteKeypair(String keystoneToken, String keypairName);
-    List<KeypairSyncDto> listKeypairsByProject(String keystoneToken);
+    List<KeypairSyncDto> listKeypairsByUser(String keystoneToken);
 }
