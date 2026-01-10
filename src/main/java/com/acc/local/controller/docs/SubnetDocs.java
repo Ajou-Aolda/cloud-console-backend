@@ -6,6 +6,8 @@ import com.acc.local.dto.network.CreateSubnetRequest;
 import com.acc.local.dto.network.ViewSubnetsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,13 +39,92 @@ public interface SubnetDocs {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "서브넷 목록 조회 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "401", description = "인증 실패"),
-            @ApiResponse(responseCode = "403", description = "권한 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
-    }
-    )
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "서브넷 목록 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-BAD-REQUEST",
+                                                      "message": "Neutron 서브넷 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 - 유효하지 않은 토큰",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-FORBIDDEN",
+                                                      "message": "Neutron 서브넷 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "네트워크 없음 - 지정한 네트워크를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류 - 오픈스택 호출 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 서브넷 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
+    })
     @GetMapping
     ResponseEntity<PageResponse<ViewSubnetsResponse>> viewSubnets(
             @Parameter(hidden = true) Authentication authentication,
@@ -64,12 +145,115 @@ public interface SubnetDocs {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "서브넷 상세 조회 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "401", description = "인증 실패"),
-            @ApiResponse(responseCode = "403", description = "권한 없음"),
-            @ApiResponse(responseCode = "404", description = "서브넷을 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "서브넷 상세 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-BAD-REQUEST",
+                                                      "message": "Neutron 서브넷 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 - 유효하지 않은 토큰",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 인증 실패",
+                                            value = """
+                                                    {
+                                                      "status": 401,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-UNAUTHORIZED",
+                                                      "message": "Neutron 서브넷 접근이 인증되지 않았습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-FORBIDDEN",
+                                                      "message": "Neutron 서브넷 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "서브넷 없음 - 지정한 서브넷을 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-SUBNET",
+                                                      "message": "해당 서브넷이 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류 - 오픈스택 호출 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 서브넷 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @GetMapping("/{subnetId}")
     ResponseEntity<ViewSubnetsResponse> getSubnet(
@@ -91,14 +275,125 @@ public interface SubnetDocs {
                     """
     )
     @ApiResponses(value = {
-
-            @ApiResponse(responseCode = "201", description = "서브넷 생성 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "401", description = "인증 실패"),
-            @ApiResponse(responseCode = "403", description = "권한 없음"),
-            @ApiResponse(responseCode = "404", description = "네트워크를 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
-
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "서브넷 생성 성공",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "서브넷 이름이 유효하지 않은 경우",
+                                            description = "서브넷 이름에는 영문자, 숫자, '-', '_'만 사용할 수 있습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SUBNET-NAME",
+                                                      "message": "서브넷 이름이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "서브넷 CIDR가 유효하지 않은 경우",
+                                            description = "서브넷 CIDR 값이 유효하지 않습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SUBNET-CIDR",
+                                                      "message": "서브넷 CIDR 값이 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "서브넷 게이트웨이 IP가 유효하지 않은 경우",
+                                            description = "서브넷 게이트웨이 IP가 유효하지 않습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-INVALID-SUBNET-GATEWAY-IP",
+                                                      "message": "서브넷 게이트웨이 IP가 유효하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-BAD-REQUEST",
+                                                      "message": "Neutron 서브넷 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 - 유효하지 않은 토큰",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 프로젝트 접근 권한이 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-FORBIDDEN",
+                                                      "message": "Neutron 서브넷 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "네트워크 없음 - 지정한 네트워크를 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류 - 오픈스택 호출 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-CREATION-FAILED",
+                                                      "message": "Neutron 서브넷 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @PostMapping
     ResponseEntity<Object> createSubnet(
@@ -118,15 +413,118 @@ public interface SubnetDocs {
             summary = "서브넷 삭제",
             description = """
                     서브넷 ID로 특정 서브넷을 삭제합니다.
+                    
+                    - default network의 default-subnet은 삭제할 수 없습니다.
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "서브넷 삭제 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "401", description = "인증 실패"),
-            @ApiResponse(responseCode = "403", description = "권한 없음"),
-            @ApiResponse(responseCode = "404", description = "서브넷을 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 오류")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "서브넷 삭제 성공",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 - 요청 파라미터 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-BAD-REQUEST",
+                                                      "message": "Neutron 서브넷 요청이 잘못되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패 - 유효하지 않은 토큰",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "권한 없음 - 프로젝트 접근 권한이 없거나 서브넷 삭제 불가",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "서브넷 삭제 불가",
+                                            description = "해당 서브넷은 삭제할 수 없습니다.",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-CAN-NOT-DELETE-SUBNET",
+                                                      "message": "해당 서브넷은 삭제할 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-FORBIDDEN",
+                                                      "message": "Neutron 서브넷 접근이 금지되었습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "서브넷 없음 - 지정한 서브넷을 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-SUBNET",
+                                                      "message": "해당 서브넷이 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류 - 오픈스택 호출 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 삭제 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-DELETION-FAILED",
+                                                      "message": "Neutron 서브넷 삭제에 실패했습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
+            )
     })
     @DeleteMapping
     ResponseEntity<Object> deleteSubnet(
