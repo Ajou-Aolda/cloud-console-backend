@@ -4,7 +4,6 @@ import com.acc.local.domain.enums.InstanceActionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor

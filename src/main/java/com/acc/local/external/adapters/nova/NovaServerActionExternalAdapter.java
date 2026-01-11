@@ -47,28 +47,15 @@ public class NovaServerActionExternalAdapter implements NovaServerActionExternal
                 case UNLOCK:
                     response = novaServerActionAPIModule.unlockServer(token, instanceId, new UnlockServerRequest());
                     break;
-//                case SHELVE:
-//                    response = novaServerActionAPIModule.shelveServer(token, instanceId, new ShelveServerRequest());
-//                    break;
-//                case SHELVE_OFFLOAD:
-//                    response = novaServerActionAPIModule.shelveOffloadServer(token, instanceId, new ShelveOffloadServerRequest());
-//                    break;
                 case FORCE_DELETE:
                     response = novaServerActionAPIModule.forceDeleteServer(token, instanceId, new ForceDeleteServerRequest());
                     break;
-//                case RESTORE:
-//                    response = novaServerActionAPIModule.restoreServer(token, instanceId, new RestoreServerRequest());
-//                    break;
                 case REVERT_RESIZE:
                     response = novaServerActionAPIModule.revertResize(token, instanceId, new RevertResizeRequest());
                     break;
-//                case UNRESCUE:
-//                    response = novaServerActionAPIModule.unrescueServer(token, instanceId, new UnrescueServerRequest());
-//                    break;
                 case CONFIRM_RESIZE:
                     response = novaServerActionAPIModule.confirmResizeServer(token, instanceId, new ConfirmResizeRequest());
                     break;
-
                 case LOCK:
                     LockServerRequest.LockInfo lockInfo = null;
                     if (request.getLockedReason() != null && !request.getLockedReason().isBlank()) {
@@ -78,48 +65,25 @@ public class NovaServerActionExternalAdapter implements NovaServerActionExternal
                     }
                     response = novaServerActionAPIModule.lockServer(token, instanceId, new LockServerRequest(lockInfo));
                     break;
-
                 case REBOOT:
                     String rebootType = (request.getRebootType() != null) ? request.getRebootType() : "SOFT";
                     response = novaServerActionAPIModule.rebootServer(token, instanceId, rebootType);
                     break;
-
                 case ADD_SECURITY_GROUP:
                     response = novaServerActionAPIModule.addSecurityGroupToServer(token, instanceId, request.getSecurityGroupName());
                     break;
-
                 case REMOVE_SECURITY_GROUP:
                     response = novaServerActionAPIModule.removeSecurityGroupFromServer(token, instanceId, request.getSecurityGroupName());
                     break;
-
-                case CHANGE_PASSWORD:
-                    response = novaServerActionAPIModule.changeAdminPassword(token, instanceId, request.getAdminPassword());
-                    break;
-
-//                case CREATE_BACKUP:
-//                    CreateBackupRequest.BackupInfo backupInfo = CreateBackupRequest.BackupInfo.builder()
-//                            .name(request.getBackupName())
-//                            .backupType(request.getBackupType())
-//                            .rotation(request.getRotation())
-//                            .metadata(request.getMetadata())
-//                            .build();
-//                    response = novaServerActionAPIModule.createServerBackup(token, instanceId, new CreateBackupRequest(backupInfo));
-//                    break;
-//
-//                case CREATE_IMAGE:
-//                    CreateImageRequest.ImageInfo imageInfo = CreateImageRequest.ImageInfo.builder()
-//                            .name(request.getImageName())
-//                            .metadata(request.getMetadata())
-//                            .build();
-//                    response = novaServerActionAPIModule.createImage(token, instanceId, new CreateImageRequest(imageInfo));
-//                    break;
-
                 case RESIZE:
                     ResizeServerRequest.ResizeInfo resizeInfo = ResizeServerRequest.ResizeInfo.builder()
                             .flavorRef(request.getFlavorRef())
                             .diskConfig(request.getDiskConfig())
                             .build();
                     response = novaServerActionAPIModule.resizeServer(token, instanceId, new ResizeServerRequest(resizeInfo));
+                    break;
+                case CHANGE_PASSWORD:
+                    response = novaServerActionAPIModule.changeAdminPassword(token, instanceId, request.getAdminPassword());
                     break;
 
 //                case REBUILD:
@@ -150,6 +114,35 @@ public class NovaServerActionExternalAdapter implements NovaServerActionExternal
 //                                .build();
 //                    }
 //                    response = novaServerActionAPIModule.unshelveServer(token, instanceId, new UnshelveServerRequest(unshelveInfo));
+//                    break;
+//                case SHELVE:
+//                    response = novaServerActionAPIModule.shelveServer(token, instanceId, new ShelveServerRequest());
+//                    break;
+//                case SHELVE_OFFLOAD:
+//                    response = novaServerActionAPIModule.shelveOffloadServer(token, instanceId, new ShelveOffloadServerRequest());
+//                    break;
+//                case RESTORE:
+//                    response = novaServerActionAPIModule.restoreServer(token, instanceId, new RestoreServerRequest());
+//                    break;
+//                case UNRESCUE:
+//                    response = novaServerActionAPIModule.unrescueServer(token, instanceId, new UnrescueServerRequest());
+//                    break;
+//                case CREATE_BACKUP:
+//                    CreateBackupRequest.BackupInfo backupInfo = CreateBackupRequest.BackupInfo.builder()
+//                            .name(request.getBackupName())
+//                            .backupType(request.getBackupType())
+//                            .rotation(request.getRotation())
+//                            .metadata(request.getMetadata())
+//                            .build();
+//                    response = novaServerActionAPIModule.createServerBackup(token, instanceId, new CreateBackupRequest(backupInfo));
+//                    break;
+//
+//                case CREATE_IMAGE:
+//                    CreateImageRequest.ImageInfo imageInfo = CreateImageRequest.ImageInfo.builder()
+//                            .name(request.getImageName())
+//                            .metadata(request.getMetadata())
+//                            .build();
+//                    response = novaServerActionAPIModule.createImage(token, instanceId, new CreateImageRequest(imageInfo));
 //                    break;
 
                 default:
