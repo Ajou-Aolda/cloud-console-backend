@@ -15,12 +15,10 @@ import com.acc.local.external.ports.NeutronRouterExternalPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Remove;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.ArrayList;
@@ -130,10 +128,36 @@ public class NeutronRouterExternalAdapter implements NeutronRouterExternalPort {
                 case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_BAD_REQUEST, e);
                 case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_FORBIDDEN, e);
                 case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_NOT_FOUND, e);
+                case 409 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_CONFLICT, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_CONNECT_SUBNET_FAILED, e);
             }
         }
     }
+
+    @Override
+    public void callAddRouterInterfaceByPortId(String keystoneToken, String routerId, String portId) {
+        try {
+            ResponseEntity<JsonNode> response = routersAPIModule.addRouterInterface(
+                keystoneToken,
+                routerId,
+                AddRouterInterfaceRequest.builder()
+                        .portId(portId)
+                        .build()
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_CONNECT_SUBNET_FAILED);
+            }
+        } catch (WebClientResponseException e) {
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_FORBIDDEN, e);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_NOT_FOUND, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_CONNECT_SUBNET_FAILED, e);
+            }
+        }
+    }
+
 
     public void callRemoveRouterInterface(String keystoneToken, String routerId, String subnetId) {
         try {

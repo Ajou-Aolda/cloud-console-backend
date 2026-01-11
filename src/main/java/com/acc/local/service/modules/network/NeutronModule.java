@@ -156,9 +156,6 @@ public class NeutronModule {
         }
 
         ViewSubnetsResponse subnet = neutronSubnetExternalPort.getSubnetDetails(keystoneToken, subnetId);
-        if (subnet == null) {
-            throw new NetworkException(NetworkErrorCode.NOT_FOUND_SUBNET);
-        }
 
         if (!subnet.getSubnetName().equals("default-subnet")) {
             return true;
@@ -166,6 +163,10 @@ public class NeutronModule {
 
         String networkName = neutronNetworkExternalPort.getNetworkNameAndId(keystoneToken, subnet.getNetworkId()).get("name");
         return !networkName.equals("default-network");
+    }
+
+    public void attachInterfaceToRouter(String keystoneToken, String routerId, String portId) {
+        neutronRouterExternalPort.callAddRouterInterfaceByPortId(keystoneToken, routerId, portId);
     }
 
     /* --- External IPs --- */
@@ -204,6 +205,16 @@ public class NeutronModule {
 
     public PageResponse<ViewInterfacesResponse> listInterfaces(String keystoneToken, String projectId, String marker, String direction, int limit, String instanceId, String networkId) {
         return neutronPortExternalPort.callListPorts(keystoneToken, projectId, marker, direction, limit, instanceId, networkId);
+    }
+
+    public String createInterfaceBySubnetId(String keystoneToken, String subnetId) {
+        String networkId = neutronSubnetExternalPort.getSubnetDetails(keystoneToken, subnetId).getNetworkId();
+        return neutronPortExternalPort.callCreatePort(keystoneToken,
+                networkId,
+                null,
+                subnetId,
+                null,
+                null).get("id");
     }
 
     /* --- Security Groups --- */

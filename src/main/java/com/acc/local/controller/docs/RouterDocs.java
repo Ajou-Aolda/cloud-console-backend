@@ -418,6 +418,16 @@ public interface RouterDocs {
                                                       "message": "Neutron 라우터 요청이 잘못되었습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 요청 오류",
+                                            value = """
+                                                    {
+                                                      "status": 400,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-BAD-REQUEST",
+                                                      "message": "Neutron 포트 요청이 잘못되었습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
@@ -425,7 +435,21 @@ public interface RouterDocs {
             @ApiResponse(
                     responseCode = "401",
                     description = "인증 실패 - 유효하지 않은 토큰",
-                    content = @Content()
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 인증 실패",
+                                            value = """
+                                                    {
+                                                      "status": 401,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-UNAUTHORIZED",
+                                                      "message": "Neutron 서브넷 접근이 인증되지 않았습니다."
+                                                    }
+                                                    """
+                                    )
+                            }
+                    )
             ),
             @ApiResponse(
                     responseCode = "403",
@@ -442,13 +466,23 @@ public interface RouterDocs {
                                                       "message": "Neutron 라우터 접근이 금지되었습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 접근 금지",
+                                            value = """
+                                                    {
+                                                      "status": 403,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-FORBIDDEN",
+                                                      "message": "Neutron 포트 접근이 금지되었습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "라우터 없음 - 지정한 라우터를 찾을 수 없음",
+                    description = "라우터, 서브넷 또는 네트워크 리소스 없음",
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
@@ -461,6 +495,36 @@ public interface RouterDocs {
                                                       "message": "Neutron 라우터를 찾을 수 없습니다."
                                                     }
                                                     """
+                                    ),
+                                    @ExampleObject(
+                                            name = "서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NOT-FOUND-SUBNET",
+                                                      "message": "해당 서브넷이 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "네트워크 리소스를 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-NETWORK-RESOURCE-NOT-FOUND",
+                                                      "message": "Neutron 포트의 네트워크 관련 리소스를 찾을 수 없습니다."
+                                                    }
+                                                    """
                                     )
                             }
                     )
@@ -471,6 +535,36 @@ public interface RouterDocs {
                     content = @Content(
                             mediaType = "application/json",
                             examples = {
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 서브넷 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 조회 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-RETRIEVAL-FAILED",
+                                                      "message": "Neutron 포트 조회에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 포트 생성 실패",
+                                            value = """
+                                                    {
+                                                      "status": 500,
+                                                      "code": "ACC-NETWORK-NEUTRON-PORT-CREATION-FAILED",
+                                                      "message": "Neutron 포트 생성에 실패했습니다."
+                                                    }
+                                                    """
+                                    ),
                                     @ExampleObject(
                                             name = "오픈스택 라우터-서브넷 연결 실패",
                                             value = """
@@ -587,6 +681,16 @@ public interface RouterDocs {
                                                       "status": 404,
                                                       "code": "ACC-NETWORK-NOT-FOUND-SUBNET",
                                                       "message": "해당 서브넷이 존재하지 않습니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "오픈스택 서브넷을 찾을 수 없음",
+                                            value = """
+                                                    {
+                                                      "status": 404,
+                                                      "code": "ACC-NETWORK-NEUTRON-SUBNET-NOT-FOUND",
+                                                      "message": "Neutron 서브넷을 찾을 수 없습니다."
                                                     }
                                                     """
                                     )
