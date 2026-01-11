@@ -54,23 +54,23 @@ public class InstanceUtil {
                 validateParameter(request.getAdminPassword(), "adminPassword");
                 break;
 
-            case CREATE_BACKUP:
-                validateParameter(request.getBackupName(), "backupName");
-                validateParameter(request.getBackupType(), "backupType");
-                validateParameter(request.getRotation(), "rotation");
-                break;
-
-            case CREATE_IMAGE:
-                validateParameter(request.getImageName(), "imageName");
-                break;
+//            case CREATE_BACKUP:
+//                validateParameter(request.getBackupName(), "backupName");
+//                validateParameter(request.getBackupType(), "backupType");
+//                validateParameter(request.getRotation(), "rotation");
+//                break;
+//
+//            case CREATE_IMAGE:
+//                validateParameter(request.getImageName(), "imageName");
+//                break;
 
             case RESIZE:
                 validateParameter(request.getFlavorRef(), "flavorRef");
                 break;
 
-            case REBUILD:
-                validateParameter(request.getImageRef(), "imageRef");
-                break;
+//            case REBUILD:
+//                validateParameter(request.getImageRef(), "imageRef");
+//                break;
 
             default:
                 break;
