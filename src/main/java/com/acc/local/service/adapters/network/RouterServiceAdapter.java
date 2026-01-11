@@ -59,4 +59,19 @@ public class RouterServiceAdapter implements RouterServicePort {
                 page.getLimit());
     }
 
+    public void connectRouterToSubnet(String routerId, String subnetId, String userId, String projectId) {
+        String token = authModule.issueProjectScopeToken(projectId, userId);
+
+        neutronModule.connectRouterToSubnet(token, routerId, subnetId);
+    }
+
+    public void disconnectRouterFromSubnet(String routerId, String subnetId, String userId, String projectId) {
+        String token = authModule.issueProjectScopeToken(projectId, userId);
+
+        if (!neutronModule.canDisconnectRouterFromSubnet(token, routerId, subnetId)) {
+            throw new NetworkException(NetworkErrorCode.CAN_NOT_DISCONNECT_ROUTER_FROM_SUBNET);
+        }
+
+        neutronModule.disconnectRouterFromSubnet(token, routerId, subnetId);
+    }
 }
