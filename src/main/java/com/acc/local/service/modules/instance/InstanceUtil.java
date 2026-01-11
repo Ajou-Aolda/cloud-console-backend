@@ -54,6 +54,11 @@ public class InstanceUtil {
                 validateParameter(request.getAdminPassword(), "adminPassword");
                 break;
 
+
+            case RESIZE:
+                validateParameter(request.getFlavorRef(), "flavorRef");
+                break;
+
 //            case CREATE_BACKUP:
 //                validateParameter(request.getBackupName(), "backupName");
 //                validateParameter(request.getBackupType(), "backupType");
@@ -63,10 +68,6 @@ public class InstanceUtil {
 //            case CREATE_IMAGE:
 //                validateParameter(request.getImageName(), "imageName");
 //                break;
-
-            case RESIZE:
-                validateParameter(request.getFlavorRef(), "flavorRef");
-                break;
 
 //            case REBUILD:
 //                validateParameter(request.getImageRef(), "imageRef");
