@@ -51,7 +51,7 @@ public class UserModule {
         // 1. Keystone 사용자 생성 요청 생성
         CreateKeystoneUserRequest newUserKeystoneDto = CreateKeystoneUserRequest.builder()
                 .email(request.email())
-                .password("asdf1234") // TODO: 비밀번호 입력받는 필드가 없어 관련논의 필요
+                .password(request.password())
                 .isEnable(request.isEnabled())
                 .build();
         UserKeystoneDto createdUserKeystoneDto = keystoneAPIExternalPort.createUser(adminToken, newUserKeystoneDto);
