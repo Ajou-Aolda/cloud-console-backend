@@ -9,11 +9,13 @@ import com.acc.local.dto.network.ViewRoutersResponse;
 import com.acc.local.external.dto.neutron.common.ExternalGatewayInfo;
 import com.acc.local.external.dto.neutron.routers.AddRouterInterfaceRequest;
 import com.acc.local.external.dto.neutron.routers.CreateRouterRequest;
+import com.acc.local.external.dto.neutron.routers.RemoveRouterInterfaceRequest;
 import com.acc.local.external.modules.neutron.NeutronRoutersAPIModule;
 import com.acc.local.external.ports.NeutronRouterExternalPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Remove;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -129,6 +131,29 @@ public class NeutronRouterExternalAdapter implements NeutronRouterExternalPort {
                 case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_FORBIDDEN, e);
                 case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_NOT_FOUND, e);
                 default -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_CONNECT_SUBNET_FAILED, e);
+            }
+        }
+    }
+
+    public void callRemoveRouterInterface(String keystoneToken, String routerId, String subnetId) {
+        try {
+            ResponseEntity<JsonNode> response = routersAPIModule.removeRouterInterface(
+                keystoneToken,
+                routerId,
+                    RemoveRouterInterfaceRequest.builder()
+                        .subnetId(subnetId)
+                        .build()
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_DISCONNECT_SUBNET_FAILED);
+            }
+        } catch (WebClientResponseException e) {
+            switch (e.getStatusCode().value()) {
+                case 400 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_BAD_REQUEST, e);
+                case 403 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_FORBIDDEN, e);
+                case 404 -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_NOT_FOUND, e);
+                default -> throw new NeutronException(NeutronErrorCode.NEUTRON_ROUTER_DISCONNECT_SUBNET_FAILED, e);
             }
         }
     }

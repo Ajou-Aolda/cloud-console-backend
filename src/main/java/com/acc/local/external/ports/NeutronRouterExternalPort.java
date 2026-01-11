@@ -14,4 +14,5 @@ public interface NeutronRouterExternalPort {
     String callAddRouterInterface(String keystoneToken, String routerId, String subnetId);
 
     Map<String, String> getRouterNameAndId(String keystoneToken, String routerId);
+    void callRemoveRouterInterface(String keystoneToken, String routerId, String subnetId);
 }
