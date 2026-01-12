@@ -214,7 +214,8 @@ public class NeutronModule {
                 null,
                 subnetId,
                 null,
-                null).get("id");
+                null,
+                false).get("id");
     }
 
     /* --- Security Groups --- */
