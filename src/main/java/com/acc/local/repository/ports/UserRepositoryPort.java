@@ -2,6 +2,7 @@ package com.acc.local.repository.ports;
 
 import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
+import com.acc.local.repository.dto.UserDBDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +26,10 @@ public interface UserRepositoryPort {
     void deleteUserAuthById(String userId);
 
 	List<UserDbExtraEntity> findUserByUserName(String userName);
+
+    /**
+     * userId로 User 관련 정보를 조인하여 조회
+     * UserIdentity와 UserDbExtra를 inner join으로 조회
+     */
+    Optional<UserDBDto> findUserDBByUserId(String userId);
 }

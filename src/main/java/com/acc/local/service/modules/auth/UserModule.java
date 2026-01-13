@@ -7,7 +7,9 @@ import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
+import com.acc.local.domain.model.auth.User;
 import com.acc.local.domain.model.auth.UserListResponse;
+import com.acc.local.repository.dto.UserDBDto;
 import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;
 import com.acc.local.dto.auth.AdminListUsersResponse;
@@ -397,6 +399,33 @@ public class UserModule {
         if (!requesterDetail.getIsAdmin()) {
             throw new AuthServiceException(AuthErrorCode.FORBIDDEN_ACCESS, "관리자 권한이 필요한 기능입니다.");
         }
+    }
+
+    /**
+     * 재사용 가능한 User 조회 메서드
+     * Keystone + DB 정보를 조합하여 완전한 User 도메인 모델 반환
+     *
+     * @param userId 조회할 사용자 ID
+     * @param adminToken Keystone 조회에 사용할 관리자 토큰
+     * @return 완전한 User 도메인 모델 (모든 필드가 채워짐)
+     */
+    @Transactional(readOnly = true)
+    public User getUserById(String userId, String adminToken) {
+        // 1. Keystone에서 사용자 정보 조회
+        UserKeystoneDto userKeystoneDto = keystoneAPIExternalPort.getUserDetail(userId, adminToken);
+
+        // 2. DB에서 사용자 정보 조회 (조인 쿼리로 한 번에 가져옴)
+        UserDBDto userDBDto = userRepositoryPort.findUserDBByUserId(userId)
+                .orElseThrow(() -> new AuthServiceException(
+                        AuthErrorCode.USER_NOT_FOUND
+                ));
+
+        // 3. User 도메인 모델 생성 및 반환 (모든 필드가 완전히 채워짐)
+        return User.from(
+                userKeystoneDto,
+                userDBDto.userDbExtra(),
+                userDBDto.userIdentity()
+        );
     }
 
 }
