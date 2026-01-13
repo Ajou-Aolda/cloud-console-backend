@@ -1,7 +1,7 @@
 package com.acc.local.domain.model.auth;
 
 import com.acc.local.dto.auth.SignupRequest;
-import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -43,8 +43,8 @@ public class UserDetail {
     /**
      * Entity로 변환
      */
-    public UserDetailEntity toEntity() {
-        return UserDetailEntity.builder()
+    public UserDbExtraEntity toEntity() {
+        return UserDbExtraEntity.builder()
                 .userId(this.userId)
                 .userName(this.userName)
                 .userPhoneNumber(this.userPhoneNumber)
@@ -55,7 +55,7 @@ public class UserDetail {
     /**
      * Entity로부터 도메인 모델 생성
      */
-    public static UserDetail from(UserDetailEntity entity) {
+    public static UserDetail from(UserDbExtraEntity entity) {
         if (entity == null) {
             return null;
         }

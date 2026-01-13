@@ -1,6 +1,6 @@
 package com.acc.local.repository.ports;
 
-import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
 
 import java.util.List;
@@ -8,15 +8,15 @@ import java.util.Optional;
 
 public interface UserRepositoryPort {
 
-    UserDetailEntity saveUserDetail(UserDetailEntity userDetailEntity);
+    UserDbExtraEntity saveUserDetail(UserDbExtraEntity userDbExtraEntity);
 
     UserIdentityEntity saveUserAuth(UserIdentityEntity userIdentityEntity);
 
-    Optional<UserDetailEntity> findUserDetailById(String userId);
+    Optional<UserDbExtraEntity> findUserDetailById(String userId);
 
     Optional<UserIdentityEntity> findUserAuthById(String userId);
 
-    List<UserDetailEntity> findUserDetailsByIds(List<String> userIds);
+    List<UserDbExtraEntity> findUserDetailsByIds(List<String> userIds);
 
     List<UserIdentityEntity> findUserAuthsByIds(List<String> userIds);
 
@@ -24,5 +24,5 @@ public interface UserRepositoryPort {
 
     void deleteUserAuthById(String userId);
 
-	List<UserDetailEntity> findUserByUserName(String userName);
+	List<UserDbExtraEntity> findUserByUserName(String userName);
 }

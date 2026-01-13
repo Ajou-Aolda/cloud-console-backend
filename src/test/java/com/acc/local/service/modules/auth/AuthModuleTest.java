@@ -11,8 +11,8 @@ import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.dto.auth.SignupRequest;
 import com.acc.local.entity.RefreshTokenEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
-import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.entity.UserTokenEntity;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.acc.local.repository.ports.UserTokenRepositoryPort;
@@ -744,13 +744,13 @@ class AuthModuleTest {
         when(keystoneAPIExternalPort.createUser(eq(adminToken), any())).thenReturn(mockKeystoneResponse);
 
         // Repository save mock
-       UserDetailEntity savedUserDetail = UserDetailEntity.builder()
+       UserDbExtraEntity savedUserDetail = UserDbExtraEntity.builder()
                 .userId(createdUserId)
                 .userName("hong123")
                 .userPhoneNumber("010-1234-5678")
                 .isAdmin(false)
                 .build();
-        when(userRepositoryPort.saveUserDetail(any(UserDetailEntity.class)))
+        when(userRepositoryPort.saveUserDetail(any(UserDbExtraEntity.class)))
                 .thenReturn(savedUserDetail);
 
         UserIdentityEntity savedUserAuthDetail = UserIdentityEntity.builder()
@@ -777,7 +777,7 @@ class AuthModuleTest {
         // then
         assertEquals(createdUserId, resultUserId);
         verify(keystoneAPIExternalPort).createUser(eq(adminToken), any());
-        verify(userRepositoryPort).saveUserDetail(any(UserDetailEntity.class));
+        verify(userRepositoryPort).saveUserDetail(any(UserDbExtraEntity.class));
         verify(userRepositoryPort).saveUserAuth(any(UserIdentityEntity.class));
         verify(keystoneAPIExternalPort).revokeToken(adminToken);
     }

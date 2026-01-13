@@ -11,8 +11,8 @@ import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;
 import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
-import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.acc.local.repository.ports.UserRepositoryPort;
@@ -91,7 +91,7 @@ class UserModuleTest {
                             .build());
 
             when(userRepositoryPort.saveUserDetail(any()))
-                    .thenReturn(UserDetailEntity.builder()
+                    .thenReturn(UserDbExtraEntity.builder()
                             .userId(newUserId)
                             .userName("홍길동")
                             .userPhoneNumber("01012345678")
@@ -145,7 +145,7 @@ class UserModuleTest {
 
         when(userRepositoryPort.findUserDetailById(userId))
                 .thenReturn(Optional.of(
-                        UserDetailEntity.builder()
+                        UserDbExtraEntity.builder()
                                 .userId(userId)
                                 .userName("기존")
                                 .userPhoneNumber("01000000000")
@@ -198,7 +198,7 @@ class UserModuleTest {
 
             when(userRepositoryPort.findUserDetailById(userId))
                     .thenReturn(Optional.of(
-                            UserDetailEntity.builder()
+                            UserDbExtraEntity.builder()
                                     .userId("uid-1")
                                     .userName("홍길동")
                                     .userPhoneNumber("01011112222")
@@ -312,7 +312,7 @@ class UserModuleTest {
         //     .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
 
         when(userRepositoryPort.findUserDetailById(userId))
-                .thenReturn(Optional.ofNullable(UserDetailEntity.builder().build()));
+                .thenReturn(Optional.ofNullable(UserDbExtraEntity.builder().build()));
 
         assertDoesNotThrow(() -> userModule.adminDeleteUser(userId, token));
 

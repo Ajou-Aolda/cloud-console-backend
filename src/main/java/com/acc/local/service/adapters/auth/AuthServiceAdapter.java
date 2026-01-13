@@ -7,7 +7,7 @@ import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.dto.auth.*;
 import com.acc.local.dto.project.ProjectServiceDto;
 import com.acc.local.dto.project.UserPermissionResponse;
-import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.service.modules.auth.AuthModule;
 import com.acc.local.service.modules.auth.ProjectModule;
@@ -153,9 +153,9 @@ public class AuthServiceAdapter implements AuthServicePort {
                     .build();
             }
 
-            UserDetailEntity userDetailEntity = userModule.adminGetUserDetailDB(userId);
+            UserDbExtraEntity userDbExtraEntity = userModule.adminGetUserDetailDB(userId);
             return LoginedUserProfileResponse.builder()
-                .userName(userDetailEntity.getUserName())
+                .userName(userDbExtraEntity.getUserName())
                 .project(projectServiceDto)
                 .build();
 

@@ -3,7 +3,7 @@ package com.acc.local.domain.model.auth;
 import com.acc.local.domain.enums.auth.AuthType;
 import com.acc.local.dto.auth.SignupRequest;
 import com.acc.local.entity.UserIdentityEntity;
-import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -48,9 +48,9 @@ public class UserAuthDetail {
 
     /**
      * Entity로 변환
-     * @param userDetailEntity 연관관계 설정을 위한 UserDetailEntity
+     * @param userDbExtraEntity 연관관계 설정을 위한 UserDetailEntity
      */
-    public UserIdentityEntity toEntity(UserDetailEntity userDetailEntity) {
+    public UserIdentityEntity toEntity(UserDbExtraEntity userDbExtraEntity) {
         return UserIdentityEntity.builder()
                 .userId(this.userId)
                 .department(this.department)

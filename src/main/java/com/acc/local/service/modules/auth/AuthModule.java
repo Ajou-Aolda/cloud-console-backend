@@ -5,8 +5,8 @@ import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.global.exception.auth.JwtAuthenticationException;
 import com.acc.local.dto.auth.*;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.external.dto.keystone.CreateKeystoneUserRequest;
-import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.repository.ports.OAuthVerificationTokenRepositoryPort;
 import com.acc.global.properties.OpenstackProperties;
@@ -24,7 +24,6 @@ import com.acc.local.entity.UserTokenEntity;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.repository.ports.RefreshTokenRepositoryPort;
 import com.acc.local.repository.ports.UserTokenRepositoryPort;
-import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.domain.model.auth.UserDetail;
 import com.acc.local.domain.model.auth.UserAuthDetail;
 
@@ -472,11 +471,11 @@ public class AuthModule {
 
             // 3. UserDetail 도메인 모델 생성 및 저장
             UserDetail userDetail = UserDetail.createForSignup(userId,request);
-            UserDetailEntity userDetailEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
+            UserDbExtraEntity userDbExtraEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
 
             // 4. UserAuthDetail 도메인 모델 생성 및 저장
             UserAuthDetail userAuthDetail = UserAuthDetail.createForSignup(userId, request);
-            userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDetailEntity));
+            userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDbExtraEntity));
 
             return userId;
 
@@ -545,7 +544,7 @@ public class AuthModule {
 
     private void validateUserIsDeleted(String userId){
         // 사용자 삭제되었는지 검증
-        UserDetailEntity userDetail = userRepositoryPort.findUserDetailById(userId)
+        UserDbExtraEntity userDetail = userRepositoryPort.findUserDetailById(userId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND));
 
         if (userDetail.getIsDeleted()) {

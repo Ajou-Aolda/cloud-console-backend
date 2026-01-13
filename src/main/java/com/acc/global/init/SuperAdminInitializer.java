@@ -2,7 +2,7 @@ package com.acc.global.init;
 
 import com.acc.global.properties.SuperAdminProperties;
 import com.acc.local.entity.UserIdentityEntity;
-import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.repository.jpa.UserAuthDetailJpaRepository;
 import com.acc.local.repository.jpa.UserDetailJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +53,7 @@ public class SuperAdminInitializer implements ApplicationRunner {
         log.info("슈퍼관리자 계정이 존재하지 않습니다 ID: {}", userId);
         String phoneNumber = superAdminProperties.getPhoneNumber();
 
-        UserDetailEntity superAdmin = UserDetailEntity.builder()
+        UserDbExtraEntity superAdmin = UserDbExtraEntity.builder()
                 .userId(userId)
                 .userPhoneNumber(phoneNumber)
                 .isAdmin(true)

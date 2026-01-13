@@ -14,8 +14,8 @@ import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;
 import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
-import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.external.dto.keystone.CreateKeystoneUserRequest;
 import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
@@ -57,11 +57,11 @@ public class UserModule {
 
         // 2. UserDetail 도메인 모델 생성 및 저장
         UserDetail userDetail = UserDetail.createForAdmin(userIdentityId, request);
-        UserDetailEntity userDetailEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
+        UserDbExtraEntity userDbExtraEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
 
         // 3. UserAuthDetail 도메인 모델 생성 및 저장
         UserAuthDetail userAuthDetail = UserAuthDetail.createForAdmin(userIdentityId, request);
-        userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDetailEntity));
+        userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDbExtraEntity));
 
         return userIdentityId;
     }
@@ -84,12 +84,12 @@ public class UserModule {
         // 2. ACC DB 업데이트
         // UserDetailEntity 업데이트
         if (request.username() != null || request.phoneNumber() != null) {
-            UserDetailEntity userDetailEntity = userRepositoryPort.findUserDetailById(userId)
+            UserDbExtraEntity userDbExtraEntity = userRepositoryPort.findUserDetailById(userId)
                     .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
-            UserDetailEntity updatedEntity = userDetailEntity.toBuilder()
-                    .userName(request.username() != null ? request.username() : userDetailEntity.getUserName())
-                    .userPhoneNumber(request.phoneNumber() != null ? request.phoneNumber() : userDetailEntity.getUserPhoneNumber())
+            UserDbExtraEntity updatedEntity = userDbExtraEntity.toBuilder()
+                    .userName(request.username() != null ? request.username() : userDbExtraEntity.getUserName())
+                    .userPhoneNumber(request.phoneNumber() != null ? request.phoneNumber() : userDbExtraEntity.getUserPhoneNumber())
                     .updatedAt(LocalDateTime.now())
                     .build();
 
@@ -125,7 +125,7 @@ public class UserModule {
         UserKeystoneDto userKeystoneDto = keystoneAPIExternalPort.getUserDetail(userId, adminToken);
 
         // 2. ACC DB에서 추가 정보 조회
-        UserDetailEntity userDetail = userRepositoryPort.findUserDetailById(userId)
+        UserDbExtraEntity userDetail = userRepositoryPort.findUserDetailById(userId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
         UserIdentityEntity userAuth = userRepositoryPort.findUserAuthById(userId)
@@ -145,9 +145,9 @@ public class UserModule {
                 .build();
     }
 
-    public UserDetailEntity adminGetUserDetailDB(String userId) {
+    public UserDbExtraEntity adminGetUserDetailDB(String userId) {
         try {
-            UserDetailEntity userDetail = userRepositoryPort.findUserDetailById(userId)
+            UserDbExtraEntity userDetail = userRepositoryPort.findUserDetailById(userId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
             return userDetail;
@@ -221,9 +221,9 @@ public class UserModule {
                 .toList();
 
         // ACC DB에서 사용자 정보 bulk 조회
-        Map<String, UserDetailEntity> userDetailMap = userRepositoryPort.findUserDetailsByIds(userIds)
+        Map<String, UserDbExtraEntity> userDetailMap = userRepositoryPort.findUserDetailsByIds(userIds)
                 .stream()
-                .collect(Collectors.toMap(UserDetailEntity::getUserId, entity -> entity));
+                .collect(Collectors.toMap(UserDbExtraEntity::getUserId, entity -> entity));
 
         Map<String, UserIdentityEntity> userAuthMap = userRepositoryPort.findUserAuthsByIds(userIds)
                 .stream()
@@ -242,11 +242,11 @@ public class UserModule {
      */
     private AdminListUsersResponse convertToAdminListResponse(
             UserKeystoneDto userKeystoneDto,
-            Map<String, UserDetailEntity> userDetailMap,
+            Map<String, UserDbExtraEntity> userDetailMap,
             Map<String, UserIdentityEntity> userAuthMap) {
 
         String userId = userKeystoneDto.id();
-        UserDetailEntity userDetail = userDetailMap.get(userId);
+        UserDbExtraEntity userDetail = userDetailMap.get(userId);
 
         // 미가입 사용자 또는 삭제된 사용자는 제외
         if (userDetail == null || userDetail.getIsDeleted()) {
@@ -292,10 +292,10 @@ public class UserModule {
     @Transactional
     public void adminDeleteUser(String userId, String adminToken) {
         // ACC DB에서 UserDetailEntity의 isDeleted를 true로 설정
-        UserDetailEntity userDetailEntity = userRepositoryPort.findUserDetailById(userId)
+        UserDbExtraEntity userDbExtraEntity = userRepositoryPort.findUserDetailById(userId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
-        UserDetailEntity deletedEntity = userDetailEntity.toBuilder()
+        UserDbExtraEntity deletedEntity = userDbExtraEntity.toBuilder()
                 .isDeleted(true)
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -377,7 +377,7 @@ public class UserModule {
     // 요청자의 UserId를 통해서 관리자인지 확인할 수 있는 메서드
     @Transactional
     public void isAdminUser(String requesterId) {
-        UserDetailEntity requesterDetail = userRepositoryPort.findUserDetailById(requesterId)
+        UserDbExtraEntity requesterDetail = userRepositoryPort.findUserDetailById(requesterId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "관리자 정보를 찾을 수 없습니다."));
 
         // 삭제된 사용자는 권한 없음

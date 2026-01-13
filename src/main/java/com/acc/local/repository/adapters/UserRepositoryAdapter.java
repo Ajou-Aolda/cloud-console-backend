@@ -1,6 +1,6 @@
 package com.acc.local.repository.adapters;
 
-import com.acc.local.entity.UserDetailEntity;
+import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
 import com.acc.local.repository.jpa.UserDetailJpaRepository;
 import com.acc.local.repository.jpa.UserAuthDetailJpaRepository;
@@ -21,8 +21,8 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     private final UserAuthDetailJpaRepository userAuthDetailJpaRepository;
 
     @Override
-    public UserDetailEntity saveUserDetail(UserDetailEntity userDetailEntity) {
-        return userDetailJpaRepository.save(userDetailEntity);
+    public UserDbExtraEntity saveUserDetail(UserDbExtraEntity userDbExtraEntity) {
+        return userDetailJpaRepository.save(userDbExtraEntity);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Optional<UserDetailEntity> findUserDetailById(String userId) {
+    public Optional<UserDbExtraEntity> findUserDetailById(String userId) {
         return userDetailJpaRepository.findById(userId);
     }
 
@@ -41,7 +41,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public List<UserDetailEntity> findUserDetailsByIds(List<String> userIds) {
+    public List<UserDbExtraEntity> findUserDetailsByIds(List<String> userIds) {
         return userDetailJpaRepository.findAllById(userIds);
     }
 
@@ -61,7 +61,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public List<UserDetailEntity> findUserByUserName(String userName) {
+    public List<UserDbExtraEntity> findUserByUserName(String userName) {
         return userDetailJpaRepository.findAllByUserName(userName);
     }
 }
