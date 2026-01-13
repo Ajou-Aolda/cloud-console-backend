@@ -47,6 +47,11 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
                                               List<String> securityGroupIds,
                                               String description) {
 
+        return callCreatePort(keystoneToken, networkId, portName, subnetId, securityGroupIds, description, true);
+    }
+
+    @Override
+    public Map<String, String> callCreatePort(String keystoneToken, String networkId, String portName, String subnetId, List<String> securityGroupIds, String description, boolean portSecurity) {
         try {
             ResponseEntity<JsonNode> response = portsAPIModule.createPort( keystoneToken,
                     CreatePortRequest.builder().port(
@@ -61,7 +66,7 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
                                             ) : null
                                     )
                                     .securityGroups(securityGroupIds)
-                                    .portSecurityEnabled(true)
+                                    .portSecurityEnabled(portSecurity)
                                     .description(description)
                                     .build()
                     ).build());
@@ -209,6 +214,10 @@ public class NeutronPortExternalAdapter implements NeutronPortExternalPort {
                     .network(hasNetwork ? ViewInterfacesResponse.Network.builder()
                                     .networkId(portsNode.get("network_id").asText())
                                     .networkName(networkName)
+                                    .subnetId(
+                                            portsNode.hasNonNull("fixed_ips") && !portsNode.get("fixed_ips").isEmpty() ?
+                                                    portsNode.get("fixed_ips").get(0).get("subnet_id").asText() : null
+                                    )
                                     .build() : null)
                     .internalIp(portsNode.hasNonNull("fixed_ips") && !portsNode.get("fixed_ips").isEmpty() ?
                             portsNode.get("fixed_ips").get(0).get("ip_address").asText() : null)
