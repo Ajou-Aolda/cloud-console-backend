@@ -7,8 +7,6 @@ import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.global.exception.auth.AuthServiceException;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.RoleAssignmentListResponse;
-import com.acc.local.domain.model.auth.UserAuthDetail;
-import com.acc.local.domain.model.auth.UserDetail;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;
@@ -55,13 +53,24 @@ public class UserModule {
         UserKeystoneDto createdUserKeystoneDto = keystoneAPIExternalPort.createUser(adminToken, newUserKeystoneDto);
         String userIdentityId = createdUserKeystoneDto.id();
 
-        // 2. UserDetail 도메인 모델 생성 및 저장
-        UserDetail userDetail = UserDetail.createForAdmin(userIdentityId, request);
-        UserDbExtraEntity userDbExtraEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
+        // 2. UserDbExtra Entity 생성 및 저장
+        UserDbExtraEntity userDbExtraEntity = UserDbExtraEntity.builder()
+                .userId(userIdentityId)
+                .userName(request.username())
+                .userPhoneNumber(request.phoneNumber())
+                .isAdmin(request.isAdmin())
+                .build();
+        userRepositoryPort.saveUserDetail(userDbExtraEntity);
 
-        // 3. UserAuthDetail 도메인 모델 생성 및 저장
-        UserAuthDetail userAuthDetail = UserAuthDetail.createForAdmin(userIdentityId, request);
-        userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDbExtraEntity));
+        // 3. UserIdentity Entity 생성 및 저장
+        UserIdentityEntity userIdentityEntity = UserIdentityEntity.builder()
+                .userId(userIdentityId)
+                .department(request.department())
+                .studentId(request.studentId())
+                .authType(request.authType().getCode())
+                .userEmail(request.email())
+                .build();
+        userRepositoryPort.saveUserAuth(userIdentityEntity);
 
         return userIdentityId;
     }

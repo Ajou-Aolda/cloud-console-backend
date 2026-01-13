@@ -24,8 +24,7 @@ import com.acc.local.entity.UserTokenEntity;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.repository.ports.RefreshTokenRepositoryPort;
 import com.acc.local.repository.ports.UserTokenRepositoryPort;
-import com.acc.local.domain.model.auth.UserDetail;
-import com.acc.local.domain.model.auth.UserAuthDetail;
+import com.acc.local.entity.UserIdentityEntity;
 
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
@@ -469,13 +468,24 @@ public class AuthModule {
             UserKeystoneDto createdUserKeystoneDto = keystoneAPIExternalPort.createUser(adminToken, createKeystoneUserRequest);
             String userId = createdUserKeystoneDto.id();
 
-            // 3. UserDetail 도메인 모델 생성 및 저장
-            UserDetail userDetail = UserDetail.createForSignup(userId,request);
-            UserDbExtraEntity userDbExtraEntity = userRepositoryPort.saveUserDetail(userDetail.toEntity());
+            // 2. UserDbExtra Entity 생성 및 저장
+            UserDbExtraEntity userDbExtraEntity = UserDbExtraEntity.builder()
+                    .userId(userId)
+                    .userName(request.username())
+                    .userPhoneNumber(request.phoneNumber())
+                    .isAdmin(false)
+                    .build();
+            userRepositoryPort.saveUserDetail(userDbExtraEntity);
 
-            // 4. UserAuthDetail 도메인 모델 생성 및 저장
-            UserAuthDetail userAuthDetail = UserAuthDetail.createForSignup(userId, request);
-            userRepositoryPort.saveUserAuth(userAuthDetail.toEntity(userDbExtraEntity));
+            // 3. UserIdentity Entity 생성 및 저장
+            UserIdentityEntity userIdentityEntity = UserIdentityEntity.builder()
+                    .userId(userId)
+                    .department(request.department())
+                    .studentId(request.studentId())
+                    .authType(request.authType().getCode())
+                    .userEmail(request.email())
+                    .build();
+            userRepositoryPort.saveUserAuth(userIdentityEntity);
 
             return userId;
 
