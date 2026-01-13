@@ -663,7 +663,7 @@ public interface InstanceDocs {
                             }
                     )
             )
-            InstanceActionRequest request
+            @RequestBody InstanceActionRequest request
     );
 
     @Operation(
