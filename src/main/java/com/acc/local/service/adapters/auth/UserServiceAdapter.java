@@ -3,6 +3,7 @@ package com.acc.local.service.adapters.auth;
 import com.acc.global.common.PageRequest;
 import com.acc.global.common.PageResponse;
 import com.acc.global.util.UserUtil;
+import com.acc.local.domain.model.auth.User;
 import com.acc.local.dto.auth.*;
 import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.service.modules.auth.AuthModule;
@@ -69,7 +70,21 @@ public class UserServiceAdapter implements UserServicePort {
 
         String adminToken = authModule.issueSystemAdminToken("admin-get-user");
         try {
-            return userModule.adminGetUser(userId, adminToken);
+            // Module에서 User 도메인 모델 조회
+            User user = userModule.getUserById(userId, adminToken);
+
+            // Adapter에서 User → DTO 변환
+            return AdminGetUserResponse.builder()
+                    .userId(user.getUserId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .department(user.getDepartment())
+                    .studentId(user.getStudentId())
+                    .phoneNumber(user.getPhoneNumber())
+                    .isEnabled(user.getIsEnabled())
+                    .isAdmin(user.getIsAdmin())
+                    .isDeleted(user.getIsDeleted())
+                    .build();
         } finally {
             authModule.invalidateSystemAdminToken(adminToken);
         }

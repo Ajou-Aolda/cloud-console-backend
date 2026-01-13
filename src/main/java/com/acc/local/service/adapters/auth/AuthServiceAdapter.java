@@ -1,7 +1,10 @@
 package com.acc.local.service.adapters.auth;
 
+import com.acc.global.exception.AccBaseException;
+import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.domain.model.auth.RefreshToken;
+import com.acc.local.domain.model.auth.User;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.dto.auth.*;
@@ -135,7 +138,18 @@ public class AuthServiceAdapter implements AuthServicePort {
     public LoginedUserProfileResponse getUserLoginedProfile(String userId, String projectId) {
         try {
             String adminToken = authModule.issueSystemAdminToken("ROOT_getUserLoginedProfile");
-            AdminGetUserResponse adminGetUserResponse = userModule.adminGetUserWithoutAuthInfoResponse(userId, adminToken);
+
+            // Module에서 User 도메인 모델 조회 (에러 시 null)
+            User user = null;
+            try {
+                user = userModule.getUserById(userId, adminToken);
+            } catch (AccBaseException e) {
+                if (!e.getErrorCode().equals(AuthErrorCode.USER_NOT_FOUND)) {
+                    throw e; // USER_NOT_FOUND가 아닌 다른 에러는 다시 throw
+                }
+                // USER_NOT_FOUND인 경우 null 유지
+            }
+
             authModule.invalidateSystemAdminToken(adminToken);
 
             // projectId가 존재하면 프로젝트 정보 조회
@@ -145,14 +159,16 @@ public class AuthServiceAdapter implements AuthServicePort {
                 projectServiceDto = projectModule.getProjectDetail(projectId, scopedToken);
             }
 
-            if (adminGetUserResponse != null) {
+            // User 객체를 사용해서 LoginedUserProfileResponse 생성
+            if (user != null) {
                 return LoginedUserProfileResponse.builder()
-                    .userName(adminGetUserResponse.username())
-                    .univ(UnivDepartBriefDto.from(adminGetUserResponse))
+                    .userName(user.getUsername())
+                    .univ(UnivDepartBriefDto.from(user))
                     .project(projectServiceDto)
                     .build();
             }
 
+            // User가 없으면 UserDbExtraEntity로 fallback
             UserDbExtraEntity userDbExtraEntity = userModule.adminGetUserDetailDB(userId);
             return LoginedUserProfileResponse.builder()
                 .userName(userDbExtraEntity.getUserName())

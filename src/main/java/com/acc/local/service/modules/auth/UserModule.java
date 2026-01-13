@@ -11,7 +11,6 @@ import com.acc.local.domain.model.auth.User;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.repository.dto.UserDBDto;
 import com.acc.local.dto.auth.AdminCreateUserRequest;
-import com.acc.local.dto.auth.AdminGetUserResponse;
 import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
 import com.acc.local.entity.UserDbExtraEntity;
@@ -126,35 +125,6 @@ public class UserModule {
         return userId;
     }
 
-    /**
-     * 관리자 사용자 상세 조회
-     * System Admin 권한으로 Keystone 사용자 조회 및 ACC DB 정보 병합
-     */
-    @Transactional(readOnly = true)
-    public AdminGetUserResponse adminGetUser(String userId, String adminToken) {
-        // 1. Keystone에서 사용자 정보 조회
-        UserKeystoneDto userKeystoneDto = keystoneAPIExternalPort.getUserDetail(userId, adminToken);
-
-        // 2. ACC DB에서 추가 정보 조회
-        UserDbExtraEntity userDetail = userRepositoryPort.findUserDetailById(userId)
-                .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
-
-        UserIdentityEntity userAuth = userRepositoryPort.findUserAuthById(userId)
-                .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 인증 정보를 찾을 수 없습니다."));
-
-        // 4. 병합하여 반환
-        return AdminGetUserResponse.builder()
-                .userId(userKeystoneDto.id())
-                .username(userDetail.getUserName())
-                .email(userAuth.getUserEmail())
-                .department(userAuth.getDepartment())
-                .studentId(userAuth.getStudentId())
-                .phoneNumber(userDetail.getUserPhoneNumber())
-                .isEnabled(userKeystoneDto.enabled())
-                .isAdmin(userDetail.getIsAdmin())
-                .isDeleted(userDetail.getIsDeleted())
-                .build();
-    }
 
     public UserDbExtraEntity adminGetUserDetailDB(String userId) {
         try {
@@ -171,16 +141,6 @@ public class UserModule {
         }
     }
 
-    public AdminGetUserResponse adminGetUserWithoutAuthInfoResponse(String userId, String adminToken) {
-        try {
-            return adminGetUser(userId, adminToken);
-        } catch (AccBaseException e) {
-            if (e.getErrorCode().equals(AuthErrorCode.USER_NOT_FOUND)) {
-                return null;
-            }
-            throw e;
-        }
-    }
 
     /**
      * 관리자 사용자 목록 조회
