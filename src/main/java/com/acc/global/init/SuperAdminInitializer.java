@@ -1,7 +1,7 @@
 package com.acc.global.init;
 
 import com.acc.global.properties.SuperAdminProperties;
-import com.acc.local.entity.UserAuthDetailEntity;
+import com.acc.local.entity.UserIdentityEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.repository.jpa.UserAuthDetailJpaRepository;
 import com.acc.local.repository.jpa.UserDetailJpaRepository;
@@ -38,7 +38,7 @@ public class SuperAdminInitializer implements ApplicationRunner {
 
     private void registerSuperAdminUserDepartInfo(String userId) {
         userAuthDetailJpaRepository.save(
-            UserAuthDetailEntity.builder()
+            UserIdentityEntity.builder()
                 .userId(userId)
                 .department("관리자_기본입력값")
                 .authType(2)

@@ -14,17 +14,15 @@ import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;
 import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
-import com.acc.local.entity.UserAuthDetailEntity;
+import com.acc.local.entity.UserIdentityEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.external.dto.keystone.CreateKeystoneUserRequest;
 import com.acc.local.external.dto.keystone.UpdateKeystoneUserRequest;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.acc.local.repository.ports.UserRepositoryPort;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,10 +98,10 @@ public class UserModule {
 
         // UserAuthDetailEntity 업데이트
         if (request.department() != null || request.studentId() != null || request.email() != null) {
-            UserAuthDetailEntity userAuthEntity = userRepositoryPort.findUserAuthById(userId)
+            UserIdentityEntity userAuthEntity = userRepositoryPort.findUserAuthById(userId)
                     .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 인증 정보를 찾을 수 없습니다."));
 
-            UserAuthDetailEntity updatedAuthEntity = UserAuthDetailEntity.builder()
+            UserIdentityEntity updatedAuthEntity = UserIdentityEntity.builder()
                     .userId(userAuthEntity.getUserId())
                     .department(request.department() != null ? request.department() : userAuthEntity.getDepartment())
                     .studentId(request.studentId() != null ? request.studentId() : userAuthEntity.getStudentId())
@@ -130,7 +128,7 @@ public class UserModule {
         UserDetailEntity userDetail = userRepositoryPort.findUserDetailById(userId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
-        UserAuthDetailEntity userAuth = userRepositoryPort.findUserAuthById(userId)
+        UserIdentityEntity userAuth = userRepositoryPort.findUserAuthById(userId)
                 .orElseThrow(() -> new AuthServiceException(AuthErrorCode.USER_NOT_FOUND, "사용자 인증 정보를 찾을 수 없습니다."));
 
         // 4. 병합하여 반환
@@ -227,9 +225,9 @@ public class UserModule {
                 .stream()
                 .collect(Collectors.toMap(UserDetailEntity::getUserId, entity -> entity));
 
-        Map<String, UserAuthDetailEntity> userAuthMap = userRepositoryPort.findUserAuthsByIds(userIds)
+        Map<String, UserIdentityEntity> userAuthMap = userRepositoryPort.findUserAuthsByIds(userIds)
                 .stream()
-                .collect(Collectors.toMap(UserAuthDetailEntity::getUserId, entity -> entity));
+                .collect(Collectors.toMap(UserIdentityEntity::getUserId, entity -> entity));
 
         // 필터링 및 변환
         return userKeystoneDtos.stream()
@@ -245,7 +243,7 @@ public class UserModule {
     private AdminListUsersResponse convertToAdminListResponse(
             UserKeystoneDto userKeystoneDto,
             Map<String, UserDetailEntity> userDetailMap,
-            Map<String, UserAuthDetailEntity> userAuthMap) {
+            Map<String, UserIdentityEntity> userAuthMap) {
 
         String userId = userKeystoneDto.id();
         UserDetailEntity userDetail = userDetailMap.get(userId);
@@ -255,7 +253,7 @@ public class UserModule {
             return null;
         }
 
-        UserAuthDetailEntity userAuth = userAuthMap.get(userId);
+        UserIdentityEntity userAuth = userAuthMap.get(userId);
 
         return AdminListUsersResponse.builder()
                 .userId(userId)

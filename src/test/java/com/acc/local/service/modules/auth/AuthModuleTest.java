@@ -11,10 +11,9 @@ import com.acc.local.dto.auth.KeystonePasswordLoginRequest;
 import com.acc.local.dto.auth.KeystoneToken;
 import com.acc.local.dto.auth.SignupRequest;
 import com.acc.local.entity.RefreshTokenEntity;
-import com.acc.local.entity.UserAuthDetailEntity;
+import com.acc.local.entity.UserIdentityEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.entity.UserTokenEntity;
-import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
 import com.acc.local.repository.ports.UserTokenRepositoryPort;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,7 +33,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -755,7 +753,7 @@ class AuthModuleTest {
         when(userRepositoryPort.saveUserDetail(any(UserDetailEntity.class)))
                 .thenReturn(savedUserDetail);
 
-        UserAuthDetailEntity savedUserAuthDetail = UserAuthDetailEntity.builder()
+        UserIdentityEntity savedUserAuthDetail = UserIdentityEntity.builder()
                 .userId(createdUserId)
                 // .user(savedUserDetail)
                 .department("컴퓨터공학과")
@@ -763,7 +761,7 @@ class AuthModuleTest {
                 .authType(0) // GOOGLE
                 .userEmail("hong@example.com")
                 .build();
-        when(userRepositoryPort.saveUserAuth(any(UserAuthDetailEntity.class)))
+        when(userRepositoryPort.saveUserAuth(any(UserIdentityEntity.class)))
                 .thenReturn(savedUserAuthDetail);
 
         when(keystoneAPIExternalPort.getTokenObject(any())).thenReturn(
@@ -780,7 +778,7 @@ class AuthModuleTest {
         assertEquals(createdUserId, resultUserId);
         verify(keystoneAPIExternalPort).createUser(eq(adminToken), any());
         verify(userRepositoryPort).saveUserDetail(any(UserDetailEntity.class));
-        verify(userRepositoryPort).saveUserAuth(any(UserAuthDetailEntity.class));
+        verify(userRepositoryPort).saveUserAuth(any(UserIdentityEntity.class));
         verify(keystoneAPIExternalPort).revokeToken(adminToken);
     }
 }

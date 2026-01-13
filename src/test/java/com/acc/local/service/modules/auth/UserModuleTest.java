@@ -11,7 +11,7 @@ import com.acc.local.dto.auth.AdminCreateUserRequest;
 import com.acc.local.dto.auth.AdminGetUserResponse;
 import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
-import com.acc.local.entity.UserAuthDetailEntity;
+import com.acc.local.entity.UserIdentityEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.external.modules.keystone.KeystoneAPIUtils;
 import com.acc.local.external.ports.KeystoneAPIExternalPort;
@@ -99,7 +99,7 @@ class UserModuleTest {
                             .build());
 
             when(userRepositoryPort.saveUserAuth(any()))
-                    .thenReturn(UserAuthDetailEntity.builder()
+                    .thenReturn(UserIdentityEntity.builder()
                             .userId(newUserId)
                             .department("컴퓨터공학과")
                             .studentId("2021123")
@@ -154,7 +154,7 @@ class UserModuleTest {
 
         when(userRepositoryPort.findUserAuthById(userId))
                 .thenReturn(Optional.of(
-                        UserAuthDetailEntity.builder()
+                        UserIdentityEntity.builder()
                                 .userId(userId)
                                 .department("old")
                                 .studentId("old")
@@ -207,7 +207,7 @@ class UserModuleTest {
 
             when(userRepositoryPort.findUserAuthById(userId))
                     .thenReturn(Optional.of(
-                            UserAuthDetailEntity.builder()
+                            UserIdentityEntity.builder()
                                     .userId("uid-1")
                                     .department("소프트웨어")
                                     .studentId("2021333")
