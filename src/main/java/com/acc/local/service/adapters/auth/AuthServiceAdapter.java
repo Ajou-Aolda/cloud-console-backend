@@ -11,7 +11,6 @@ import com.acc.local.dto.auth.*;
 import com.acc.local.dto.project.ProjectServiceDto;
 import com.acc.local.dto.project.UserPermissionResponse;
 import com.acc.local.entity.UserDbExtraEntity;
-import com.acc.local.repository.ports.UserRepositoryPort;
 import com.acc.local.service.modules.auth.AuthModule;
 import com.acc.local.service.modules.auth.ProjectModule;
 import com.acc.local.service.modules.auth.UserModule;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 public class AuthServiceAdapter implements AuthServicePort {
 
     private final AuthModule authModule;
-    private final UserRepositoryPort userRepositoryPort;
     private final UserModule userModule;
     private final ProjectModule projectModule;
 
