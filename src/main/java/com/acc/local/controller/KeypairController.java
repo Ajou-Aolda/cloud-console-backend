@@ -24,7 +24,8 @@ public class KeypairController implements KeypairDocs {
     public ResponseEntity<PageResponse<KeypairListResponse>> getKeypairs(Authentication authentication, PageRequest page, String projectId) {
         JwtInfo jwtInfo = (JwtInfo) authentication.getPrincipal();
         String userId = jwtInfo.getUserId();
-        PageResponse<KeypairListResponse> response = keypairServicePort.getKeypairs(page, projectId, userId);
+
+        PageResponse<KeypairListResponse> response = keypairServicePort.getKeypairs(page, userId, projectId);
         return ResponseEntity.ok(response);
     }
 

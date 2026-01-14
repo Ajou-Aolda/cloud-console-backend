@@ -25,26 +25,27 @@ public class KeypairServiceAdapter implements KeypairServicePort {
     private final AuthModule authModule;
 
     @Override
-    public PageResponse<KeypairListResponse> getKeypairs(PageRequest page, String projectId, String userId) {
+    public PageResponse<KeypairListResponse> getKeypairs(PageRequest page, String userId, String projectId) {
         return keypairModule.getKeypairs(
+                userId,
                 projectId,
                 page.getMarker(),
                 page.getDirection().name().equals("prev") ? "prev" : "next",
-                page.getLimit(), userId);
+                page.getLimit());
     }
 
     @Override
     public CreateKeypairResponse createKeypair(CreateKeypairRequest request, String userId, String projectId) {
         String keystoneToken = authModule.issueProjectScopeToken(projectId, userId);
-        // TODO : Quota 검증
+
         if (!keypairUtil.validateKeypairName(request.getKeypairName())) {
             throw new KeypairException(KeypairErrorCode.INVALID_KEYPAIR_NAME);
         }
-        return keypairModule.createKeypair(request, keystoneToken, projectId, userId);
+        return keypairModule.createKeypair(request, keystoneToken, userId, projectId);
     }
 
     @Override
     public void deleteKeypair(String keypairId, String userId, String projectId) {
-        keypairModule.deleteKeypair(keypairId, projectId, userId);
+        keypairModule.deleteKeypair(keypairId, userId, projectId);
     }
 }

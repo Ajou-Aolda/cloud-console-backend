@@ -38,13 +38,22 @@ public class KeypairModule {
     private final KeypairExternalPort keypairExternalPort;
     private final AuthModule authModule;
     private final UserRepositoryPort userRepositoryPort;
+//    private final ProjectParticipantRepositoryPort projectParticipantRepositoryPort;
 
-    public PageResponse<KeypairListResponse> getKeypairs(String projectId, String marker, String direction, int limit) {
+    public PageResponse<KeypairListResponse> getKeypairs(String userId, String projectId, String marker, String direction, int limit) {
+        // 프로젝트 멤버 확인
+//        projectParticipantRepositoryPort.findByProjectIdAndParticipantId(projectId, userId)
+//                .orElseThrow(() -> new KeypairException(KeypairErrorCode.USER_NOT_PROJECT_MEMBER));
+
         return keypairRepositoryPort.findKeypairsByProjectId(projectId, marker, direction, limit);
     }
 
     @Transactional
-    public CreateKeypairResponse createKeypair(CreateKeypairRequest request, String keystoneToken, String projectId, String userId) {
+    public CreateKeypairResponse createKeypair(CreateKeypairRequest request, String keystoneToken, String userId, String projectId) {
+        // 프로젝트 멤버 확인
+//        projectParticipantRepositoryPort.findByProjectIdAndParticipantId(projectId, userId)
+//                .orElseThrow(() -> new KeypairException(KeypairErrorCode.USER_NOT_PROJECT_MEMBER));
+
         // 프로젝트 존재 여부 확인
         ProjectEntity project = projectRepositoryPort.findById(projectId)
                 .orElseThrow(() -> new KeystoneException(KeypairErrorCode.DB_PROJECT_NOT_FOUND));
@@ -81,8 +90,12 @@ public class KeypairModule {
     }
 
     @Transactional
-    public void deleteKeypair(String keypairId, String projectId, String requestUserId) {
-        // 1. Keypair 조회
+    public void deleteKeypair(String keypairId, String userId, String projectId) {
+        // 프로젝트 멤버 확인
+//        projectParticipantRepositoryPort.findByProjectIdAndParticipantId(projectId, userId)
+//                .orElseThrow(() -> new KeypairException(KeypairErrorCode.USER_NOT_PROJECT_MEMBER));
+
+        // Keypair 조회
         KeypairProjectId keypairProjectId = new KeypairProjectId(keypairId, projectId);
         KeypairEntity keypair = keypairRepositoryPort.findById(keypairProjectId)
                 .orElseThrow(() -> new KeypairException(KeypairErrorCode.DB_KEYPAIR_NOT_FOUND));
