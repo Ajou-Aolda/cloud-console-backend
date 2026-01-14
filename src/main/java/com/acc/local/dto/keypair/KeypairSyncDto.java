@@ -2,6 +2,7 @@ package com.acc.local.dto.keypair;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Keypair 동기화를 위한 DTO
@@ -9,6 +10,7 @@ import lombok.Getter;
  */
 @Getter
 @Builder(toBuilder = true)
+@ToString
 public class KeypairSyncDto {
 
     private String name; // 프로젝트 내 유일

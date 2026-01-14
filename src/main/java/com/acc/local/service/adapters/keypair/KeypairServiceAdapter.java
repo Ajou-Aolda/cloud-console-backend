@@ -25,12 +25,12 @@ public class KeypairServiceAdapter implements KeypairServicePort {
     private final AuthModule authModule;
 
     @Override
-    public PageResponse<KeypairListResponse> getKeypairs(PageRequest page, String projectId) {
+    public PageResponse<KeypairListResponse> getKeypairs(PageRequest page, String projectId, String userId) {
         return keypairModule.getKeypairs(
                 projectId,
                 page.getMarker(),
                 page.getDirection().name().equals("prev") ? "prev" : "next",
-                page.getLimit());
+                page.getLimit(), userId);
     }
 
     @Override

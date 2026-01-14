@@ -9,6 +9,7 @@ import com.acc.global.exception.keypair.KeypairExternalException;
 import com.acc.local.dto.keypair.CreateKeypairRequest;
 import com.acc.local.dto.keypair.CreateKeypairResponse;
 import com.acc.local.dto.keypair.KeypairListResponse;
+import com.acc.local.dto.keypair.KeypairSyncDto;
 import com.acc.local.entity.KeypairEntity;
 import com.acc.local.entity.UserDetailEntity;
 import com.acc.local.entity.id.KeypairProjectId;
@@ -24,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -35,7 +38,6 @@ public class KeypairModule {
     private final KeypairExternalPort keypairExternalPort;
     private final AuthModule authModule;
     private final UserRepositoryPort userRepositoryPort;
-    private final ProjectParticipantRepositoryPort projectParticipantRepositoryPort;
 
     public PageResponse<KeypairListResponse> getKeypairs(String projectId, String marker, String direction, int limit) {
         return keypairRepositoryPort.findKeypairsByProjectId(projectId, marker, direction, limit);
@@ -43,22 +45,18 @@ public class KeypairModule {
 
     @Transactional
     public CreateKeypairResponse createKeypair(CreateKeypairRequest request, String keystoneToken, String projectId, String userId) {
-        // 1. 프로젝트 존재 여부 확인
+        // 프로젝트 존재 여부 확인
         ProjectEntity project = projectRepositoryPort.findById(projectId)
                 .orElseThrow(() -> new KeystoneException(KeypairErrorCode.DB_PROJECT_NOT_FOUND));
 
-        // 2. 사용자가 해당 프로젝트의 멤버인지 검증
-        projectParticipantRepositoryPort.findByProjectIdAndParticipantId(projectId, userId)
-                .orElseThrow(() -> new KeypairException(KeypairErrorCode.USER_NOT_PROJECT_MEMBER));
-
-        // 3. 사용자 정보 조회
+        // 사용자 정보 조회
         UserDetailEntity user = userRepositoryPort.findUserDetailById(userId)
                 .orElseThrow(() -> new KeypairException(KeypairErrorCode.USER_NOT_FOUND));
 
-        // 4. OpenStack에 Keypair 생성
+        // OpenStack에 Keypair 생성
         CreateKeypairResponse response = keypairExternalPort.createKeypair(keystoneToken, request);
 
-        // 5. DB에 저장
+        // DB에 저장
         try {
             KeypairEntity keypairEntity = KeypairEntity.builder()
                     .keypairId(response.getFingerprint())
@@ -89,14 +87,10 @@ public class KeypairModule {
         KeypairEntity keypair = keypairRepositoryPort.findById(keypairProjectId)
                 .orElseThrow(() -> new KeypairException(KeypairErrorCode.DB_KEYPAIR_NOT_FOUND));
 
-        // 2. 요청자가 해당 프로젝트의 멤버인지 검증
-        projectParticipantRepositoryPort.findByProjectIdAndParticipantId(projectId, requestUserId)
-                .orElseThrow(() -> new KeypairException(KeypairErrorCode.USER_NOT_PROJECT_MEMBER));
-
-        // 3. DB에서 삭제 (트랜잭션 롤백 대상)
+        // DB에서 삭제 (트랜잭션 롤백 대상)
         keypairRepositoryPort.delete(keypair);
 
-        // 4. OpenStack API 삭제 시도 - 해당 키페어 소유자의 토큰 사용
+        // OpenStack API 삭제 시도 - 해당 키페어 소유자의 토큰 사용
         String ownerUserId = keypair.getUser().getUserId();
         String ownerToken = authModule.issueProjectScopeToken(projectId, ownerUserId);
 
