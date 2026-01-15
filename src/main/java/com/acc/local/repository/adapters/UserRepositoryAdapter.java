@@ -72,4 +72,9 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     public Optional<UserDBDto> findUserDBByUserId(String userId) {
         return userQueryDSLModule.findUserByUserId(userId);
     }
+
+    @Override
+    public List<UserDBDto> findUserDBsByUserIds(List<String> userIds) {
+        return userQueryDSLModule.findUsersByUserIds(userIds);
+    }
 }

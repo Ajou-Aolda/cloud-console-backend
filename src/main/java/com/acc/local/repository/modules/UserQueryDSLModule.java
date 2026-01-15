@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -40,5 +41,27 @@ public class UserQueryDSLModule {
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    /**
+     * 여러 userId로 User 관련 정보를 조인하여 bulk 조회
+     * UserIdentity와 UserDbExtra를 inner join으로 조회
+     * 삭제되지 않은 사용자만 반환
+     *
+     * @param userIds 조회할 사용자 ID 목록
+     * @return UserDBDto 리스트 (UserIdentity + UserDbExtra)
+     */
+    public List<UserDBDto> findUsersByUserIds(List<String> userIds) {
+        return queryFactory
+                .select(Projections.constructor(UserDBDto.class,
+                        userIdentity,
+                        userDbExtra))
+                .from(userIdentity)
+                .innerJoin(userDbExtra).on(userIdentity.userId.eq(userDbExtra.userId))
+                .where(
+                        userIdentity.userId.in(userIds),
+                        userDbExtra.isDeleted.eq(false)  // 삭제되지 않은 사용자만
+                )
+                .fetch();
     }
 }

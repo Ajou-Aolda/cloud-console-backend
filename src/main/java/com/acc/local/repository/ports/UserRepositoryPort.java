@@ -32,4 +32,11 @@ public interface UserRepositoryPort {
      * UserIdentity와 UserDbExtra를 inner join으로 조회
      */
     Optional<UserDBDto> findUserDBByUserId(String userId);
+
+    /**
+     * 여러 userId로 User 관련 정보를 조인하여 bulk 조회
+     * UserIdentity와 UserDbExtra를 inner join으로 조회
+     * 삭제되지 않은 사용자만 반환
+     */
+    List<UserDBDto> findUserDBsByUserIds(List<String> userIds);
 }

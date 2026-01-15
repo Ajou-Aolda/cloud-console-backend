@@ -9,7 +9,6 @@ import com.acc.local.domain.model.auth.User;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.dto.auth.AdminCreateUserRequest;
-import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
 import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
@@ -246,33 +245,94 @@ class UserModuleTest {
     // 사용자 목록 조회
     // ----------------------------------------------------
     @Test
-    @DisplayName("관리자는 사용자 목록을 조회(LIST USERS)한다.")
-    void whenListUsers_thenReturnPage() throws Exception {
+    @DisplayName("관리자는 사용자 목록을 조회하여 User 도메인 모델 목록을 반환한다.")
+    void whenListUsers_thenReturnPageOfUsers() throws Exception {
 
+        // given
         PageRequest req = new PageRequest();
         req.setMarker(null);
         req.setLimit(10);
 
-        UserKeystoneDto u1 = UserKeystoneDto.builder().id("u1").name("user1@ajou.ac.kr").enabled(true).defaultProjectId("p1").build();
-        UserKeystoneDto u2 = UserKeystoneDto.builder().id("u2").name("user2@ajou.ac.kr").enabled(false).build();
+        UserKeystoneDto u1 = UserKeystoneDto.builder()
+                .id("u1")
+                .name("user1@ajou.ac.kr")
+                .enabled(true)
+                .defaultProjectId("p1")
+                .build();
+        UserKeystoneDto u2 = UserKeystoneDto.builder()
+                .id("u2")
+                .name("user2@ajou.ac.kr")
+                .enabled(false)
+                .build();
 
-        UserListResponse list = UserListResponse.builder()
+        UserListResponse keystoneResponse = UserListResponse.builder()
                 .userKeystoneDtos(List.of(u1, u2))
-                .nextMarker("u2")
+                .nextMarker(null)
                 .prevMarker(null)
                 .build();
 
         when(keystoneAPIExternalPort.listUsers(anyString(), any(), anyInt()))
-                .thenReturn(list);
+                .thenReturn(keystoneResponse);
+
+        // DB에서 조회될 UserDBDto 목록 설정
+        UserDbExtraEntity dbExtra1 = UserDbExtraEntity.builder()
+                .userId("u1")
+                .userName("홍길동")
+                .userPhoneNumber("01011111111")
+                .isAdmin(false)
+                .isDeleted(false)
+                .build();
+        UserIdentityEntity identity1 = UserIdentityEntity.builder()
+                .userId("u1")
+                .department("컴퓨터공학과")
+                .studentId("2021001")
+                .authType(0)
+                .userEmail("user1@ajou.ac.kr")
+                .build();
+
+        UserDbExtraEntity dbExtra2 = UserDbExtraEntity.builder()
+                .userId("u2")
+                .userName("김철수")
+                .userPhoneNumber("01022222222")
+                .isAdmin(true)
+                .isDeleted(false)
+                .build();
+        UserIdentityEntity identity2 = UserIdentityEntity.builder()
+                .userId("u2")
+                .department("소프트웨어학과")
+                .studentId("2021002")
+                .authType(1)
+                .userEmail("user2@ajou.ac.kr")
+                .build();
+
+        List<UserDBDto> userDBDtos = List.of(
+                new UserDBDto(identity1, dbExtra1),
+                new UserDBDto(identity2, dbExtra2)
+        );
+
+        when(userRepositoryPort.findUserDBsByUserIds(List.of("u1", "u2")))
+                .thenReturn(userDBDtos);
 
         // when
-        PageResponse<AdminListUsersResponse> result =
-                userModule.adminListUsers(req, "admin-token");
+        PageResponse<User> result = userModule.adminListUsers(req, "admin-token");
 
         // then
         assertEquals(2, result.getContents().size());
-        assertEquals("u2", result.getNextMarker());
+
+        User firstUser = result.getContents().get(0);
+        assertEquals("u1", firstUser.getUserId());
+        assertEquals("홍길동", firstUser.getUsername());
+        assertEquals("user1@ajou.ac.kr", firstUser.getEmail());
+        assertEquals("컴퓨터공학과", firstUser.getDepartment());
+        assertEquals(true, firstUser.getIsEnabled());
+
+        User secondUser = result.getContents().get(1);
+        assertEquals("u2", secondUser.getUserId());
+        assertEquals("김철수", secondUser.getUsername());
+        assertEquals(true, secondUser.getIsAdmin());
+
         verify(keystoneAPIExternalPort).listUsers(anyString(), any(), anyInt());
+        verify(userRepositoryPort).findUserDBsByUserIds(anyList());
     }
 
 

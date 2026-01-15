@@ -11,7 +11,6 @@ import com.acc.local.domain.model.auth.User;
 import com.acc.local.domain.model.auth.UserListResponse;
 import com.acc.local.repository.dto.UserDBDto;
 import com.acc.local.dto.auth.AdminCreateUserRequest;
-import com.acc.local.dto.auth.AdminListUsersResponse;
 import com.acc.local.dto.auth.AdminUpdateUserRequest;
 import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.entity.UserIdentityEntity;
@@ -148,8 +147,8 @@ public class UserModule {
      * 필터링(미가입/삭제 제외) 후에도 요청한 개수를 채우기 위해 반복 조회
      */
     @Transactional(readOnly = true)
-    public PageResponse<AdminListUsersResponse> adminListUsers(PageRequest page, String adminToken) {
-        List<AdminListUsersResponse> validUsers = new ArrayList<>();
+    public PageResponse<User> adminListUsers(PageRequest page, String adminToken) {
+        List<User> validUsers = new ArrayList<>();
         String currentMarker = page.getMarker();
         String lastNextMarker = null;
 
@@ -159,8 +158,8 @@ public class UserModule {
                     adminToken, currentMarker, page.getLimit()
             );
 
-            // Keystone 사용자들을 필터링하여 유효한 사용자만 추가
-            List<AdminListUsersResponse> filtered = filterAndConvertUsers(keystoneResponse.getUserKeystoneDtos());
+            // Keystone 사용자들을 필터링하여 User 도메인 모델로 변환
+            List<User> filtered = filterAndConvertToUsers(keystoneResponse.getUserKeystoneDtos());
             validUsers.addAll(filtered);
 
             lastNextMarker = keystoneResponse.getNextMarker();
@@ -179,74 +178,57 @@ public class UserModule {
             currentMarker = lastNextMarker;
         }
 
-        return buildPageResponse(validUsers, page.getMarker(), lastNextMarker);
+        return buildUserPageResponse(validUsers, page.getMarker(), lastNextMarker);
     }
 
     /**
-     * Keystone 사용자 목록을 필터링하고 DTO로 변환
+     * Keystone 사용자 목록을 필터링하고 User 도메인 모델로 변환
      * 미가입 사용자 및 삭제된 사용자 제외
      */
-    private List<AdminListUsersResponse> filterAndConvertUsers(List<UserKeystoneDto> userKeystoneDtos) {
+    private List<User> filterAndConvertToUsers(List<UserKeystoneDto> userKeystoneDtos) {
         List<String> userIds = userKeystoneDtos.stream()
                 .map(UserKeystoneDto::id)
                 .toList();
 
-        // ACC DB에서 사용자 정보 bulk 조회
-        Map<String, UserDbExtraEntity> userDetailMap = userRepositoryPort.findUserDetailsByIds(userIds)
-                .stream()
-                .collect(Collectors.toMap(UserDbExtraEntity::getUserId, entity -> entity));
+        // ACC DB에서 사용자 정보 bulk 조회 (JOIN 쿼리 1번)
+        // 이미 삭제되지 않은 사용자만 필터링되어 반환됨
+        List<UserDBDto> userDBDtos = userRepositoryPort.findUserDBsByUserIds(userIds);
 
-        Map<String, UserIdentityEntity> userAuthMap = userRepositoryPort.findUserAuthsByIds(userIds)
-                .stream()
-                .collect(Collectors.toMap(UserIdentityEntity::getUserId, entity -> entity));
+        // UserDBDto를 Map으로 변환 (빠른 조회를 위해)
+        Map<String, UserDBDto> userDBMap = userDBDtos.stream()
+                .collect(Collectors.toMap(UserDBDto::getUserId, dto -> dto));
 
-        // 필터링 및 변환
+        // Keystone 데이터와 DB 데이터를 결합하여 User 생성
         return userKeystoneDtos.stream()
-                .map(keystoneUser -> convertToAdminListResponse(keystoneUser, userDetailMap, userAuthMap))
-                .filter(response -> response != null)
+                .map(keystoneUser -> {
+                    String userId = keystoneUser.id();
+                    UserDBDto userDBDto = userDBMap.get(userId);
+
+                    // DB에 없거나 삭제된 사용자는 제외
+                    if (userDBDto == null) {
+                        return null;
+                    }
+
+                    // User 도메인 모델 생성
+                    return User.from(
+                            keystoneUser,
+                            userDBDto.userDbExtra(),
+                            userDBDto.userIdentity()
+                    );
+                })
+                .filter(user -> user != null)
                 .toList();
     }
 
     /**
-     * Keystone 사용자를 AdminListUsersResponse로 변환
-     * 미가입 또는 삭제된 사용자는 null 반환
+     * 페이지 응답 객체 생성 (User 도메인 모델용)
      */
-    private AdminListUsersResponse convertToAdminListResponse(
-            UserKeystoneDto userKeystoneDto,
-            Map<String, UserDbExtraEntity> userDetailMap,
-            Map<String, UserIdentityEntity> userAuthMap) {
-
-        String userId = userKeystoneDto.id();
-        UserDbExtraEntity userDetail = userDetailMap.get(userId);
-
-        // 미가입 사용자 또는 삭제된 사용자는 제외
-        if (userDetail == null || userDetail.getIsDeleted()) {
-            return null;
-        }
-
-        UserIdentityEntity userAuth = userAuthMap.get(userId);
-
-        return AdminListUsersResponse.builder()
-                .userId(userId)
-                .username(userDetail.getUserName())
-                .isAdmin(userDetail.getIsAdmin())
-                .email(userAuth != null ? userAuth.getUserEmail() : null)
-                .phoneNumber(userDetail.getUserPhoneNumber())
-                .department(userAuth != null ? userAuth.getDepartment() : null)
-                .enabled(userKeystoneDto.enabled())
-                .defaultProjectName(null)
-                .build();
-    }
-
-    /**
-     * 페이지 응답 객체 생성
-     */
-    private PageResponse<AdminListUsersResponse> buildPageResponse(
-            List<AdminListUsersResponse> users,
+    private PageResponse<User> buildUserPageResponse(
+            List<User> users,
             String requestMarker,
             String nextMarker) {
 
-        return PageResponse.<AdminListUsersResponse>builder()
+        return PageResponse.<User>builder()
                 .contents(users)
                 .first(requestMarker == null || requestMarker.isEmpty())
                 .last(nextMarker == null)
@@ -280,8 +262,8 @@ public class UserModule {
      * 기존 listUsers API 대비 효율적으로 권한 정보를 함께 조회
      */
     @Transactional(readOnly = true)
-    public PageResponse<AdminListUsersResponse> adminListUsersViaRoleAssignments(PageRequest page, String adminToken) {
-        List<AdminListUsersResponse> validUsers = new ArrayList<>();
+    public PageResponse<User> adminListUsersViaRoleAssignments(PageRequest page, String adminToken) {
+        List<User> validUsers = new ArrayList<>();
         String currentMarker = page.getMarker();
         String lastNextMarker = null;
 
@@ -298,8 +280,8 @@ public class UserModule {
             // 2. role assignments에서 KeystoneUser 목록 추출 (중복 제거)
             List<UserKeystoneDto> userKeystoneDtos = convertRoleAssignmentsToKeystoneUsers(roleAssignmentResponse);
 
-            // 3. ACC DB에서 해당 사용자들의 정보를 bulk 조회하여 필터링
-            List<AdminListUsersResponse> filtered = filterAndConvertUsers(userKeystoneDtos);
+            // 3. ACC DB에서 해당 사용자들의 정보를 bulk 조회하여 User 도메인 모델로 변환
+            List<User> filtered = filterAndConvertToUsers(userKeystoneDtos);
             validUsers.addAll(filtered);
 
             lastNextMarker = roleAssignmentResponse.getNextMarker();
@@ -318,7 +300,7 @@ public class UserModule {
             currentMarker = lastNextMarker;
         }
 
-        return buildPageResponse(validUsers, page.getMarker(), lastNextMarker);
+        return buildUserPageResponse(validUsers, page.getMarker(), lastNextMarker);
     }
 
     /**

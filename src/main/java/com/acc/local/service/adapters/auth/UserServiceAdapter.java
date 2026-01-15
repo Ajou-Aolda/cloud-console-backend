@@ -98,8 +98,21 @@ public class UserServiceAdapter implements UserServicePort {
 
         String adminToken = authModule.issueSystemAdminToken("admin-list-users");
         try {
-            // 기존 listUsers API 사용 (모든 사용자 조회)
-            return userModule.adminListUsers(page, adminToken);
+            // Module에서 PageResponse<User> 받기
+            PageResponse<User> userPage = userModule.adminListUsers(page, adminToken);
+
+            // map() 메서드로 User → AdminListUsersResponse 변환
+            return userPage.map(user -> AdminListUsersResponse.builder()
+                    .userId(user.getUserId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .department(user.getDepartment())
+                    .phoneNumber(user.getPhoneNumber())
+                    .isAdmin(user.getIsAdmin())
+                    .enabled(user.getIsEnabled())
+                    .defaultProjectName(null)  // TODO: 프로젝트 이름 조회 필요시 추가
+                    .build());
+
         } finally {
             authModule.invalidateSystemAdminToken(adminToken);
         }
