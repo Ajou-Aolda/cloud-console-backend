@@ -41,7 +41,7 @@ public class KeypairSyncModule {
      * 매일 새벽 4시에 실행 (cron: 초 분 시 일 월 요일)
      */
     @Scheduled(cron = "0 0 4 * * *")
-    @SchedulerLock(name = "keypairSync", lockAtMostFor = "30m", lockAtLeastFor = "10m")
+    @SchedulerLock(name = "keypairSync", lockAtMostFor = "2h", lockAtLeastFor = "30m")
     @Transactional
     public void syncAllKeypairs() {
         log.info("Starting global keypair synchronization");

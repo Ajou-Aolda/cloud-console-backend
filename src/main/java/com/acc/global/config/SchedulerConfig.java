@@ -17,7 +17,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableScheduling
-@EnableSchedulerLock(defaultLockAtMostFor = "10m")
+@EnableSchedulerLock(defaultLockAtMostFor = "2h")
 public class SchedulerConfig {
 
     /**
