@@ -656,7 +656,7 @@ class AuthModuleTest {
                 .authType(0) // GOOGLE
                 .userEmail("hong@example.com")
                 .build();
-        when(userRepositoryPort.saveUserAuth(any(UserIdentityEntity.class)))
+        when(userRepositoryPort.saveUserIdentity(any(UserIdentityEntity.class)))
                 .thenReturn(savedUserAuthDetail);
 
         when(keystoneAPIExternalPort.getTokenObject(any())).thenReturn(
@@ -673,7 +673,7 @@ class AuthModuleTest {
         assertEquals(createdUserId, resultUserId);
         verify(keystoneAPIExternalPort).createUser(eq(adminToken), any());
         verify(userRepositoryPort).saveUserDetail(any(UserDbExtraEntity.class));
-        verify(userRepositoryPort).saveUserAuth(any(UserIdentityEntity.class));
+        verify(userRepositoryPort).saveUserIdentity(any(UserIdentityEntity.class));
         verify(keystoneAPIExternalPort).revokeToken(adminToken);
     }
 }

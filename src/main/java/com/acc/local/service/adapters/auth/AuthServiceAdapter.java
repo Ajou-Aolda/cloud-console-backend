@@ -1,7 +1,5 @@
 package com.acc.local.service.adapters.auth;
 
-import com.acc.global.exception.AccBaseException;
-import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.local.domain.enums.project.ProjectRole;
 import com.acc.local.domain.model.auth.RefreshToken;
 import com.acc.local.domain.model.auth.User;
@@ -10,7 +8,6 @@ import com.acc.local.domain.model.auth.UserToken;
 import com.acc.local.dto.auth.*;
 import com.acc.local.dto.project.ProjectServiceDto;
 import com.acc.local.dto.project.UserPermissionResponse;
-import com.acc.local.entity.UserDbExtraEntity;
 import com.acc.local.service.modules.auth.AuthModule;
 import com.acc.local.service.modules.auth.ProjectModule;
 import com.acc.local.service.modules.auth.UserModule;
@@ -134,21 +131,12 @@ public class AuthServiceAdapter implements AuthServicePort {
 
     @Override
     public LoginedUserProfileResponse getUserLoginedProfile(String userId, String projectId) {
+        String adminToken = authModule.issueSystemAdminToken("ROOT_getUserLoginedProfile");
+
         try {
-            String adminToken = authModule.issueSystemAdminToken("ROOT_getUserLoginedProfile");
-
-            // Module에서 User 도메인 모델 조회 (에러 시 null)
-            User user = null;
-            try {
-                user = userModule.getUserById(userId, adminToken);
-            } catch (AccBaseException e) {
-                if (!e.getErrorCode().equals(AuthErrorCode.USER_NOT_FOUND)) {
-                    throw e; // USER_NOT_FOUND가 아닌 다른 에러는 다시 throw
-                }
-                // USER_NOT_FOUND인 경우 null 유지
-            }
-
-            authModule.invalidateSystemAdminToken(adminToken);
+            // Module에서 User 도메인 모델 조회 (정합성 불일치 시 예외 발생)
+            //TODO: 추후 정합성 맞추는 Flow 필요시 진행
+            User user = userModule.getUserById(userId, adminToken);
 
             // projectId가 존재하면 프로젝트 정보 조회
             ProjectServiceDto projectServiceDto = null;
@@ -157,25 +145,13 @@ public class AuthServiceAdapter implements AuthServicePort {
                 projectServiceDto = projectModule.getProjectDetail(projectId, scopedToken);
             }
 
-            // User 객체를 사용해서 LoginedUserProfileResponse 생성
-            if (user != null) {
-                return LoginedUserProfileResponse.builder()
-                    .userName(user.getUsername())
-                    .univ(UnivDepartBriefDto.from(user))
-                    .project(projectServiceDto)
-                    .build();
-            }
-
-            // User가 없으면 UserDbExtraEntity로 fallback
-            UserDbExtraEntity userDbExtraEntity = userModule.adminGetUserDetailDB(userId);
             return LoginedUserProfileResponse.builder()
-                .userName(userDbExtraEntity.getUserName())
+                .userName(user.getUsername())
+                .univ(UnivDepartBriefDto.from(user))
                 .project(projectServiceDto)
                 .build();
-
-        } catch(Exception e) {
-            e.printStackTrace();
-            throw e;
+        } finally {
+            authModule.invalidateSystemAdminToken(adminToken);
         }
     }
 

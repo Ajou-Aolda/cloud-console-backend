@@ -11,7 +11,7 @@ public interface UserRepositoryPort {
 
     UserDbExtraEntity saveUserDetail(UserDbExtraEntity userDbExtraEntity);
 
-    UserIdentityEntity saveUserAuth(UserIdentityEntity userIdentityEntity);
+    UserIdentityEntity saveUserIdentity(UserIdentityEntity userIdentityEntity);
 
     Optional<UserDbExtraEntity> findUserDetailById(String userId);
 

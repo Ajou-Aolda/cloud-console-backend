@@ -83,7 +83,7 @@ class UserModuleTest {
                         .isAdmin(false)
                         .build());
 
-        when(userRepositoryPort.saveUserAuth(any()))
+        when(userRepositoryPort.saveUserIdentity(any()))
                 .thenReturn(UserIdentityEntity.builder()
                         .userId(newUserId)
                         .department("컴퓨터공학과")
@@ -211,11 +211,11 @@ class UserModuleTest {
 
 
     // ----------------------------------------------------
-    // DB UserDetail 없음 예외 테스트
+    // DB UserDetail 없음 예외 테스트 (정합성 불일치)
     // ----------------------------------------------------
     @Test
-    @DisplayName("ACC DB UserDetail 없음 → USER_NOT_FOUND 발생")
-    void whenUserDetailMissing_thenThrowException() throws Exception {
+    @DisplayName("Keystone에는 존재하지만 DB에 없음 → USER_DATA_INCONSISTENCY 발생")
+    void whenUserDetailMissing_thenThrowDataInconsistencyException() throws Exception {
 
         String userId = "uid-x";
         String token = "admin-token";
@@ -237,7 +237,7 @@ class UserModuleTest {
                 assertThrows(AuthServiceException.class,
                         () -> userModule.getUserById(userId, token));
 
-        assertEquals(AuthErrorCode.USER_NOT_FOUND, ex.getErrorCode());
+        assertEquals(AuthErrorCode.USER_DATA_INCONSISTENCY, ex.getErrorCode());
     }
 
 

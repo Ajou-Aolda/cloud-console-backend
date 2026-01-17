@@ -70,7 +70,7 @@ public class UserModule {
                 .authType(request.authType().getCode())
                 .userEmail(request.email())
                 .build();
-        userRepositoryPort.saveUserAuth(userIdentityEntity);
+        userRepositoryPort.saveUserIdentity(userIdentityEntity);
 
         return userIdentityId;
     }
@@ -118,7 +118,7 @@ public class UserModule {
                     .userEmail(request.email() != null ? request.email() : userAuthEntity.getUserEmail())
                     .build();
 
-            userRepositoryPort.saveUserAuth(updatedAuthEntity);
+            userRepositoryPort.saveUserIdentity(updatedAuthEntity);
         }
 
         return userId;
@@ -350,6 +350,7 @@ public class UserModule {
      * @param userId 조회할 사용자 ID
      * @param adminToken Keystone 조회에 사용할 관리자 토큰
      * @return 완전한 User 도메인 모델 (모든 필드가 채워짐)
+     * @throws AuthServiceException Keystone에는 존재하지만 DB에 없는 경우 정합성 에러 발생
      */
     @Transactional(readOnly = true)
     public User getUserById(String userId, String adminToken) {
@@ -357,9 +358,10 @@ public class UserModule {
         UserKeystoneDto userKeystoneDto = keystoneAPIExternalPort.getUserDetail(userId, adminToken);
 
         // 2. DB에서 사용자 정보 조회 (조인 쿼리로 한 번에 가져옴)
+        // Keystone에 존재하는데 DB에 없으면 정합성 불일치 에러
         UserDBDto userDBDto = userRepositoryPort.findUserDBByUserId(userId)
                 .orElseThrow(() -> new AuthServiceException(
-                        AuthErrorCode.USER_NOT_FOUND
+                        AuthErrorCode.USER_DATA_INCONSISTENCY
                 ));
 
         // 3. User 도메인 모델 생성 및 반환 (모든 필드가 완전히 채워짐)

@@ -29,7 +29,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public UserIdentityEntity saveUserAuth(UserIdentityEntity userIdentityEntity) {
+    public UserIdentityEntity saveUserIdentity(UserIdentityEntity userIdentityEntity) {
         return userAuthDetailJpaRepository.save(userIdentityEntity);
     }
 

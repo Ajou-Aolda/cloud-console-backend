@@ -485,7 +485,7 @@ public class AuthModule {
                     .authType(request.authType().getCode())
                     .userEmail(request.email())
                     .build();
-            userRepositoryPort.saveUserAuth(userIdentityEntity);
+            userRepositoryPort.saveUserIdentity(userIdentityEntity);
 
             return userId;
 
