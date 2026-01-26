@@ -1,5 +1,7 @@
 package com.acc.local.domain.model.auth;
 
+import com.acc.global.exception.auth.AuthEntityException;
+import com.acc.global.exception.auth.AuthErrorCode;
 import com.acc.local.domain.enums.auth.AuthType;
 import com.acc.local.dto.auth.UserKeystoneDto;
 import com.acc.local.entity.UserDbExtraEntity;
@@ -97,7 +99,7 @@ public class User {
         // 가장 최근 인증 정보 조회 (createdAt 기준)
         UserIdentityEntity latestIdentity = userIdentities.stream()
                 .max(Comparator.comparing(UserIdentityEntity::getCreatedAt))
-                .orElseThrow(() -> new IllegalArgumentException("인증 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new AuthEntityException(AuthErrorCode.NOT_FOUND_USER_AUTH_INFO));
 
         List<Identity> identityList = userIdentities.stream()
                 .map(Identity::from)
