@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,9 +39,21 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         return userDetailJpaRepository.findById(userId);
     }
 
+    // UserId로만 단일 조회시, 가장 최신의 UserIdentityEntity를 조회하도록 설정.
     @Override
     public Optional<UserIdentityEntity> findUserAuthById(String userId) {
-        return userAuthDetailJpaRepository.findById(userId);
+        return userAuthDetailJpaRepository.findByIdUserId(userId).stream()
+                .max(Comparator.comparing(UserIdentityEntity::getCreatedAt));
+    }
+
+    @Override
+    public List<UserIdentityEntity> findUserAuthsByUserId(String userId) {
+        return userAuthDetailJpaRepository.findByIdUserId(userId);
+    }
+
+    @Override
+    public Optional<UserIdentityEntity> findUserAuthByIdAndAuthType(String userId, Integer authType) {
+        return userAuthDetailJpaRepository.findByIdUserIdAndIdAuthType(userId, authType);
     }
 
     @Override
@@ -50,17 +63,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public List<UserIdentityEntity> findUserAuthsByIds(List<String> userIds) {
-        return userAuthDetailJpaRepository.findAllById(userIds);
-    }
-
-    @Override
-    public void deleteUserDetailById(String userId) {
-        userDetailJpaRepository.deleteById(userId);
-    }
-
-    @Override
-    public void deleteUserAuthById(String userId) {
-        userAuthDetailJpaRepository.deleteById(userId);
+        return userAuthDetailJpaRepository.findByIdUserIdIn(userIds);
     }
 
     @Override
