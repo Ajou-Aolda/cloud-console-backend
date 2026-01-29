@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserAuthDetailJpaRepository extends JpaRepository<UserIdentityEntity, UserIdentityId> {
+public interface UserIdentityJpaRepository extends JpaRepository<UserIdentityEntity, UserIdentityId> {
 
     List<UserIdentityEntity> findByIdUserId(String userId);
 
