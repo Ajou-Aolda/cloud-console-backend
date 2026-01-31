@@ -17,7 +17,7 @@ acc:
 resilience4j:
   circuitbreaker:
     configs:
-      default:
+      default-config:
         slidingWindowType: COUNT_BASED
         slidingWindowSize: 50
         minimumNumberOfCalls: 20
@@ -32,42 +32,42 @@ resilience4j:
 
     instances:
       cb-default:
-        baseConfig: default
+        baseConfig: default-config
 
       cb-keystone:
-        baseConfig: default
+        baseConfig: default-config
         failureRateThreshold: 40
         waitDurationInOpenState: 3s
 
       cb-glance:
-        baseConfig: default
+        baseConfig: default-config
         failureRateThreshold: 45
         waitDurationInOpenState: 3s
 
       cb-nova:
-        baseConfig: default
+        baseConfig: default-config
         failureRateThreshold: 55
         waitDurationInOpenState: 5s
 
       cb-cinder:
-        baseConfig: default
+        baseConfig: default-config
         failureRateThreshold: 55
         waitDurationInOpenState: 5s
 
       cb-neutron:
-        baseConfig: default
+        baseConfig: default-config
         failureRateThreshold: 55
         waitDurationInOpenState: 5s
 
       cb-apm:
-        baseConfig: default
+        baseConfig: default-config
         slidingWindowSize: 10
         minimumNumberOfCalls: 5
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
 
       cb-discord:
-        baseConfig: default
+        baseConfig: default-config
         slidingWindowType: COUNT_BASED
         slidingWindowSize: 20
         minimumNumberOfCalls: 20
@@ -77,7 +77,7 @@ resilience4j:
         automaticTransitionFromOpenToHalfOpenEnabled: true
 
       cb-email:
-        baseConfig: default
+        baseConfig: default-config
         slidingWindowType: COUNT_BASED
         slidingWindowSize: 30
         minimumNumberOfCalls: 20
@@ -104,10 +104,6 @@ resilience4j:
 
       # write는 원칙적으로 OFF(=1회) 유지
       default-post:
-        maxAttempts: 1
-        waitDuration: 0ms
-
-      default-write:
         maxAttempts: 1
         waitDuration: 0ms
 
