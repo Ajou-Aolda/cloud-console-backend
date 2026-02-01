@@ -40,10 +40,6 @@ public class JwtUtils {
 
 
     public String generateToken(String userId) {
-        return generateToken(userId, null);
-    }
-
-    public String generateToken(String userId, String projectId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getExpirationMs());
 
@@ -55,10 +51,6 @@ public class JwtUtils {
                 .expiration(expiryDate);
 
         // projectId가 있으면 Claims에 추가
-        if (projectId != null) {
-            builder.claim("projectId", projectId);
-        }
-
         return builder.signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }

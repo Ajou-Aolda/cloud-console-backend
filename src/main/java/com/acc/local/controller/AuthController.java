@@ -117,7 +117,7 @@ public class AuthController implements AuthDocs {
         return ResponseEntity.ok(loginResponse);
     }
 
-
+    @Deprecated
     @Override
     public ResponseEntity<ProjectTokenResponse> issueProjectToken(
             @RequestBody @Validated ProjectTokenRequest request,

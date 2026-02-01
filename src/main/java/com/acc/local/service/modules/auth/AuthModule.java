@@ -281,7 +281,7 @@ public class AuthModule {
      * 기존 UserTokenEntity의 jwtToken만 업데이트 (Keystone 호출 없음)
      */
     @Transactional
-    public UserToken issueProjectScopedToken(String userId, String projectId) {
+    public UserToken issueProjectScopedToken(String userId) {
 
         UserTokenEntity existingTokenEntity = getAvailUserTokenEntities(userId).getFirst();
 
@@ -290,7 +290,7 @@ public class AuthModule {
 
         UserToken existingUserToken = UserToken.from(existingTokenEntity);
 
-        String newJwtToken = jwtUtils.generateToken(userId, projectId);
+        String newJwtToken = jwtUtils.generateToken(userId);
 
         // 5. Domain Model 업데이트 (새로운 UserToken 생성)
         UserToken updatedToken = UserToken.updateJwtWithProjectId(existingUserToken , newJwtToken , jwtUtils.calculateExpirationDateTime());
@@ -418,7 +418,7 @@ public class AuthModule {
         keystoneAPIExternalPort.revokeToken(oldKeystoneToken);
 
         // 5. 새로운 JWT Access Token 발급 (projectId 포함)
-        String newAccessToken = jwtUtils.generateToken(userId, projectId);
+        String newAccessToken = jwtUtils.generateToken(userId);
 
         // 6. 새로운 UserToken 생성 및 저장
         UserToken newUserToken = UserToken.updateKeystoneByRefreshToken(existingUserToken, newAccessToken, newKeystoneToken, userId, jwtUtils.calculateExpirationDateTime());
