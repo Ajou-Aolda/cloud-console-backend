@@ -57,7 +57,7 @@ public class UserToken {
     }
 
 
-    public static UserToken updateJwtWithProjectId(UserToken existingUserToken, String newJwtToken ,LocalDateTime expiresAt) {
+    public static UserToken updateJwt(UserToken existingUserToken, String newJwtToken, LocalDateTime expiresAt) {
         return UserToken.builder()
                 .id(existingUserToken.getId())
                 .userId(existingUserToken.getUserId())

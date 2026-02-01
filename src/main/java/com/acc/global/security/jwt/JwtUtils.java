@@ -50,7 +50,6 @@ public class JwtUtils {
                 .issuedAt(now)
                 .expiration(expiryDate);
 
-        // projectId가 있으면 Claims에 추가
         return builder.signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -73,14 +72,6 @@ public class JwtUtils {
         return claims.getSubject();
     }
 
-    public String getProjectIdFromToken(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            return claims.get("projectId", String.class);
-        } catch (Exception e) {
-            return null; // projectId가 없을 수 있음
-        }
-    }
 
     /**
      * 만료된 토큰에서도 projectId 추출

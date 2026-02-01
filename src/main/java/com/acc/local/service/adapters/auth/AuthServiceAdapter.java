@@ -90,6 +90,7 @@ public class AuthServiceAdapter implements AuthServicePort {
     }
 
     @Override
+    @Deprecated
     public ProjectTokenResponse issueProjectAccessToken(String userId, String projectId) {
         // Module에서 UserToken 받기
         UserToken userToken = authModule.issueProjectScopedToken(userId, projectId);
