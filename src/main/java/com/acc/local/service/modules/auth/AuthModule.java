@@ -276,28 +276,6 @@ public class AuthModule {
         return createRefreshToken(userId);
     }
 
-    /**
-     * @deprecated projectId 기반 토큰 발급은 더 이상 사용되지 않습니다. 단일 토큰 구조로 전환되었습니다.
-     */
-    @Deprecated
-    @Transactional
-    public UserToken issueProjectScopedToken(String userId,  String projectId) {
-
-        UserTokenEntity existingTokenEntity = getAvailUserTokenEntities(userId).getFirst();
-
-        checkUnscopedTokenExpired(existingTokenEntity);
-
-        UserToken existingUserToken = UserToken.from(existingTokenEntity);
-
-        String newJwtToken = jwtUtils.generateToken(userId);
-
-        UserToken updatedToken = UserToken.updateJwt(existingUserToken, newJwtToken, jwtUtils.calculateExpirationDateTime());
-
-        UserTokenEntity savedEntity = userTokenRepositoryPort.save(updatedToken.toEntity());
-
-        return UserToken.from(savedEntity);
-    }
-
     private UserToken createUserToken(String userId, KeystoneToken keystoneToken) {
         String accessToken = jwtUtils.generateToken(userId);
 
@@ -399,7 +377,7 @@ public class AuthModule {
         // 1. 기존 UserToken 조회
         UserTokenEntity existingTokenEntity = getAvailUserTokenEntities(userId).getFirst();
         UserToken existingUserToken = UserToken.from(existingTokenEntity);
-        log.info("[Refresh Token] userId: {}, projectId: {}", userId);
+        log.info("[Refresh Token] userId: {}", userId);
 
         // 2. 기존 Keystone Token으로 새로운 Keystone Unscoped Token 발급
         String oldKeystoneToken = existingTokenEntity.getKeystoneUnscopedToken();
