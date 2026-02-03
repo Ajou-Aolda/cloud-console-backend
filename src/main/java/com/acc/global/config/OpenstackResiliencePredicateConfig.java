@@ -1,123 +1,92 @@
 package com.acc.global.config;
 
+import io.github.resilience4j.common.circuitbreaker.configuration.CircuitBreakerConfigCustomizer;
+import io.github.resilience4j.common.retry.configuration.RetryConfigCustomizer;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.retry.RetryConfig;
-import io.github.resilience4j.retry.RetryRegistry;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import java.util.Optional;
+
 import java.util.function.Predicate;
 
-/**
- * 목적:
- * - 기존 yml 기반(횟수/윈도우/대기시간/임계치) 유지
- * - HTTP 응답(WebClientResponseException)만 코드로 분기해 정책을 더 정교하게 적용
-
- * 정책:
- * - CircuitBreaker:
- *   - 4xx는 failure로 기록하지 않음 (ignore)
- *   - 5xx도 전부 record 하지 않음
- *     -> 500/502/503/504만 failure로 기록 (record)
- *     -> 그 외 5xx(501/505/507 등)는 record 하지 않음 (ignore)
- *   - 네트워크/타임아웃/IO는 기존 yml recordExceptions 그대로 유지
-
- * - Retry:
- *   - 기존 yml retryExceptions 그대로 유지 (네트워크/타임아웃/IO 중심)
- *   - HTTP 응답(WebClientResponseException)은 4xx는 retry 하지 않음
- *   - Get류에 한해서 500/502/503/504만 retry 허용
- *     -> 그 외 5xx는 retry 하지 않음
- */
 @Slf4j
 @Configuration
-@RequiredArgsConstructor
 public class OpenstackResiliencePredicateConfig {
 
-    private final CircuitBreakerRegistry circuitBreakerRegistry;
-    private final RetryRegistry retryRegistry;
+    private static final String CB_DEFAULT_CONFIG = "default-config";
+    private static final String RETRY_DEFAULT_GET_CONFIG = "default-get";
 
-    @PostConstruct
-    public void patchResilience4jConfigs() {
-
-        patchCircuitBreakerConfig("default-config");
-        patchRetryConfig("default-get");
-//        patchRetryConfig("default-post");
-        log.info("[RESILIENCE-PREDICATE] patched: cbConfigs=[default-config], retryConfigs=[default-get]");
+    /**
+     * CircuitBreaker: 블랙리스트 전략
+     * 적용 대상: configs.default-config
+     *  - instances.* 는 baseConfig로 default-config를 참조하므로 전부 동일 정책 적용됨
+     */
+    @Bean
+    public CircuitBreakerConfigCustomizer openstackCircuitBreakerCustomizer() {
+        return CircuitBreakerConfigCustomizer.of(CB_DEFAULT_CONFIG, this::customizeCircuitBreakerDefault);
     }
 
-    private void patchCircuitBreakerConfig(String configName) {
-        Optional<CircuitBreakerConfig> opt = circuitBreakerRegistry.getConfiguration(configName);
-        if (opt.isEmpty()) {
-            log.warn("[RESILIENCE-PREDICATE] CircuitBreaker config '{}' not found. skip", configName);
-            return;
-        }
+    private void customizeCircuitBreakerDefault(CircuitBreakerConfig.Builder builder) {
+        // HTTP 응답 중 "무시할 것"을 ignore로 정의 (블랙리스트)
+        builder.ignoreException(ignoreHttpForCircuitBreaker());
 
-        CircuitBreakerConfig base = opt.get();
-        Predicate<Throwable> basePredicate = base.getRecordExceptionPredicate();
+//        // 정책 적용 확인 로그
+//        log.info("[RESILIENCE-PREDICATE][CB] config={} policy=ignore 4xx, ignore non-500/502/503/504 5xx",
+//                CB_DEFAULT_CONFIG);
+    }
 
-        // 4xx ignore, 5xx record, 그 외는 기존 yml recordExceptions predicate로 판단
-        Predicate<Throwable> patchedPredicate = t -> {
-            if (t instanceof WebClientResponseException wcre) {
-                return isShouldRecord(wcre);
-            }
-            return basePredicate.test(t);
+    /**
+     * Retry: 블랙리스트 전략 (기본은 retry)
+     *  적용 대상: configs.default-get
+     * - instances.*-get 은 baseConfig로 default-get를 참조하므로 전부 동일 정책 적용됨
+     */
+    @Bean
+    public RetryConfigCustomizer openstackRetryGetCustomizer() {
+        return RetryConfigCustomizer.of(RETRY_DEFAULT_GET_CONFIG, this::customizeRetryDefaultGet);
+    }
+
+    private void customizeRetryDefaultGet(RetryConfig.Builder builder) {
+        builder.retryOnException(retryOnHttpForRetry());
+//        // 정책 적용 확인 로그
+//        log.info("[RESILIENCE-PREDICATE][RETRY] config={} policy=retry only 500/502/503/504 for 5xx; never retry 4xx",
+//                RETRY_DEFAULT_GET_CONFIG);
+    }
+
+    /**
+     * CircuitBreaker ignore predicate:
+     * - return true  => ignore (failure 기록 X)
+     * - return false => record 대상으로 남김
+     */
+    private Predicate<Throwable> ignoreHttpForCircuitBreaker() {
+        return t -> {
+            if (!(t instanceof WebClientResponseException wcre)) return false;
+
+            var sc = wcre.getStatusCode();
+            if (sc.is4xxClientError()) return true;
+            if (sc.is5xxServerError()) return (!shouldRecord5xx(sc.value()));
+            return false;
         };
-
-        CircuitBreakerConfig patched = CircuitBreakerConfig.from(base)
-                .recordException(patchedPredicate)
-                .build();
-
-
-        Predicate<Throwable> before = base.getRecordExceptionPredicate();
-
-        circuitBreakerRegistry.addConfiguration(configName, patched);
-
-        Predicate<Throwable> after =
-                circuitBreakerRegistry.getConfiguration(configName).orElseThrow()
-                        .getRecordExceptionPredicate();
-        log.info(
-                "[CB-CONFIG-PRED] config={} beforeId={} afterId={} changed={}",
-                configName,
-                System.identityHashCode(before),
-                System.identityHashCode(after),
-                before != after
-        );
-        log.info("[RESILIENCE-PREDICATE] CircuitBreaker config '{}' patched (record 500/502/503/504 for 5xx; otherwise keep yml)", configName);
     }
 
-    private void patchRetryConfig(String configName) {
-        Optional<RetryConfig> opt = retryRegistry.getConfiguration(configName);
-        if (opt.isEmpty()) {
-            log.warn("[RESILIENCE-PREDICATE] Retry config '{}' not found. skip", configName);
-            return;
-        }
-
-        RetryConfig base = opt.get();
-        Predicate<Throwable> basePredicate = base.getExceptionPredicate();
-
-        Predicate<Throwable> patchedPredicate = t -> {
-            if (t instanceof WebClientResponseException wcre) {
-                return isShouldRecord(wcre);
+    /**
+     * Retry predicate:
+     * - return true  => retry 한다
+     * - return false => retry 안 한다
+     * - HTTP 응답이 아닌 예외는 기본 true
+     */
+    private Predicate<Throwable> retryOnHttpForRetry() {
+        return t -> {
+            if (!(t instanceof WebClientResponseException wcre)) {
+                // HTTP 응답 아닌 예외는 retry 허용(블랙리스트 전략)
+                return true;
             }
-            return basePredicate.test(t);
+            var sc = wcre.getStatusCode();
+            if (sc.is4xxClientError()) return false;
+            if (sc.is5xxServerError()) return shouldRecord5xx(sc.value());
+            return false;
         };
-
-        RetryConfig patched = RetryConfig.from(base)
-                .retryOnException(patchedPredicate)
-                .build();
-
-        retryRegistry.addConfiguration(configName, patched);
-        log.info("[RESILIENCE-PREDICATE] Retry config '{}' patched (retry only 500/502/503/504 for 5xx; otherwise keep yml)", configName);
-    }
-
-    private boolean isShouldRecord(WebClientResponseException wcre) {
-        var sc = wcre.getStatusCode();
-        if (sc.is4xxClientError()) return false;
-        if (sc.is5xxServerError()) return shouldRecord5xx(sc.value());
-        return false;
     }
 
     private boolean shouldRecord5xx(int code) {
