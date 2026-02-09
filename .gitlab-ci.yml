@@ -173,7 +173,8 @@ update_compose_image:
     FULL_IMAGE="docker.io/$DOCKERHUB_REPO:$CI_COMMIT_SHORT_SHA"
 
     # prod-deploy-manifest 레포 클론
-    DEPLOY_REPO="https://git.ajou.ac.kr/aolda/aolda-prod-deploy-manifest.git"
+    if [ -z "${DEPLOY_REPO:-}" ]; then
+      echo "[error] Missing CI variable: DEPLOY_REPO (e.g. https://git.ajou.ac.kr/aolda/aolda-prod-deploy-manifest.git)" >&2; exit 1; fi
     GITOPS_USERNAME="${GITOPS_USERNAME:-${GIT_PUSH_USERNAME:-gitlab-ci-token}}"
     AUTH_B64=$(printf "%s:%s" "$GITOPS_USERNAME" "$GITOPS_TOKEN" | base64 | tr -d '\n')
     rm -rf deploy-manifest && mkdir -p deploy-manifest
