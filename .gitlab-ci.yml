@@ -33,6 +33,7 @@ build:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "chore/#118/portainer-cd"'  # TODO: 테스트 후 제거
 
   artifacts:
     when: always
