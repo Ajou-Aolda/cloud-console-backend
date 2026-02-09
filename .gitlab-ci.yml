@@ -33,7 +33,7 @@ build:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "chore/#118/portainer-cd"'  # TODO: 테스트 후 제거
+
 
   artifacts:
     when: always
@@ -96,7 +96,7 @@ kaniko_build_image:
   # 기본 브랜치 + 필수 변수 있으면 자동, 그 외 manual
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "chore/#118/portainer-cd"'  # TODO: 테스트 후 제거
+
 
 # [주석 처리] 기존 K8s 매니페스트 이미지 태그 갱신 (GitOps 커밋)
 # update_manifest_image:
@@ -199,4 +199,4 @@ update_compose_image:
     git -c http.extraHeader="Authorization: Basic $AUTH_B64" push origin HEAD
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "chore/#118/portainer-cd"'  # TODO: 테스트 후 제거
+
