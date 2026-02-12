@@ -17,7 +17,7 @@ public interface AdminProjectServicePort {
 
 	PageResponse<ProjectRequestResponse> getProjectRequests(String keyword, PageRequest pageRequest, String requestUserId);
 
-	void applyProjectRequestDecisions(List<String> projectRequestIds, ProjectRequestStatus decision, String rejectReason, String decideUserId);
+	List<String> applyProjectRequestDecisions(List<String> projectRequestIds, ProjectRequestStatus decision, String rejectReason, String decideUserId);
 
 	CreateProjectResponse createProject(CreateProjectRequest createProjectRequest, String userId);
 
