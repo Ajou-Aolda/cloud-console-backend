@@ -127,7 +127,7 @@ public class AdminProjectServiceAdapter implements AdminProjectServicePort {
 
 	@Override
 	@Transactional
-	public void applyProjectRequestDecision(
+	public void applyProjectRequestDecisions(
 		List<String> projectRequestIds,
 		ProjectRequestStatus decision,
 		String rejectReason,
