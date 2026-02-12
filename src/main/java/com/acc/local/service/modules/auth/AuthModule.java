@@ -181,7 +181,7 @@ public class AuthModule {
 
             return scopedToken.token();
         } catch (KeystoneException e) {
-            if (e.getErrorCode().equals(AuthErrorCode.KEYSTONE_TOKEN_EXTRACTION_FAILED)) {
+            if (e.getErrorCode().equals(AuthErrorCode.UNAUTHORIZED)) {
                 throw new AuthServiceException(AuthErrorCode.PROJECT_NOT_FOUND);
             }
             throw e;
@@ -198,7 +198,7 @@ public class AuthModule {
     private List<UserTokenEntity> getAvailUserTokenEntities(String userId) {
         List<UserTokenEntity> userTokens = userTokenRepositoryPort.findAllByUserIdAndIsActiveTrue(userId);
         if (userTokens.isEmpty()) {
-            throw new JwtAuthenticationException(AuthErrorCode.NOT_FOUND_ACC_TOKEN);
+            throw new JwtAuthenticationException(AuthErrorCode.NOT_FOUND_ACC_TOKEN); // TODO: 에러 핸들링 적합여부 확인필요
         }
 
         return userTokens;
