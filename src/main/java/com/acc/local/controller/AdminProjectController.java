@@ -80,7 +80,7 @@ public class AdminProjectController implements AdminProjectDocs {
 		String userId = jwtInfo.getUserId();
 
 		PageResponse<ProjectRequestResponse> response = adminProjectServicePort.getProjectRequests(keyword, pageable, userId);
-		return ResponseEntity.status(201).body(response);
+		return ResponseEntity.status(200).body(response);
 	}
 
 	@Override
