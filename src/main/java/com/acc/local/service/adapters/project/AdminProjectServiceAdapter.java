@@ -53,6 +53,8 @@ public class AdminProjectServiceAdapter implements AdminProjectServicePort {
 			authModule.invalidateSystemAdminToken(adminToken);
 			e.printStackTrace();
 			throw e;
+		} finally {
+			authModule.invalidateSystemAdminToken(adminToken);
 		}
 	}
 
@@ -72,7 +74,6 @@ public class AdminProjectServiceAdapter implements AdminProjectServicePort {
 		String projectOwnerScopedToken = authModule.issueProjectScopeToken(createdProjectId, projectOwnerId);
 		neutronModule.createDefaultNetwork(projectOwnerScopedToken);
 
-		authModule.invalidateSystemAdminToken(adminToken);
 		return CreateProjectResponse.from(createdProject, quota);
 	}
 
